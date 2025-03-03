@@ -30,7 +30,6 @@
 
 #include "asset_library_editor_plugin.h"
 
-#include "core/input/input.h"
 #include "core/io/json.h"
 #include "core/io/stream_peer_tls.h"
 #include "core/os/keyboard.h"
@@ -44,6 +43,7 @@
 #include "editor/project_settings_editor.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/menu_button.h"
+#include "scene/gui/separator.h"
 #include "scene/resources/image_texture.h"
 
 static inline void setup_http_request(HTTPRequest *request) {
@@ -212,12 +212,12 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
 						// Overlay and thumbnail need the same format for `blend_rect` to work.
 						thumbnail->convert(Image::FORMAT_RGBA8);
 						thumbnail->blend_rect(overlay, overlay->get_used_rect(), overlay_pos);
-						preview_images[i].button->set_icon(ImageTexture::create_from_image(thumbnail));
+						preview_images[i].button->set_button_icon(ImageTexture::create_from_image(thumbnail));
 
 						// Make it clearer that clicking it will open an external link
 						preview_images[i].button->set_default_cursor_shape(Control::CURSOR_POINTING_HAND);
 					} else {
-						preview_images[i].button->set_icon(p_image);
+						preview_images[i].button->set_button_icon(p_image);
 					}
 					break;
 				}
@@ -302,7 +302,7 @@ void EditorAssetLibraryItemDescription::add_preview(int p_id, bool p_video, cons
 	new_preview.video_link = p_url;
 	new_preview.is_video = p_video;
 	new_preview.button = memnew(Button);
-	new_preview.button->set_icon(previews->get_editor_theme_icon(SNAME("ThumbnailWait")));
+	new_preview.button->set_button_icon(previews->get_editor_theme_icon(SNAME("ThumbnailWait")));
 	new_preview.button->set_toggle_mode(true);
 	new_preview.button->connect(SceneStringName(pressed), callable_mp(this, &EditorAssetLibraryItemDescription::_preview_click).bind(p_id));
 	preview_hb->add_child(new_preview.button);
@@ -446,7 +446,7 @@ void EditorAssetLibraryItemDownload::configure(const String &p_title, int p_asse
 	title->set_text(p_title);
 	icon->set_texture(p_preview);
 	asset_id = p_asset_id;
-	if (!p_preview.is_valid()) {
+	if (p_preview.is_null()) {
 		icon->set_texture(get_editor_theme_icon(SNAME("FileBrokenBigThumb")));
 	}
 	host = p_download_url;
@@ -907,7 +907,7 @@ void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, cons
 			for (int i = 0; i < headers.size(); i++) {
 				if (headers[i].findn("ETag:") == 0) { // Save etag
 					String cache_filename_base = EditorPaths::get_singleton()->get_cache_dir().path_join("assetimage_" + image_queue[p_queue_id].image_url.md5_text());
-					String new_etag = headers[i].substr(headers[i].find(":") + 1, headers[i].length()).strip_edges();
+					String new_etag = headers[i].substr(headers[i].find_char(':') + 1, headers[i].length()).strip_edges();
 					Ref<FileAccess> file = FileAccess::open(cache_filename_base + ".etag", FileAccess::WRITE);
 					if (file.is_valid()) {
 						file->store_line(new_etag);
@@ -1782,7 +1782,7 @@ bool AssetLibraryEditorPlugin::is_available() {
 	// directly from GitHub which does not set CORS.
 	return false;
 #else
-	return StreamPeerTLS::is_available();
+	return StreamPeerTLS::is_available() && !Engine::get_singleton()->is_recovery_mode_hint();
 #endif
 }
 

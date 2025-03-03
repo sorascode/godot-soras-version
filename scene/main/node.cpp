@@ -120,10 +120,6 @@ void Node::_notification(int p_notification) {
 			}
 #endif
 
-			if (data.auto_translate_mode != AUTO_TRANSLATE_MODE_DISABLED) {
-				notification(NOTIFICATION_TRANSLATION_CHANGED);
-			}
-
 			if (data.input) {
 				add_to_group("_vp_input" + itos(get_viewport()->get_instance_id()));
 			}
@@ -144,6 +140,12 @@ void Node::_notification(int p_notification) {
 			// (this is to save the user from doing this manually each time).
 			if (get_tree()->is_physics_interpolation_enabled()) {
 				_set_physics_interpolation_reset_requested(true);
+			}
+		} break;
+
+		case NOTIFICATION_POST_ENTER_TREE: {
+			if (data.auto_translate_mode != AUTO_TRANSLATE_MODE_DISABLED) {
+				notification(NOTIFICATION_TRANSLATION_CHANGED);
 			}
 		} break;
 
@@ -184,6 +186,7 @@ void Node::_notification(int p_notification) {
 			}
 		} break;
 
+		case NOTIFICATION_SUSPENDED:
 		case NOTIFICATION_PAUSED: {
 			if (is_physics_interpolated_and_enabled() && is_inside_tree()) {
 				reset_physics_interpolation();
@@ -675,6 +678,8 @@ void Node::set_process_mode(ProcessMode p_mode) {
 	if (Engine::get_singleton()->is_editor_hint()) {
 		get_tree()->emit_signal(SNAME("tree_process_mode_changed"));
 	}
+
+	_emit_editor_state_changed();
 #endif
 }
 
@@ -691,6 +696,16 @@ void Node::_propagate_pause_notification(bool p_enable) {
 	data.blocked++;
 	for (KeyValue<StringName, Node *> &K : data.children) {
 		K.value->_propagate_pause_notification(p_enable);
+	}
+	data.blocked--;
+}
+
+void Node::_propagate_suspend_notification(bool p_enable) {
+	notification(p_enable ? NOTIFICATION_SUSPENDED : NOTIFICATION_UNSUSPENDED);
+
+	data.blocked++;
+	for (KeyValue<StringName, Node *> &KV : data.children) {
+		KV.value->_propagate_suspend_notification(p_enable);
 	}
 	data.blocked--;
 }
@@ -850,7 +865,7 @@ bool Node::can_process_notification(int p_what) const {
 
 bool Node::can_process() const {
 	ERR_FAIL_COND_V(!is_inside_tree(), false);
-	return _can_process(get_tree()->is_paused());
+	return !get_tree()->is_suspended() && _can_process(get_tree()->is_paused());
 }
 
 bool Node::_can_process(bool p_paused) const {
@@ -906,12 +921,12 @@ void Node::set_physics_interpolation_mode(PhysicsInterpolationMode p_mode) {
 		} break;
 	}
 
-	// If swapping from interpolated to non-interpolated, use this as an extra means to cause a reset.
-	if (is_physics_interpolated() && !interpolate && is_inside_tree()) {
+	_propagate_physics_interpolated(interpolate);
+
+	// Auto-reset on changing interpolation mode.
+	if (is_physics_interpolated() && is_inside_tree()) {
 		propagate_notification(NOTIFICATION_RESET_PHYSICS_INTERPOLATION);
 	}
-
-	_propagate_physics_interpolated(interpolate);
 }
 
 void Node::reset_physics_interpolation() {
@@ -2150,6 +2165,7 @@ void Node::set_unique_name_in_owner(bool p_enabled) {
 	}
 
 	update_configuration_warnings();
+	_emit_editor_state_changed();
 }
 
 bool Node::is_unique_name_in_owner() const {
@@ -2187,6 +2203,8 @@ void Node::set_owner(Node *p_owner) {
 	if (data.unique_name_in_owner) {
 		_acquire_unique_name_in_owner();
 	}
+
+	_emit_editor_state_changed();
 }
 
 Node *Node::get_owner() const {
@@ -2370,6 +2388,9 @@ void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 	gd.persistent = p_persistent;
 
 	data.grouped[p_identifier] = gd;
+	if (p_persistent) {
+		_emit_editor_state_changed();
+	}
 }
 
 void Node::remove_from_group(const StringName &p_identifier) {
@@ -2380,11 +2401,21 @@ void Node::remove_from_group(const StringName &p_identifier) {
 		return;
 	}
 
+#ifdef TOOLS_ENABLED
+	bool persistent = E->value.persistent;
+#endif
+
 	if (data.tree) {
 		data.tree->remove_from_group(E->key, this);
 	}
 
 	data.grouped.remove(E);
+
+#ifdef TOOLS_ENABLED
+	if (persistent) {
+		_emit_editor_state_changed();
+	}
+#endif
 }
 
 TypedArray<StringName> Node::_get_groups() const {
@@ -2547,6 +2578,7 @@ Ref<Tween> Node::create_tween() {
 void Node::set_scene_file_path(const String &p_scene_file_path) {
 	ERR_THREAD_GUARD
 	data.scene_file_path = p_scene_file_path;
+	_emit_editor_state_changed();
 }
 
 String Node::get_scene_file_path() const {
@@ -2579,6 +2611,8 @@ void Node::set_editable_instance(Node *p_node, bool p_editable) {
 	} else {
 		p_node->data.editable_instance = true;
 	}
+
+	p_node->_emit_editor_state_changed();
 }
 
 bool Node::is_editable_instance(const Node *p_node) const {
@@ -2689,6 +2723,7 @@ Ref<SceneState> Node::get_scene_instance_state() const {
 void Node::set_scene_inherited_state(const Ref<SceneState> &p_state) {
 	ERR_THREAD_GUARD
 	data.inherited_state = p_state;
+	_emit_editor_state_changed();
 }
 
 Ref<SceneState> Node::get_scene_inherited_state() const {
@@ -2937,6 +2972,14 @@ void Node::remap_nested_resources(Ref<Resource> p_resource, const HashMap<Ref<Re
 		}
 	}
 }
+
+void Node::_emit_editor_state_changed() {
+	// This is required for the SceneTreeEditor to properly keep track of when an update is needed.
+	// This signal might be expensive and not needed for anything outside of the editor.
+	if (Engine::get_singleton()->is_editor_hint()) {
+		emit_signal(SNAME("editor_state_changed"));
+	}
+}
 #endif
 
 // Duplicate node's properties.
@@ -3044,11 +3087,12 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
 				if (copy && copytarget && E.callable.get_method() != StringName()) {
 					Callable copy_callable = Callable(copytarget, E.callable.get_method());
 					if (!copy->is_connected(E.signal.get_name(), copy_callable)) {
-						int arg_count = E.callable.get_bound_arguments_count();
-						if (arg_count > 0) {
+						int unbound_arg_count = E.callable.get_unbound_arguments_count();
+						if (unbound_arg_count > 0) {
+							copy_callable = copy_callable.unbind(unbound_arg_count);
+						}
+						if (E.callable.get_bound_arguments_count() > 0) {
 							copy_callable = copy_callable.bindv(E.callable.get_bound_arguments());
-						} else if (arg_count < 0) {
-							copy_callable = copy_callable.unbind(-arg_count);
 						}
 						copy->connect(E.signal.get_name(), copy_callable, E.flags);
 					}
@@ -3829,6 +3873,7 @@ void Node::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("child_order_changed"));
 	ADD_SIGNAL(MethodInfo("replacing_by", PropertyInfo(Variant::OBJECT, "node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "Node")));
 	ADD_SIGNAL(MethodInfo("editor_description_changed", PropertyInfo(Variant::OBJECT, "node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "Node")));
+	ADD_SIGNAL(MethodInfo("editor_state_changed"));
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_name", "get_name");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "unique_name_in_owner", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_unique_name_in_owner", "is_unique_name_in_owner");
@@ -3952,11 +3997,13 @@ bool Node::has_meta(const StringName &p_name) const {
 void Node::set_meta(const StringName &p_name, const Variant &p_value) {
 	ERR_THREAD_GUARD;
 	Object::set_meta(p_name, p_value);
+	_emit_editor_state_changed();
 }
 
 void Node::remove_meta(const StringName &p_name) {
 	ERR_THREAD_GUARD;
 	Object::remove_meta(p_name);
+	_emit_editor_state_changed();
 }
 
 Variant Node::get_meta(const StringName &p_name, const Variant &p_default) const {
@@ -4006,12 +4053,33 @@ void Node::get_signals_connected_to_this(List<Connection> *p_connections) const 
 
 Error Node::connect(const StringName &p_signal, const Callable &p_callable, uint32_t p_flags) {
 	ERR_THREAD_GUARD_V(ERR_INVALID_PARAMETER);
-	return Object::connect(p_signal, p_callable, p_flags);
+
+	Error retval = Object::connect(p_signal, p_callable, p_flags);
+#ifdef TOOLS_ENABLED
+	if (p_flags & CONNECT_PERSIST) {
+		_emit_editor_state_changed();
+	}
+#endif
+
+	return retval;
 }
 
 void Node::disconnect(const StringName &p_signal, const Callable &p_callable) {
 	ERR_THREAD_GUARD;
+
+#ifdef TOOLS_ENABLED
+	// Already under thread guard, don't check again.
+	int old_connection_count = Object::get_persistent_signal_connection_count();
+#endif
+
 	Object::disconnect(p_signal, p_callable);
+
+#ifdef TOOLS_ENABLED
+	int new_connection_count = Object::get_persistent_signal_connection_count();
+	if (old_connection_count != new_connection_count) {
+		_emit_editor_state_changed();
+	}
+#endif
 }
 
 bool Node::is_connected(const StringName &p_signal, const Callable &p_callable) const {

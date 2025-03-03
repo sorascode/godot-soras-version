@@ -32,7 +32,6 @@
 #define NODE_H
 
 #include "core/string/node_path.h"
-#include "core/templates/rb_map.h"
 #include "core/variant/typed_array.h"
 #include "scene/main/scene_tree.h"
 #include "scene/scene_string_names.h"
@@ -300,6 +299,7 @@ private:
 
 	void _set_tree(SceneTree *p_tree);
 	void _propagate_pause_notification(bool p_enable);
+	void _propagate_suspend_notification(bool p_enable);
 
 	_FORCE_INLINE_ bool _can_process(bool p_paused) const;
 	_FORCE_INLINE_ bool _is_enabled() const;
@@ -329,6 +329,13 @@ private:
 
 	Variant _call_deferred_thread_group_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 	Variant _call_thread_safe_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+
+	// Editor only signal to keep the SceneTreeEditor in sync.
+#ifdef TOOLS_ENABLED
+	void _emit_editor_state_changed();
+#else
+	void _emit_editor_state_changed() {}
+#endif
 
 protected:
 	void _block() { data.blocked++; }
@@ -424,6 +431,7 @@ public:
 		NOTIFICATION_WM_DPI_CHANGE = 1009,
 		NOTIFICATION_VP_MOUSE_ENTER = 1010,
 		NOTIFICATION_VP_MOUSE_EXIT = 1011,
+		NOTIFICATION_WM_POSITION_CHANGED = 1012,
 
 		NOTIFICATION_OS_MEMORY_WARNING = MainLoop::NOTIFICATION_OS_MEMORY_WARNING,
 		NOTIFICATION_TRANSLATION_CHANGED = MainLoop::NOTIFICATION_TRANSLATION_CHANGED,
@@ -439,6 +447,8 @@ public:
 		// Editor specific node notifications
 		NOTIFICATION_EDITOR_PRE_SAVE = 9001,
 		NOTIFICATION_EDITOR_POST_SAVE = 9002,
+		NOTIFICATION_SUSPENDED = 9003,
+		NOTIFICATION_UNSUSPENDED = 9004
 	};
 
 	/* NODE/TREE */
@@ -743,8 +753,13 @@ public:
 	virtual void set_translation_domain(const StringName &p_domain) override;
 	void set_translation_domain_inherited();
 
-	_FORCE_INLINE_ String atr(const String p_message, const StringName p_context = "") const { return can_auto_translate() ? tr(p_message, p_context) : p_message; }
-	_FORCE_INLINE_ String atr_n(const String p_message, const StringName &p_message_plural, int p_n, const StringName p_context = "") const { return can_auto_translate() ? tr_n(p_message, p_message_plural, p_n, p_context) : p_message; }
+	_FORCE_INLINE_ String atr(const String &p_message, const StringName &p_context = "") const { return can_auto_translate() ? tr(p_message, p_context) : p_message; }
+	_FORCE_INLINE_ String atr_n(const String &p_message, const StringName &p_message_plural, int p_n, const StringName &p_context = "") const {
+		if (can_auto_translate()) {
+			return tr_n(p_message, p_message_plural, p_n, p_context);
+		}
+		return p_n == 1 ? p_message : String(p_message_plural);
+	}
 
 	/* THREADING */
 

@@ -40,11 +40,15 @@
 
 class Node;
 
-#define RES_BASE_EXTENSION(m_ext)                                                                                   \
-public:                                                                                                             \
-	static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(m_ext, get_class_static()); } \
-	virtual String get_base_extension() const override { return m_ext; }                                            \
-                                                                                                                    \
+#define RES_BASE_EXTENSION(m_ext)                                        \
+public:                                                                  \
+	static void register_custom_data_to_otdb() {                         \
+		ClassDB::add_resource_base_extension(m_ext, get_class_static()); \
+	}                                                                    \
+	virtual String get_base_extension() const override {                 \
+		return m_ext;                                                    \
+	}                                                                    \
+                                                                         \
 private:
 
 class Resource : public RefCounted {
@@ -114,6 +118,7 @@ public:
 	virtual void set_path_cache(const String &p_path); // Set raw path without involving resource cache.
 	_FORCE_INLINE_ bool is_built_in() const { return path_cache.is_empty() || path_cache.contains("::") || path_cache.begins_with("local://"); }
 
+	static void seed_scene_unique_id(uint32_t p_seed);
 	static String generate_scene_unique_id();
 	void set_scene_unique_id(const String &p_id);
 	String get_scene_unique_id() const;

@@ -30,14 +30,10 @@
 
 #include "resource.h"
 
-#include "core/io/file_access.h"
 #include "core/io/resource_loader.h"
 #include "core/math/math_funcs.h"
-#include "core/object/script_language.h"
 #include "core/os/os.h"
 #include "scene/main/node.h" //only so casting works
-
-#include <stdio.h>
 
 void Resource::emit_changed() {
 	if (ResourceLoader::is_within_load() && !Thread::is_main_thread()) {
@@ -76,7 +72,7 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
 				existing->path_cache = String();
 				ResourceCache::resources.erase(p_path);
 			} else {
-				ERR_FAIL_MSG("Another resource is loaded from path '" + p_path + "' (possible cyclic resource inclusion).");
+				ERR_FAIL_MSG(vformat("Another resource is loaded from path '%s' (possible cyclic resource inclusion).", p_path));
 			}
 		}
 
@@ -99,31 +95,42 @@ void Resource::set_path_cache(const String &p_path) {
 	GDVIRTUAL_CALL(_set_path_cache, p_path);
 }
 
+static thread_local RandomPCG unique_id_gen(0, RandomPCG::DEFAULT_INC);
+
+void Resource::seed_scene_unique_id(uint32_t p_seed) {
+	unique_id_gen.seed(p_seed);
+}
+
 String Resource::generate_scene_unique_id() {
 	// Generate a unique enough hash, but still user-readable.
 	// If it's not unique it does not matter because the saver will try again.
-	OS::DateTime dt = OS::get_singleton()->get_datetime();
-	uint32_t hash = hash_murmur3_one_32(OS::get_singleton()->get_ticks_usec());
-	hash = hash_murmur3_one_32(dt.year, hash);
-	hash = hash_murmur3_one_32(dt.month, hash);
-	hash = hash_murmur3_one_32(dt.day, hash);
-	hash = hash_murmur3_one_32(dt.hour, hash);
-	hash = hash_murmur3_one_32(dt.minute, hash);
-	hash = hash_murmur3_one_32(dt.second, hash);
-	hash = hash_murmur3_one_32(Math::rand(), hash);
+	if (unique_id_gen.get_seed() == 0) {
+		OS::DateTime dt = OS::get_singleton()->get_datetime();
+		uint32_t hash = hash_murmur3_one_32(OS::get_singleton()->get_ticks_usec());
+		hash = hash_murmur3_one_32(dt.year, hash);
+		hash = hash_murmur3_one_32(dt.month, hash);
+		hash = hash_murmur3_one_32(dt.day, hash);
+		hash = hash_murmur3_one_32(dt.hour, hash);
+		hash = hash_murmur3_one_32(dt.minute, hash);
+		hash = hash_murmur3_one_32(dt.second, hash);
+		hash = hash_murmur3_one_32(Math::rand(), hash);
+		unique_id_gen.seed(hash);
+	}
+
+	uint32_t random_num = unique_id_gen.rand();
 
 	static constexpr uint32_t characters = 5;
 	static constexpr uint32_t char_count = ('z' - 'a');
 	static constexpr uint32_t base = char_count + ('9' - '0');
 	String id;
 	for (uint32_t i = 0; i < characters; i++) {
-		uint32_t c = hash % base;
+		uint32_t c = random_num % base;
 		if (c < char_count) {
 			id += String::chr('a' + c);
 		} else {
 			id += String::chr('0' + (c - char_count));
 		}
-		hash /= base;
+		random_num /= base;
 	}
 
 	return id;
@@ -224,7 +231,7 @@ void Resource::reload_from_file() {
 
 	Ref<Resource> s = ResourceLoader::load(ResourceLoader::path_remap(path), get_class(), ResourceFormatLoader::CACHE_MODE_IGNORE);
 
-	if (!s.is_valid()) {
+	if (s.is_null()) {
 		return;
 	}
 
@@ -645,7 +652,7 @@ Ref<Resource> ResourceCache::get_ref(const String &p_path) {
 			ref = Ref<Resource>(*res);
 		}
 
-		if (res && !ref.is_valid()) {
+		if (res && ref.is_null()) {
 			// This resource is in the process of being deleted, ignore its existence
 			(*res)->path_cache = String();
 			resources.erase(p_path);
@@ -664,7 +671,7 @@ void ResourceCache::get_cached_resources(List<Ref<Resource>> *p_resources) {
 	for (KeyValue<String, Resource *> &E : resources) {
 		Ref<Resource> ref = Ref<Resource>(E.value);
 
-		if (!ref.is_valid()) {
+		if (ref.is_null()) {
 			// This resource is in the process of being deleted, ignore its existence
 			E.value->path_cache = String();
 			to_remove.push_back(E.key);

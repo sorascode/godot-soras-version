@@ -373,7 +373,7 @@ void GroupsEditor::_notification(int p_what) {
 		} break;
 		case NOTIFICATION_THEME_CHANGED: {
 			filter->set_right_icon(get_editor_theme_icon("Search"));
-			add->set_icon(get_editor_theme_icon("Add"));
+			add->set_button_icon(get_editor_theme_icon("Add"));
 			_update_tree();
 		} break;
 		case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -832,8 +832,8 @@ GroupsEditor::GroupsEditor() {
 	node = nullptr;
 	scene_tree = SceneTree::get_singleton();
 
-	ED_SHORTCUT("groups_editor/delete", TTR("Delete"), Key::KEY_DELETE);
-	ED_SHORTCUT("groups_editor/rename", TTR("Rename"), Key::F2);
+	ED_SHORTCUT("groups_editor/delete", TTRC("Delete"), Key::KEY_DELETE);
+	ED_SHORTCUT("groups_editor/rename", TTRC("Rename"), Key::F2);
 	ED_SHORTCUT_OVERRIDE("groups_editor/rename", "macos", Key::ENTER);
 
 	HBoxContainer *hbc = memnew(HBoxContainer);

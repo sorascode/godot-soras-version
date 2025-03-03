@@ -190,7 +190,7 @@ void TabContainer::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_VISIBILITY_CHANGED: {
-			if (!is_visible() || setup_current_tab > -2) {
+			if (!is_visible()) {
 				return;
 			}
 
@@ -200,7 +200,7 @@ void TabContainer::_notification(int p_what) {
 			// beat it to the punch and make sure that the correct node is the only one visible first.
 			// Otherwise, it can prevent a tab change done right before this container was made visible.
 			Vector<Control *> controls = _get_tab_controls();
-			int current = get_current_tab();
+			int current = setup_current_tab > -2 ? setup_current_tab : get_current_tab();
 			for (int i = 0; i < controls.size(); i++) {
 				controls[i]->set_visible(i == current);
 			}
@@ -365,7 +365,7 @@ void TabContainer::_on_mouse_exited() {
 Vector<Control *> TabContainer::_get_tab_controls() const {
 	Vector<Control *> controls;
 	for (int i = 0; i < get_child_count(); i++) {
-		Control *control = as_sortable_control(get_child(i), SortableVisbilityMode::IGNORE);
+		Control *control = as_sortable_control(get_child(i), SortableVisibilityMode::IGNORE);
 		if (!control || control == tab_bar || children_removing.has(control)) {
 			continue;
 		}
@@ -542,7 +542,7 @@ void TabContainer::add_child_notify(Node *p_child) {
 		return;
 	}
 
-	Control *c = as_sortable_control(p_child, SortableVisbilityMode::IGNORE);
+	Control *c = as_sortable_control(p_child, SortableVisibilityMode::IGNORE);
 	if (!c) {
 		return;
 	}
@@ -572,7 +572,7 @@ void TabContainer::move_child_notify(Node *p_child) {
 		return;
 	}
 
-	Control *c = as_sortable_control(p_child, SortableVisbilityMode::IGNORE);
+	Control *c = as_sortable_control(p_child, SortableVisibilityMode::IGNORE);
 	if (c) {
 		tab_bar->move_tab(c->get_meta("_tab_index"), get_tab_idx_from_control(c));
 	}
@@ -587,7 +587,7 @@ void TabContainer::remove_child_notify(Node *p_child) {
 		return;
 	}
 
-	Control *c = as_sortable_control(p_child, SortableVisbilityMode::IGNORE);
+	Control *c = as_sortable_control(p_child, SortableVisibilityMode::IGNORE);
 	if (!c) {
 		return;
 	}
@@ -761,6 +761,7 @@ void TabContainer::set_all_tabs_in_front(bool p_in_front) {
 
 	remove_child(tab_bar);
 	add_child(tab_bar, false, all_tabs_in_front ? INTERNAL_MODE_FRONT : INTERNAL_MODE_BACK);
+	tab_bar->force_parent_owned();
 }
 
 bool TabContainer::is_all_tabs_in_front() const {

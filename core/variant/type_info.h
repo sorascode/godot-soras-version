@@ -321,10 +321,12 @@ struct ZeroInitializer<T *> {
 	static void initialize(T *&value) { value = nullptr; }
 };
 
-#define ZERO_INITIALIZER_NUMBER(m_type)                      \
-	template <>                                              \
-	struct ZeroInitializer<m_type> {                         \
-		static void initialize(m_type &value) { value = 0; } \
+#define ZERO_INITIALIZER_NUMBER(m_type)         \
+	template <>                                 \
+	struct ZeroInitializer<m_type> {            \
+		static void initialize(m_type &value) { \
+			value = 0;                          \
+		}                                       \
 	};
 
 ZERO_INITIALIZER_NUMBER(uint8_t)

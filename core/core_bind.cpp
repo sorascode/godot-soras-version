@@ -35,8 +35,6 @@
 #include "core/crypto/crypto_core.h"
 #include "core/debugger/engine_debugger.h"
 #include "core/debugger/script_debugger.h"
-#include "core/io/file_access_compressed.h"
-#include "core/io/file_access_encrypted.h"
 #include "core/io/marshalls.h"
 #include "core/math/geometry_2d.h"
 #include "core/math/geometry_3d.h"
@@ -75,7 +73,7 @@ Ref<Resource> ResourceLoader::load(const String &p_path, const String &p_type_hi
 	Error err = OK;
 	Ref<Resource> ret = ::ResourceLoader::load(p_path, p_type_hint, ResourceFormatLoader::CacheMode(p_cache_mode), &err);
 
-	ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + p_path + "'.");
+	ERR_FAIL_COND_V_MSG(err != OK, ret, vformat("Error loading resource: '%s'.", p_path));
 	return ret;
 }
 
@@ -115,12 +113,12 @@ PackedStringArray ResourceLoader::get_dependencies(const String &p_path) {
 }
 
 bool ResourceLoader::has_cached(const String &p_path) {
-	String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+	String local_path = ::ResourceLoader::_validate_local_path(p_path);
 	return ResourceCache::has(local_path);
 }
 
 Ref<Resource> ResourceLoader::get_cached_ref(const String &p_path) {
-	String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+	String local_path = ::ResourceLoader::_validate_local_path(p_path);
 	return ResourceCache::get_ref(local_path);
 }
 
@@ -130,6 +128,10 @@ bool ResourceLoader::exists(const String &p_path, const String &p_type_hint) {
 
 ResourceUID::ID ResourceLoader::get_resource_uid(const String &p_path) {
 	return ::ResourceLoader::get_resource_uid(p_path);
+}
+
+Vector<String> ResourceLoader::list_directory(const String &p_directory) {
+	return ::ResourceLoader::list_directory(p_directory);
 }
 
 void ResourceLoader::_bind_methods() {
@@ -147,6 +149,7 @@ void ResourceLoader::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_cached_ref", "path"), &ResourceLoader::get_cached_ref);
 	ClassDB::bind_method(D_METHOD("exists", "path", "type_hint"), &ResourceLoader::exists, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("get_resource_uid", "path"), &ResourceLoader::get_resource_uid);
+	ClassDB::bind_method(D_METHOD("list_directory", "directory_path"), &ResourceLoader::list_directory);
 
 	BIND_ENUM_CONSTANT(THREAD_LOAD_INVALID_RESOURCE);
 	BIND_ENUM_CONSTANT(THREAD_LOAD_IN_PROGRESS);
@@ -303,8 +306,24 @@ Error OS::shell_show_in_file_manager(const String &p_path, bool p_open_folder) {
 	return ::OS::get_singleton()->shell_show_in_file_manager(p_path, p_open_folder);
 }
 
-String OS::read_string_from_stdin() {
-	return ::OS::get_singleton()->get_stdin_string();
+String OS::read_string_from_stdin(int64_t p_buffer_size) {
+	return ::OS::get_singleton()->get_stdin_string(p_buffer_size);
+}
+
+PackedByteArray OS::read_buffer_from_stdin(int64_t p_buffer_size) {
+	return ::OS::get_singleton()->get_stdin_buffer(p_buffer_size);
+}
+
+OS::StdHandleType OS::get_stdin_type() const {
+	return (OS::StdHandleType)::OS::get_singleton()->get_stdin_type();
+}
+
+OS::StdHandleType OS::get_stdout_type() const {
+	return (OS::StdHandleType)::OS::get_singleton()->get_stdout_type();
+}
+
+OS::StdHandleType OS::get_stderr_type() const {
+	return (OS::StdHandleType)::OS::get_singleton()->get_stderr_type();
 }
 
 int OS::execute(const String &p_path, const Vector<String> &p_arguments, Array r_output, bool p_read_stderr, bool p_open_console) {
@@ -403,6 +422,10 @@ String OS::get_version() const {
 	return ::OS::get_singleton()->get_version();
 }
 
+String OS::get_version_alias() const {
+	return ::OS::get_singleton()->get_version_alias();
+}
+
 Vector<String> OS::get_video_adapter_driver_info() const {
 	return ::OS::get_singleton()->get_video_adapter_driver_info();
 }
@@ -468,11 +491,11 @@ Error OS::set_thread_name(const String &p_name) {
 
 ::Thread::ID OS::get_thread_caller_id() const {
 	return ::Thread::get_caller_id();
-};
+}
 
 ::Thread::ID OS::get_main_thread_id() const {
 	return ::Thread::get_main_id();
-};
+}
 
 bool OS::has_feature(const String &p_feature) const {
 	const bool *value_ptr = feature_cache.getptr(p_feature);
@@ -556,6 +579,11 @@ String OS::get_cache_dir() const {
 	return ::OS::get_singleton()->get_cache_path();
 }
 
+String OS::get_temp_dir() const {
+	// Exposed as `get_temp_dir()` instead of `get_temp_path()` for consistency with other exposed OS methods.
+	return ::OS::get_singleton()->get_temp_path();
+}
+
 bool OS::is_debug_build() const {
 #ifdef DEBUG_ENABLED
 	return true;
@@ -628,7 +656,13 @@ void OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_system_font_path", "font_name", "weight", "stretch", "italic"), &OS::get_system_font_path, DEFVAL(400), DEFVAL(100), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("get_system_font_path_for_text", "font_name", "text", "locale", "script", "weight", "stretch", "italic"), &OS::get_system_font_path_for_text, DEFVAL(String()), DEFVAL(String()), DEFVAL(400), DEFVAL(100), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("get_executable_path"), &OS::get_executable_path);
-	ClassDB::bind_method(D_METHOD("read_string_from_stdin"), &OS::read_string_from_stdin);
+
+	ClassDB::bind_method(D_METHOD("read_string_from_stdin", "buffer_size"), &OS::read_string_from_stdin);
+	ClassDB::bind_method(D_METHOD("read_buffer_from_stdin", "buffer_size"), &OS::read_buffer_from_stdin);
+	ClassDB::bind_method(D_METHOD("get_stdin_type"), &OS::get_stdin_type);
+	ClassDB::bind_method(D_METHOD("get_stdout_type"), &OS::get_stdout_type);
+	ClassDB::bind_method(D_METHOD("get_stderr_type"), &OS::get_stderr_type);
+
 	ClassDB::bind_method(D_METHOD("execute", "path", "arguments", "output", "read_stderr", "open_console"), &OS::execute, DEFVAL_ARRAY, DEFVAL(false), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("execute_with_pipe", "path", "arguments", "blocking"), &OS::execute_with_pipe, DEFVAL(true));
 	ClassDB::bind_method(D_METHOD("create_process", "path", "arguments", "open_console"), &OS::create_process, DEFVAL(false));
@@ -648,6 +682,7 @@ void OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_name"), &OS::get_name);
 	ClassDB::bind_method(D_METHOD("get_distribution_name"), &OS::get_distribution_name);
 	ClassDB::bind_method(D_METHOD("get_version"), &OS::get_version);
+	ClassDB::bind_method(D_METHOD("get_version_alias"), &OS::get_version_alias);
 	ClassDB::bind_method(D_METHOD("get_cmdline_args"), &OS::get_cmdline_args);
 	ClassDB::bind_method(D_METHOD("get_cmdline_user_args"), &OS::get_cmdline_user_args);
 
@@ -678,6 +713,7 @@ void OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_config_dir"), &OS::get_config_dir);
 	ClassDB::bind_method(D_METHOD("get_data_dir"), &OS::get_data_dir);
 	ClassDB::bind_method(D_METHOD("get_cache_dir"), &OS::get_cache_dir);
+	ClassDB::bind_method(D_METHOD("get_temp_dir"), &OS::get_temp_dir);
 	ClassDB::bind_method(D_METHOD("get_unique_id"), &OS::get_unique_id);
 
 	ClassDB::bind_method(D_METHOD("get_keycode_string", "code"), &OS::get_keycode_string);
@@ -720,6 +756,12 @@ void OS::_bind_methods() {
 	BIND_ENUM_CONSTANT(SYSTEM_DIR_MUSIC);
 	BIND_ENUM_CONSTANT(SYSTEM_DIR_PICTURES);
 	BIND_ENUM_CONSTANT(SYSTEM_DIR_RINGTONES);
+
+	BIND_ENUM_CONSTANT(STD_HANDLE_INVALID);
+	BIND_ENUM_CONSTANT(STD_HANDLE_CONSOLE);
+	BIND_ENUM_CONSTANT(STD_HANDLE_FILE);
+	BIND_ENUM_CONSTANT(STD_HANDLE_PIPE);
+	BIND_ENUM_CONSTANT(STD_HANDLE_UNKNOWN);
 }
 
 ////// Geometry2D //////
@@ -920,6 +962,19 @@ Dictionary Geometry2D::make_atlas(const Vector<Size2> &p_rects) {
 	return ret;
 }
 
+TypedArray<Point2i> Geometry2D::bresenham_line(const Point2i &p_from, const Point2i &p_to) {
+	Vector<Point2i> points = ::Geometry2D::bresenham_line(p_from, p_to);
+
+	TypedArray<Point2i> result;
+	result.resize(points.size());
+
+	for (int i = 0; i < points.size(); i++) {
+		result[i] = points[i];
+	}
+
+	return result;
+}
+
 void Geometry2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_point_in_circle", "point", "circle_position", "circle_radius"), &Geometry2D::is_point_in_circle);
 	ClassDB::bind_method(D_METHOD("segment_intersects_circle", "segment_from", "segment_to", "circle_position", "circle_radius"), &Geometry2D::segment_intersects_circle);
@@ -953,6 +1008,8 @@ void Geometry2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("offset_polyline", "polyline", "delta", "join_type", "end_type"), &Geometry2D::offset_polyline, DEFVAL(JOIN_SQUARE), DEFVAL(END_SQUARE));
 
 	ClassDB::bind_method(D_METHOD("make_atlas", "sizes"), &Geometry2D::make_atlas);
+
+	ClassDB::bind_method(D_METHOD("bresenham_line", "from", "to"), &Geometry2D::bresenham_line);
 
 	BIND_ENUM_CONSTANT(OPERATION_UNION);
 	BIND_ENUM_CONSTANT(OPERATION_DIFFERENCE);
@@ -1300,7 +1357,7 @@ void Thread::_start_func(void *ud) {
 	}
 
 	if (ce.error != Callable::CallError::CALL_OK) {
-		ERR_FAIL_MSG("Could not call function '" + func_name + "' to start thread " + t->get_id() + ": " + Variant::get_callable_error_text(t->target_callable, nullptr, 0, ce) + ".");
+		ERR_FAIL_MSG(vformat("Could not call function '%s' to start thread %d: %s.", func_name, t->get_id(), Variant::get_callable_error_text(t->target_callable, nullptr, 0, ce)));
 	}
 }
 
@@ -1525,7 +1582,7 @@ TypedArray<Dictionary> ClassDB::class_get_method_list(const StringName &p_class,
 	return ret;
 }
 
-Variant ClassDB::class_call_static_method(const Variant **p_arguments, int p_argcount, Callable::CallError &r_call_error) {
+Variant ClassDB::class_call_static(const Variant **p_arguments, int p_argcount, Callable::CallError &r_call_error) {
 	if (p_argcount < 2) {
 		r_call_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
 		return Variant::NIL;
@@ -1666,7 +1723,7 @@ void ClassDB::_bind_methods() {
 
 	::ClassDB::bind_method(D_METHOD("class_get_method_list", "class", "no_inheritance"), &ClassDB::class_get_method_list, DEFVAL(false));
 
-	::ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "class_call_static_method", &ClassDB::class_call_static_method, MethodInfo("class_call_static_method", PropertyInfo(Variant::STRING_NAME, "class"), PropertyInfo(Variant::STRING_NAME, "method")));
+	::ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "class_call_static", &ClassDB::class_call_static, MethodInfo("class_call_static", PropertyInfo(Variant::STRING_NAME, "class"), PropertyInfo(Variant::STRING_NAME, "method")));
 
 	::ClassDB::bind_method(D_METHOD("class_get_integer_constant_list", "class", "no_inheritance"), &ClassDB::class_get_integer_constant_list, DEFVAL(false));
 
@@ -1799,8 +1856,8 @@ Object *Engine::get_singleton_object(const StringName &p_name) const {
 }
 
 void Engine::register_singleton(const StringName &p_name, Object *p_object) {
-	ERR_FAIL_COND_MSG(has_singleton(p_name), "Singleton already registered: " + String(p_name));
-	ERR_FAIL_COND_MSG(!String(p_name).is_valid_ascii_identifier(), "Singleton name is not a valid identifier: " + p_name);
+	ERR_FAIL_COND_MSG(has_singleton(p_name), vformat("Singleton already registered: '%s'.", String(p_name)));
+	ERR_FAIL_COND_MSG(!String(p_name).is_valid_ascii_identifier(), vformat("Singleton name is not a valid identifier: '%s'.", p_name));
 	::Engine::Singleton s;
 	s.class_name = p_name;
 	s.name = p_name;
@@ -1810,8 +1867,8 @@ void Engine::register_singleton(const StringName &p_name, Object *p_object) {
 }
 
 void Engine::unregister_singleton(const StringName &p_name) {
-	ERR_FAIL_COND_MSG(!has_singleton(p_name), "Attempt to remove unregistered singleton: " + String(p_name));
-	ERR_FAIL_COND_MSG(!::Engine::get_singleton()->is_singleton_user_created(p_name), "Attempt to remove non-user created singleton: " + String(p_name));
+	ERR_FAIL_COND_MSG(!has_singleton(p_name), vformat("Attempt to remove unregistered singleton: '%s'.", String(p_name)));
+	ERR_FAIL_COND_MSG(!::Engine::get_singleton()->is_singleton_user_created(p_name), vformat("Attempt to remove non-user created singleton: '%s'.", String(p_name)));
 	::Engine::get_singleton()->remove_singleton(p_name);
 }
 
@@ -1847,6 +1904,10 @@ void Engine::set_editor_hint(bool p_enabled) {
 
 bool Engine::is_editor_hint() const {
 	return ::Engine::get_singleton()->is_editor_hint();
+}
+
+bool Engine::is_embedded_in_editor() const {
+	return ::Engine::get_singleton()->is_embedded_in_editor();
 }
 
 String Engine::get_write_movie_path() const {
@@ -1926,6 +1987,7 @@ void Engine::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_script_language", "index"), &Engine::get_script_language);
 
 	ClassDB::bind_method(D_METHOD("is_editor_hint"), &Engine::is_editor_hint);
+	ClassDB::bind_method(D_METHOD("is_embedded_in_editor"), &Engine::is_embedded_in_editor);
 
 	ClassDB::bind_method(D_METHOD("get_write_movie_path"), &Engine::get_write_movie_path);
 
@@ -1955,14 +2017,14 @@ bool EngineDebugger::is_active() {
 void EngineDebugger::register_profiler(const StringName &p_name, Ref<EngineProfiler> p_profiler) {
 	ERR_FAIL_COND(p_profiler.is_null());
 	ERR_FAIL_COND_MSG(p_profiler->is_bound(), "Profiler already registered.");
-	ERR_FAIL_COND_MSG(profilers.has(p_name) || has_profiler(p_name), "Profiler name already in use: " + p_name);
+	ERR_FAIL_COND_MSG(profilers.has(p_name) || has_profiler(p_name), vformat("Profiler name already in use: '%s'.", p_name));
 	Error err = p_profiler->bind(p_name);
-	ERR_FAIL_COND_MSG(err != OK, "Profiler failed to register with error: " + itos(err));
+	ERR_FAIL_COND_MSG(err != OK, vformat("Profiler failed to register with error: %d.", err));
 	profilers.insert(p_name, p_profiler);
 }
 
 void EngineDebugger::unregister_profiler(const StringName &p_name) {
-	ERR_FAIL_COND_MSG(!profilers.has(p_name), "Profiler not registered: " + p_name);
+	ERR_FAIL_COND_MSG(!profilers.has(p_name), vformat("Profiler not registered: '%s'.", p_name));
 	profilers[p_name]->unbind();
 	profilers.erase(p_name);
 }
@@ -1986,7 +2048,7 @@ void EngineDebugger::profiler_enable(const StringName &p_name, bool p_enabled, c
 }
 
 void EngineDebugger::register_message_capture(const StringName &p_name, const Callable &p_callable) {
-	ERR_FAIL_COND_MSG(captures.has(p_name) || has_capture(p_name), "Capture already registered: " + p_name);
+	ERR_FAIL_COND_MSG(captures.has(p_name) || has_capture(p_name), vformat("Capture already registered: '%s'.", p_name));
 	captures.insert(p_name, p_callable);
 	Callable &c = captures[p_name];
 	::EngineDebugger::Capture capture(&c, &EngineDebugger::call_capture);
@@ -1994,7 +2056,7 @@ void EngineDebugger::register_message_capture(const StringName &p_name, const Ca
 }
 
 void EngineDebugger::unregister_message_capture(const StringName &p_name) {
-	ERR_FAIL_COND_MSG(!captures.has(p_name), "Capture not registered: " + p_name);
+	ERR_FAIL_COND_MSG(!captures.has(p_name), vformat("Capture not registered: '%s'.", p_name));
 	::EngineDebugger::unregister_message_capture(p_name);
 	captures.erase(p_name);
 }
@@ -2028,8 +2090,8 @@ Error EngineDebugger::call_capture(void *p_user, const String &p_cmd, const Arra
 	Variant retval;
 	Callable::CallError err;
 	capture.callp(args, 2, retval, err);
-	ERR_FAIL_COND_V_MSG(err.error != Callable::CallError::CALL_OK, FAILED, "Error calling 'capture' to callable: " + Variant::get_callable_error_text(capture, args, 2, err));
-	ERR_FAIL_COND_V_MSG(retval.get_type() != Variant::BOOL, FAILED, "Error calling 'capture' to callable: " + String(capture) + ". Return type is not bool.");
+	ERR_FAIL_COND_V_MSG(err.error != Callable::CallError::CALL_OK, FAILED, vformat("Error calling 'capture' to callable: %s.", Variant::get_callable_error_text(capture, args, 2, err)));
+	ERR_FAIL_COND_V_MSG(retval.get_type() != Variant::BOOL, FAILED, vformat("Error calling 'capture' to callable: '%s'. Return type is not bool.", String(capture)));
 	r_captured = retval;
 	return OK;
 }

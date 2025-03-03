@@ -28,7 +28,7 @@ layout(location = 11) in vec4 weight_attrib;
 
 layout(location = 4) out flat uint instance_index_interp;
 
-#endif // USE_ATTRIBUTES
+#endif // !USE_ATTRIBUTES
 
 layout(location = 0) out vec2 uv_interp;
 layout(location = 1) out vec4 color_interp;
@@ -101,7 +101,7 @@ void main() {
 
 	vec2 vertex = vertex_attrib;
 	vec4 color = color_attrib;
-	if (bool(draw_data.flags & FLAGS_CONVERT_ATTRIBUTES_TO_LINEAR)) {
+	if (bool(canvas_data.flags & CANVAS_FLAGS_CONVERT_ATTRIBUTES_TO_LINEAR)) {
 		color.rgb = srgb_to_linear(color.rgb);
 	}
 	color *= draw_data.modulation;
@@ -122,7 +122,7 @@ void main() {
 	vec2 vertex_base_arr[4] = vec2[](vec2(0.0, 0.0), vec2(0.0, 1.0), vec2(1.0, 1.0), vec2(1.0, 0.0));
 	vec2 vertex_base = vertex_base_arr[gl_VertexIndex];
 
-	vec2 uv = draw_data.src_rect.xy + abs(draw_data.src_rect.zw) * ((draw_data.flags & FLAGS_TRANSPOSE_RECT) != 0 ? vertex_base.yx : vertex_base.xy);
+	vec2 uv = draw_data.src_rect.xy + abs(draw_data.src_rect.zw) * ((draw_data.flags & INSTANCE_FLAGS_TRANSPOSE_RECT) != 0 ? vertex_base.yx : vertex_base.xy);
 	vec4 color = draw_data.modulation;
 	vec2 vertex = draw_data.dst_rect.xy + abs(draw_data.dst_rect.zw) * mix(vertex_base, vec2(1.0, 1.0) - vertex_base, lessThan(draw_data.src_rect.zw, vec2(0.0, 0.0)));
 	uvec4 bones = uvec4(0, 0, 0, 0);
@@ -133,7 +133,7 @@ void main() {
 
 #ifdef USE_ATTRIBUTES
 
-	uint instancing = draw_data.flags & FLAGS_INSTANCING_MASK;
+	uint instancing = params.batch_flags & BATCH_FLAGS_INSTANCING_MASK;
 
 	if (instancing > 1) {
 		// trails
@@ -172,19 +172,19 @@ void main() {
 		vertex = new_vertex;
 		color *= pcolor;
 	} else if (instancing == 1) {
-		uint stride = 2 + bitfieldExtract(draw_data.flags, FLAGS_INSTANCING_HAS_COLORS_SHIFT, 1) + bitfieldExtract(draw_data.flags, FLAGS_INSTANCING_HAS_CUSTOM_DATA_SHIFT, 1);
+		uint stride = 2 + bitfieldExtract(params.batch_flags, BATCH_FLAGS_INSTANCING_HAS_COLORS_SHIFT, 1) + bitfieldExtract(params.batch_flags, BATCH_FLAGS_INSTANCING_HAS_CUSTOM_DATA_SHIFT, 1);
 
 		uint offset = stride * gl_InstanceIndex;
 
 		mat4 matrix = mat4(transforms.data[offset + 0], transforms.data[offset + 1], vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0));
 		offset += 2;
 
-		if (bool(draw_data.flags & FLAGS_INSTANCING_HAS_COLORS)) {
+		if (bool(params.batch_flags & BATCH_FLAGS_INSTANCING_HAS_COLORS)) {
 			color *= transforms.data[offset];
 			offset += 1;
 		}
 
-		if (bool(draw_data.flags & FLAGS_INSTANCING_HAS_CUSTOM_DATA)) {
+		if (bool(params.batch_flags & BATCH_FLAGS_INSTANCING_HAS_CUSTOM_DATA)) {
 			instance_custom = transforms.data[offset];
 		}
 
@@ -193,9 +193,7 @@ void main() {
 	}
 #endif // USE_ATTRIBUTES
 
-#ifdef USE_POINT_SIZE
 	float point_size = 1.0;
-#endif
 
 #ifdef USE_WORLD_VERTEX_COORDS
 	vertex = (model_matrix * vec4(vertex, 0.0, 1.0)).xy;
@@ -324,11 +322,7 @@ vec4 light_compute(
 #ifdef USE_NINEPATCH
 
 float map_ninepatch_axis(float pixel, float draw_size, float tex_pixel_size, float margin_begin, float margin_end, int np_repeat, inout int draw_center) {
-#ifdef USE_ATTRIBUTES
-	const InstanceData draw_data = instances.data[params.base_instance_index];
-#else
 	const InstanceData draw_data = instances.data[instance_index];
-#endif // USE_ATTRIBUTES
 
 	float tex_size = 1.0 / tex_pixel_size;
 
@@ -337,7 +331,7 @@ float map_ninepatch_axis(float pixel, float draw_size, float tex_pixel_size, flo
 	} else if (pixel >= draw_size - margin_end) {
 		return (tex_size - (draw_size - pixel)) * tex_pixel_size;
 	} else {
-		draw_center -= 1 - int(bitfieldExtract(draw_data.flags, FLAGS_NINEPACH_DRAW_CENTER_SHIFT, 1));
+		draw_center -= 1 - int(bitfieldExtract(draw_data.flags, INSTANCE_FLAGS_NINEPATCH_DRAW_CENTER_SHIFT, 1));
 
 		// np_repeat is passed as uniform using NinePatchRect::AxisStretchMode enum.
 		if (np_repeat == 0) { // Stretch.
@@ -367,8 +361,6 @@ float map_ninepatch_axis(float pixel, float draw_size, float tex_pixel_size, flo
 }
 
 #endif
-
-#ifdef USE_LIGHTING
 
 vec3 light_normal_compute(vec3 light_vec, vec3 normal, vec3 base_color, vec3 light_color, vec4 specular_shininess, bool specular_shininess_used) {
 	float cNdotL = max(0.0, dot(normal, light_vec));
@@ -545,8 +537,6 @@ void light_blend_compute(uint light_base, vec4 light_color, inout vec3 color) {
 	}
 }
 
-#endif
-
 float msdf_median(float r, float g, float b, float a) {
 	return min(max(min(r, g), min(max(r, g), b)), a);
 }
@@ -568,8 +558,8 @@ void main() {
 
 	int draw_center = 2;
 	uv = vec2(
-			map_ninepatch_axis(pixel_size_interp.x, abs(draw_data.dst_rect.z), draw_data.color_texture_pixel_size.x, draw_data.ninepatch_margins.x, draw_data.ninepatch_margins.z, int(bitfieldExtract(draw_data.flags, FLAGS_NINEPATCH_H_MODE_SHIFT, 2)), draw_center),
-			map_ninepatch_axis(pixel_size_interp.y, abs(draw_data.dst_rect.w), draw_data.color_texture_pixel_size.y, draw_data.ninepatch_margins.y, draw_data.ninepatch_margins.w, int(bitfieldExtract(draw_data.flags, FLAGS_NINEPATCH_V_MODE_SHIFT, 2)), draw_center));
+			map_ninepatch_axis(pixel_size_interp.x, abs(draw_data.dst_rect.z), draw_data.color_texture_pixel_size.x, draw_data.ninepatch_margins.x, draw_data.ninepatch_margins.z, int(bitfieldExtract(draw_data.flags, INSTANCE_FLAGS_NINEPATCH_H_MODE_SHIFT, 2)), draw_center),
+			map_ninepatch_axis(pixel_size_interp.y, abs(draw_data.dst_rect.w), draw_data.color_texture_pixel_size.y, draw_data.ninepatch_margins.y, draw_data.ninepatch_margins.w, int(bitfieldExtract(draw_data.flags, INSTANCE_FLAGS_NINEPATCH_V_MODE_SHIFT, 2)), draw_center));
 
 	if (draw_center == 0) {
 		color.a = 0.0;
@@ -578,7 +568,7 @@ void main() {
 	uv = uv * draw_data.src_rect.zw + draw_data.src_rect.xy; //apply region if needed
 
 #endif
-	if (bool(draw_data.flags & FLAGS_CLIP_RECT_UV)) {
+	if (bool(draw_data.flags & INSTANCE_FLAGS_CLIP_RECT_UV)) {
 		vec2 half_texpixel = draw_data.color_texture_pixel_size * 0.5;
 		uv = clamp(uv, draw_data.src_rect.xy + half_texpixel, draw_data.src_rect.xy + abs(draw_data.src_rect.zw) - half_texpixel);
 	}
@@ -586,7 +576,7 @@ void main() {
 #endif
 
 #ifndef USE_PRIMITIVE
-	if (bool(draw_data.flags & FLAGS_USE_MSDF)) {
+	if (bool(draw_data.flags & INSTANCE_FLAGS_USE_MSDF)) {
 		float px_range = draw_data.ninepatch_margins.x;
 		float outline_thickness = draw_data.ninepatch_margins.y;
 		//float reserved1 = draw_data.ninepatch_margins.z;
@@ -606,7 +596,7 @@ void main() {
 			float a = clamp(d * px_size + 0.5, 0.0, 1.0);
 			color.a = a * color.a;
 		}
-	} else if (bool(draw_data.flags & FLAGS_USE_LCD)) {
+	} else if (bool(draw_data.flags & INSTANCE_FLAGS_USE_LCD)) {
 		vec4 lcd_sample = texture(sampler2D(color_texture, texture_sampler), uv);
 		if (lcd_sample.a == 1.0) {
 			color.rgb = lcd_sample.rgb * color.a;
@@ -620,7 +610,7 @@ void main() {
 		color *= texture(sampler2D(color_texture, texture_sampler), uv);
 	}
 
-	uint light_count = bitfieldExtract(draw_data.flags, FLAGS_LIGHT_COUNT_SHIFT, 4); //max 16 lights
+	uint light_count = draw_data.flags & 15u; //max 15 lights
 	bool using_light = (light_count + canvas_data.directional_light_count) > 0;
 
 	vec3 normal;
@@ -631,17 +621,15 @@ void main() {
 	bool normal_used = false;
 #endif
 
-	if (normal_used || (using_light && bool(draw_data.flags & FLAGS_DEFAULT_NORMAL_MAP_USED))) {
+	if (normal_used || (using_light && bool(params.batch_flags & BATCH_FLAGS_DEFAULT_NORMAL_MAP_USED))) {
 		normal.xy = texture(sampler2D(normal_texture, texture_sampler), uv).xy * vec2(2.0, -2.0) - vec2(1.0, -1.0);
-		if (bool(draw_data.flags & FLAGS_TRANSPOSE_RECT)) {
+
+#if !defined(USE_ATTRIBUTES) && !defined(USE_PRIMITIVE)
+		if (bool(draw_data.flags & INSTANCE_FLAGS_TRANSPOSE_RECT)) {
 			normal.xy = normal.yx;
 		}
-		if (bool(draw_data.flags & FLAGS_FLIP_H)) {
-			normal.x = -normal.x;
-		}
-		if (bool(draw_data.flags & FLAGS_FLIP_V)) {
-			normal.y = -normal.y;
-		}
+		normal.xy *= sign(draw_data.src_rect.zw);
+#endif
 		normal.z = sqrt(max(0.0, 1.0 - dot(normal.xy, normal.xy)));
 		normal_used = true;
 	} else {
@@ -657,9 +645,9 @@ void main() {
 	bool specular_shininess_used = false;
 #endif
 
-	if (specular_shininess_used || (using_light && normal_used && bool(draw_data.flags & FLAGS_DEFAULT_SPECULAR_MAP_USED))) {
+	if (specular_shininess_used || (using_light && normal_used && bool(params.batch_flags & BATCH_FLAGS_DEFAULT_SPECULAR_MAP_USED))) {
 		specular_shininess = texture(sampler2D(specular_texture, texture_sampler), uv);
-		specular_shininess *= unpackUnorm4x8(draw_data.specular_shininess);
+		specular_shininess *= unpackUnorm4x8(params.specular_shininess);
 		specular_shininess_used = true;
 	} else {
 		specular_shininess = vec4(1.0);
@@ -704,71 +692,71 @@ void main() {
 	color *= canvas_data.canvas_modulation;
 #endif
 
-#if defined(USE_LIGHTING) && !defined(MODE_UNSHADED)
-
-	vec4 light_mix = vec4(0.0, 0.0, 0.0, 1.0);
+#if !defined(MODE_UNSHADED)
+	if (sc_use_lighting()) {
+		vec4 light_mix = vec4(0.0, 0.0, 0.0, 1.0);
 
 	// Directional Lights
 
-//	for (uint i = 0; i < canvas_data.directional_light_count; i++) {
-//		uint light_base = i;
+	//	for (uint i = 0; i < canvas_data.directional_light_count; i++) {
+	//		uint light_base = i;
 //
-//		vec2 direction = light_array.data[light_base].position;
-//		vec4 light_color = light_array.data[light_base].color;
+	//		vec2 direction = light_array.data[light_base].position;
+	//		vec4 light_color = light_array.data[light_base].color;
 //
 //#ifdef LIGHT_CODE_USED
 //
-//		vec4 shadow_modulate = vec4(1.0);
-//		light_color = light_compute(light_vertex, vec3(direction, light_array.data[light_base].height), normal, light_color, light_color.a, specular_shininess, shadow_modulate, screen_uv, uv, base_color, true);
+	//		vec4 shadow_modulate = vec4(1.0);
+	//		light_color = light_compute(light_vertex, vec3(direction, light_array.data[light_base].height), normal, light_color, light_color.a, specular_shininess, shadow_modulate, screen_uv, uv, base_color, true);
 //#else
 //
-//		if (normal_used) {
-//			vec3 light_vec = normalize(mix(vec3(direction, 0.0), vec3(0, 0, 1), light_array.data[light_base].height));
-//			light_color.rgb = light_normal_compute(light_vec, normal, base_color.rgb, light_color.rgb, specular_shininess, specular_shininess_used);
-//		} else {
-//			light_color.rgb *= base_color.rgb;
-//		}
+	//		if (normal_used) {
+	//			vec3 light_vec = normalize(mix(vec3(direction, 0.0), vec3(0, 0, 1), light_array.data[light_base].height));
+	//			light_color.rgb = light_normal_compute(light_vec, normal, base_color.rgb, light_color.rgb, specular_shininess, specular_shininess_used);
+	//		} else {
+	//			light_color.rgb *= base_color.rgb;
+	//		}
 //#endif
 //
-//		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW)) {
-//			vec2 shadow_pos = (vec4(shadow_vertex, 0.0, 1.0) * mat4(light_array.data[light_base].shadow_matrix[0], light_array.data[light_base].shadow_matrix[1], vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0))).xy; //multiply inverse given its transposed. Optimizer removes useless operations.
+	//		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW)) {
+	//			vec2 shadow_pos = (vec4(shadow_vertex, 0.0, 1.0) * mat4(light_array.data[light_base].shadow_matrix[0], light_array.data[light_base].shadow_matrix[1], vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0))).xy; //multiply inverse given its transposed. Optimizer removes useless operations.
 //
-//			vec4 shadow_uv = vec4(shadow_pos.x, light_array.data[light_base].shadow_y_ofs, shadow_pos.y * light_array.data[light_base].shadow_zfar_inv, 1.0);
+	//			vec4 shadow_uv = vec4(shadow_pos.x, light_array.data[light_base].shadow_y_ofs, shadow_pos.y * light_array.data[light_base].shadow_zfar_inv, 1.0);
 //
-//			light_color = light_shadow_compute(light_base, light_color, shadow_uv
+	//			light_color = light_shadow_compute(light_base, light_color, shadow_uv
 //#ifdef LIGHT_CODE_USED
-//					,
-//					shadow_modulate.rgb
+	//					,
+	//					shadow_modulate.rgb
 //#endif
-//			);
-//		}
+	//			);
+	//		}
 //
-//		light_blend_compute(light_base, light_color, color.rgb);
+	//		light_blend_compute(light_base, light_color, color.rgb);
 //#ifdef MODE_LIGHT_ONLY
-//		light_only_alpha += light_color.a;
+	//		light_only_alpha += light_color.a;
 //#endif
-//	}
+	//	}
 
-	// Positional Lights
+		// Positional Lights
 
-	for (uint i = 0; i < MAX_LIGHTS_PER_ITEM; i++) {
-		if (i >= light_count) {
-			break;
-		}
-		uint light_base = bitfieldExtract(draw_data.lights[i >> 2], (int(i) & 0x3) * 8, 8);
+		for (uint i = 0; i < MAX_LIGHTS_PER_ITEM; i++) {
+			if (i >= light_count) {
+				break;
+			}
+			uint light_base = bitfieldExtract(draw_data.lights[i >> 2], (int(i) & 0x3) * 8, 8);
 
 		vec2 tex_uv = (vec4(vertex, 0.0, 1.0) * mat4(light_array.data[light_base].texture_matrix[0], light_array.data[light_base].texture_matrix[1], vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0))).xy; //multiply inverse given its transposed. Optimizer removes useless operations.
 
-		if (any(lessThan(tex_uv, vec2(0.0, 0.0))) || any(greaterThanEqual(tex_uv, vec2(1.0, 1.0)))) {
-			//if outside the light texture, light color is zero
-			continue;
-		}
+			if (any(lessThan(tex_uv, vec2(0.0, 0.0))) || any(greaterThanEqual(tex_uv, vec2(1.0, 1.0)))) {
+				//if outside the light texture, light color is zero
+				continue;
+			}
 
-		uint light_max_steps = 5;
-		float light_step_size = 1.5;
-		float light_pixel_size = 1.0;
-		bool light_enable_rounding = false;
-		vec2 light_sample_offset = vec2(0.0);
+		    uint light_max_steps = 5;
+		    float light_step_size = 1.5;
+		    float light_pixel_size = 1.0;
+		    bool light_enable_rounding = false;
+		    vec2 light_sample_offset = vec2(0.0);
 
 #ifdef PRE_LIGHT_CODE_USED
 
@@ -778,7 +766,7 @@ void main() {
 
 		vec4 light_color;
 
-		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW)) {
+		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW)&& bool(draw_data.flags & (INSTANCE_FLAGS_SHADOW_MASKED << i))) {
 
 			vec2 occluder_max_size = vec2(light_array.data[light_base].occluder_max_size, light_array.data[light_base].occluder_max_size);
 			vec2 light_size = occluder_max_size * vec2(light_array.data[light_base].occluder_scale_x, light_array.data[light_base].occluder_scale_y);
@@ -819,8 +807,8 @@ void main() {
 				vec4 shadow_uv = shadow_uv_compute(light_base, interpolated_pos);
 				light_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
 #ifdef LIGHT_CODE_USED
-					,
-					shadow_modulate.rgb
+						,
+						shadow_modulate.rgb
 #endif
 				);
 			}
@@ -847,8 +835,9 @@ void main() {
 
 		light_blend_compute(light_base, light_color, light_mix.rgb);
 #ifdef MODE_LIGHT_ONLY
-		light_only_alpha += light_color.a;
+			light_only_alpha += light_color.a;
 #endif
+		}
 	}
 
 #ifdef POST_LIGHT_CODE_USED

@@ -33,7 +33,7 @@
 
 #include "scene/gui/color_picker.h"
 
-struct Color;
+class GradientTexture2D;
 
 class ColorMode {
 public:
@@ -41,9 +41,9 @@ public:
 
 	virtual String get_name() const = 0;
 
-	virtual int get_slider_count() const { return 3; };
+	virtual int get_slider_count() const { return 3; }
 	virtual float get_slider_step() const = 0;
-	virtual float get_spinbox_arrow_step() const { return get_slider_step(); };
+	virtual float get_spinbox_arrow_step() const { return get_slider_step(); }
 	virtual String get_slider_label(int idx) const = 0;
 	virtual float get_slider_max(int idx) const = 0;
 	virtual float get_slider_value(int idx) const = 0;
@@ -131,6 +131,7 @@ public:
 	float slider_max[4] = { 359, 100, 100, 255 };
 	float cached_hue = 0.0;
 	float cached_saturation = 0.0;
+	Ref<GradientTexture2D> hue_texture = nullptr;
 
 	virtual String get_name() const override { return "OKHSL"; }
 

@@ -56,6 +56,10 @@ OpenXRCompositionLayer::OpenXRCompositionLayer(XrCompositionLayerBaseHeader *p_c
 	openxr_api = OpenXRAPI::get_singleton();
 	composition_layer_extension = OpenXRCompositionLayerExtension::get_singleton();
 
+	if (openxr_api) {
+		openxr_session_running = openxr_api->is_running();
+	}
+
 	Ref<OpenXRInterface> openxr_interface = XRServer::get_singleton()->find_interface("OpenXR");
 	if (openxr_interface.is_valid()) {
 		openxr_interface->connect("session_begun", callable_mp(this, &OpenXRCompositionLayer::_on_openxr_session_begun));
@@ -81,6 +85,7 @@ OpenXRCompositionLayer::~OpenXRCompositionLayer() {
 	composition_layer_nodes.erase(this);
 
 	if (openxr_layer_provider != nullptr) {
+		_clear_composition_layer_provider();
 		memdelete(openxr_layer_provider);
 		openxr_layer_provider = nullptr;
 	}
@@ -370,16 +375,7 @@ void OpenXRCompositionLayer::_reset_fallback_material() {
 
 		material->set_flag(StandardMaterial3D::FLAG_DISABLE_DEPTH_TEST, !enable_hole_punch);
 		material->set_transparency(get_alpha_blend() ? StandardMaterial3D::TRANSPARENCY_ALPHA : StandardMaterial3D::TRANSPARENCY_DISABLED);
-
-		Ref<ViewportTexture> texture = material->get_texture(StandardMaterial3D::TEXTURE_ALBEDO);
-		if (texture.is_null()) {
-			texture = layer_viewport->get_texture();
-		}
-
-		Node *loc_scene = texture->get_local_scene();
-		NodePath viewport_path = loc_scene->get_path_to(layer_viewport);
-		texture->set_viewport_path_in_scene(viewport_path);
-		material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, texture);
+		material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, layer_viewport->get_texture());
 	} else {
 		fallback->set_surface_override_material(0, Ref<Material>());
 	}
@@ -405,7 +401,7 @@ void OpenXRCompositionLayer::_notification(int p_what) {
 			}
 		} break;
 		case NOTIFICATION_VISIBILITY_CHANGED: {
-			if (!fallback && openxr_session_running && is_inside_tree()) {
+			if (is_natively_supported() && openxr_session_running && is_inside_tree()) {
 				if (is_visible()) {
 					_setup_composition_layer_provider();
 				} else {
@@ -439,7 +435,7 @@ void OpenXRCompositionLayer::_get_property_list(List<PropertyInfo> *p_property_l
 
 	for (const PropertyInfo &pinfo : extension_properties) {
 		StringName prop_name = pinfo.name;
-		if (!String(prop_name).contains("/")) {
+		if (!String(prop_name).contains_char('/')) {
 			WARN_PRINT_ONCE(vformat("Discarding OpenXRCompositionLayer property name '%s' from extension because it doesn't contain a '/'."));
 			continue;
 		}

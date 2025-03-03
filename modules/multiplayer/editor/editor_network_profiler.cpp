@@ -30,9 +30,9 @@
 
 #include "editor_network_profiler.h"
 
-#include "core/os/os.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_string_names.h"
+#include "editor/gui/editor_run_bar.h"
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/check_box.h"
 
@@ -45,11 +45,11 @@ void EditorNetworkProfiler::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_THEME_CHANGED: {
 			if (activate->is_pressed()) {
-				activate->set_icon(theme_cache.stop_icon);
+				activate->set_button_icon(theme_cache.stop_icon);
 			} else {
-				activate->set_icon(theme_cache.play_icon);
+				activate->set_button_icon(theme_cache.play_icon);
 			}
-			clear_button->set_icon(theme_cache.clear_icon);
+			clear_button->set_button_icon(theme_cache.clear_icon);
 
 			incoming_bandwidth_text->set_right_icon(theme_cache.incoming_bandwidth_icon);
 			outgoing_bandwidth_text->set_right_icon(theme_cache.outgoing_bandwidth_icon);
@@ -184,10 +184,10 @@ void EditorNetworkProfiler::_activate_pressed() {
 
 void EditorNetworkProfiler::_update_button_text() {
 	if (activate->is_pressed()) {
-		activate->set_icon(theme_cache.stop_icon);
+		activate->set_button_icon(theme_cache.stop_icon);
 		activate->set_text(TTR("Stop"));
 	} else {
-		activate->set_icon(theme_cache.play_icon);
+		activate->set_button_icon(theme_cache.play_icon);
 		activate->set_text(TTR("Start"));
 	}
 }
@@ -227,6 +227,7 @@ void EditorNetworkProfiler::_clear_pressed() {
 
 void EditorNetworkProfiler::_autostart_toggled(bool p_toggled_on) {
 	EditorSettings::get_singleton()->set_project_metadata("debug_options", "autostart_network_profiler", p_toggled_on);
+	EditorRunBar::get_singleton()->update_profiler_autostart_indicator();
 }
 
 void EditorNetworkProfiler::_replication_button_clicked(TreeItem *p_item, int p_column, int p_idx, MouseButton p_button) {

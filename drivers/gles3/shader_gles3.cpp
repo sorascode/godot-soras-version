@@ -32,7 +32,6 @@
 
 #ifdef GLES3_ENABLED
 
-#include "core/io/compression.h"
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
 
@@ -166,6 +165,10 @@ void ShaderGLES3::_build_variant_code(StringBuilder &builder, uint32_t p_variant
 		builder.append("#define USE_GLES_OVER_GL\n");
 	} else {
 		builder.append("#version 300 es\n");
+	}
+
+	if (GLES3::Config::get_singleton()->polyfill_half2float) {
+		builder.append("#define USE_HALF2FLOAT\n");
 	}
 
 	for (int i = 0; i < specialization_count; i++) {

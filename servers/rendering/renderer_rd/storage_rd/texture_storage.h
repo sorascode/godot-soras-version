@@ -31,7 +31,6 @@
 #ifndef TEXTURE_STORAGE_RD_H
 #define TEXTURE_STORAGE_RD_H
 
-#include "core/templates/local_vector.h"
 #include "core/templates/paged_array.h"
 #include "core/templates/rid_owner.h"
 #include "servers/rendering/renderer_rd/shaders/canvas_sdf.glsl.gen.h"
@@ -91,6 +90,8 @@ public:
 		_FORCE_INLINE_ bool is_null() const { return diffuse.is_null(); }
 	};
 
+	typedef void (*InvalidationCallback)(bool p_deleted, void *p_userdata);
+
 private:
 	friend class LightStorage;
 	friend class MaterialStorage;
@@ -102,9 +103,9 @@ private:
 	/* Canvas Texture API */
 
 	struct CanvasTextureCache {
-		RID diffuse = RID();
-		RID normal = RID();
-		RID specular = RID();
+		RID diffuse;
+		RID normal;
+		RID specular;
 	};
 
 	class CanvasTexture {
@@ -119,10 +120,12 @@ private:
 		RS::CanvasItemTextureRepeat texture_repeat = RS::CANVAS_ITEM_TEXTURE_REPEAT_DEFAULT;
 		CanvasTextureCache info_cache[2];
 
+		InvalidationCallback invalidated_callback = nullptr;
+		void *invalidated_callback_userdata = nullptr;
+
 		Size2i size_cache = Size2i(1, 1);
 		bool use_normal_cache = false;
 		bool use_specular_cache = false;
-		bool cleared_cache = true;
 
 		void clear_cache();
 		~CanvasTexture();
@@ -195,7 +198,7 @@ private:
 
 	// Textures can be created from threads, so this RID_Owner is thread safe.
 	mutable RID_Owner<Texture, true> texture_owner;
-	Texture *get_texture(RID p_rid) { return texture_owner.get_or_null(p_rid); };
+	Texture *get_texture(RID p_rid) { return texture_owner.get_or_null(p_rid); }
 
 	struct TextureToRDFormat {
 		RD::DataFormat format;
@@ -390,6 +393,8 @@ private:
 		RS::ViewportVRSUpdateMode vrs_update_mode = RS::VIEWPORT_VRS_UPDATE_ONCE;
 		RID vrs_texture;
 
+		Rect2i render_region;
+
 		// overridden textures
 		struct RTOverridden {
 			RID color;
@@ -439,7 +444,7 @@ private:
 	};
 
 	mutable RID_Owner<RenderTarget> render_target_owner;
-	RenderTarget *get_render_target(RID p_rid) const { return render_target_owner.get_or_null(p_rid); };
+	RenderTarget *get_render_target(RID p_rid) const { return render_target_owner.get_or_null(p_rid); }
 
 	void _clear_render_target(RenderTarget *rt);
 	void _update_render_target(RenderTarget *rt);
@@ -486,7 +491,7 @@ public:
 
 	/* Canvas Texture API */
 
-	bool owns_canvas_texture(RID p_rid) { return canvas_texture_owner.owns(p_rid); };
+	bool owns_canvas_texture(RID p_rid) { return canvas_texture_owner.owns(p_rid); }
 
 	virtual RID canvas_texture_allocate() override;
 	virtual void canvas_texture_initialize(RID p_rid) override;
@@ -499,12 +504,11 @@ public:
 	virtual void canvas_texture_set_texture_repeat(RID p_item, RS::CanvasItemTextureRepeat p_repeat) override;
 
 	CanvasTextureInfo canvas_texture_get_info(RID p_texture, RS::CanvasItemTextureFilter p_base_filter, RS::CanvasItemTextureRepeat p_base_repeat, bool p_use_srgb, bool p_texture_is_data);
+	void canvas_texture_set_invalidation_callback(RID p_canvas_texture, InvalidationCallback p_callback, void *p_userdata);
 
 	/* Texture API */
 
-	bool owns_texture(RID p_rid) const { return texture_owner.owns(p_rid); };
-
-	virtual bool can_create_resources_async() const override;
+	bool owns_texture(RID p_rid) const { return texture_owner.owns(p_rid); }
 
 	virtual RID texture_allocate() override;
 	virtual void texture_free(RID p_rid) override;
@@ -521,6 +525,11 @@ public:
 	virtual void texture_3d_update(RID p_texture, const Vector<Ref<Image>> &p_data) override;
 	virtual void texture_external_update(RID p_texture, int p_width, int p_height, uint64_t p_external_buffer) override;
 	virtual void texture_proxy_update(RID p_proxy, RID p_base) override;
+
+	Ref<Image> texture_2d_placeholder;
+	Vector<Ref<Image>> texture_2d_array_placeholder;
+	Vector<Ref<Image>> cubemap_placeholder;
+	Vector<Ref<Image>> texture_3d_placeholder;
 
 	//these two APIs can be used together or in combination with the others.
 	virtual void texture_2d_placeholder_initialize(RID p_texture) override;
@@ -588,7 +597,7 @@ public:
 
 	void update_decal_atlas();
 
-	bool owns_decal(RID p_rid) const { return decal_owner.owns(p_rid); };
+	bool owns_decal(RID p_rid) const { return decal_owner.owns(p_rid); }
 
 	RID decal_atlas_get_texture() const;
 	RID decal_atlas_get_texture_srgb() const;
@@ -728,7 +737,7 @@ public:
 
 	/* RENDER TARGET API */
 
-	bool owns_render_target(RID p_rid) const { return render_target_owner.owns(p_rid); };
+	bool owns_render_target(RID p_rid) const { return render_target_owner.owns(p_rid); }
 
 	virtual RID render_target_create() override;
 	virtual void render_target_free(RID p_rid) override;
@@ -777,14 +786,21 @@ public:
 	virtual void render_target_set_vrs_texture(RID p_render_target, RID p_texture) override;
 	virtual RID render_target_get_vrs_texture(RID p_render_target) const override;
 
-	virtual void render_target_set_override(RID p_render_target, RID p_color_texture, RID p_depth_texture, RID p_velocity_texture) override;
+	virtual void render_target_set_override(RID p_render_target, RID p_color_texture, RID p_depth_texture, RID p_velocity_texture, RID p_velocity_depth_texture) override;
 	virtual RID render_target_get_override_color(RID p_render_target) const override;
 	virtual RID render_target_get_override_depth(RID p_render_target) const override;
 	RID render_target_get_override_depth_slice(RID p_render_target, const uint32_t p_layer) const;
 	virtual RID render_target_get_override_velocity(RID p_render_target) const override;
 	RID render_target_get_override_velocity_slice(RID p_render_target, const uint32_t p_layer) const;
+	virtual RID render_target_get_override_velocity_depth(RID p_render_target) const override { return RID(); }
+
+	virtual void render_target_set_render_region(RID p_render_target, const Rect2i &p_render_region) override;
+	virtual Rect2i render_target_get_render_region(RID p_render_target) const override;
 
 	virtual RID render_target_get_texture(RID p_render_target) override;
+
+	virtual void render_target_set_velocity_target_size(RID p_render_target, const Size2i &p_target_size) override {}
+	virtual Size2i render_target_get_velocity_target_size(RID p_render_target) const override { return Size2i(0, 0); }
 
 	RID render_target_get_rd_framebuffer(RID p_render_target);
 	RID render_target_get_rd_texture(RID p_render_target);
@@ -798,6 +814,9 @@ public:
 
 	void render_target_set_framebuffer_uniform_set(RID p_render_target, RID p_uniform_set);
 	void render_target_set_backbuffer_uniform_set(RID p_render_target, RID p_uniform_set);
+
+	static RD::DataFormat render_target_get_color_format(bool p_use_hdr, bool p_srgb);
+	static uint32_t render_target_get_color_usage_bits(bool p_msaa);
 };
 
 } // namespace RendererRD

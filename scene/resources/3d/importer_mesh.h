@@ -32,7 +32,6 @@
 #define IMPORTER_MESH_H
 
 #include "core/io/resource.h"
-#include "core/templates/local_vector.h"
 #include "scene/resources/3d/concave_polygon_shape_3d.h"
 #include "scene/resources/3d/convex_polygon_shape_3d.h"
 #include "scene/resources/mesh.h"
@@ -68,9 +67,6 @@ class ImporterMesh : public Resource {
 				return l.distance < r.distance;
 			}
 		};
-
-		void split_normals(const LocalVector<int> &p_indices, const LocalVector<Vector3> &p_normals);
-		static void _split_normals(Array &r_arrays, const LocalVector<int> &p_indices, const LocalVector<Vector3> &p_normals);
 	};
 	Vector<Surface> surfaces;
 	Vector<String> blend_shapes;
@@ -116,9 +112,9 @@ public:
 
 	void set_surface_material(int p_surface, const Ref<Material> &p_material);
 
-	void optimize_indices_for_cache();
+	void optimize_indices();
 
-	void generate_lods(float p_normal_merge_angle, float p_normal_split_angle, Array p_skin_pose_transform_array, bool p_raycast_normals = false);
+	void generate_lods(float p_normal_merge_angle, Array p_skin_pose_transform_array);
 
 	void create_shadow_mesh();
 	Ref<ImporterMesh> get_shadow_mesh() const;

@@ -35,6 +35,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_undo_redo_manager.h"
+#include "scene/main/viewport.h"
 #include "scene/resources/2d/rectangle_shape_2d.h"
 #include "scene/resources/2d/segment_shape_2d.h"
 #include "scene/resources/2d/separation_ray_shape_2d.h"
@@ -266,12 +267,17 @@ bool CollisionShape2DEditor::forward_canvas_gui_input(const Ref<InputEvent> &p_e
 		return false;
 	}
 
+	Viewport *vp = node->get_viewport();
+	if (vp && !vp->is_visible_subviewport()) {
+		return false;
+	}
+
 	if (shape_type == -1) {
 		return false;
 	}
 
 	Ref<InputEventMouseButton> mb = p_event;
-	Transform2D xform = canvas_item_editor->get_canvas_transform() * node->get_global_transform();
+	Transform2D xform = canvas_item_editor->get_canvas_transform() * node->get_screen_transform();
 
 	if (mb.is_valid()) {
 		Vector2 gpoint = mb->get_position();
@@ -326,6 +332,7 @@ bool CollisionShape2DEditor::forward_canvas_gui_input(const Ref<InputEvent> &p_e
 		}
 
 		Vector2i cpoint = canvas_item_editor->snap_point(canvas_item_editor->get_canvas_transform().affine_inverse().xform(mm->get_position()));
+		cpoint = node->get_viewport()->get_popup_base_transform().affine_inverse().xform(cpoint);
 		cpoint = original_transform.affine_inverse().xform(cpoint);
 		last_point = cpoint;
 
@@ -390,11 +397,16 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
 		return;
 	}
 
+	Viewport *vp = node->get_viewport();
+	if (vp && !vp->is_visible_subviewport()) {
+		return;
+	}
+
 	if (shape_type == -1) {
 		return;
 	}
 
-	Transform2D gt = canvas_item_editor->get_canvas_transform() * node->get_global_transform();
+	Transform2D gt = canvas_item_editor->get_canvas_transform() * node->get_screen_transform();
 
 	Ref<Texture2D> h = get_editor_theme_icon(SNAME("EditorHandle"));
 	Vector2 size = h->get_size() * 0.5;

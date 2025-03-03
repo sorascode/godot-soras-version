@@ -94,6 +94,9 @@ void SeparationRayShape2D::_bind_methods() {
 }
 
 void SeparationRayShape2D::set_length(int32_t p_length) {
+	if (length == p_length) {
+		return;
+	}
 	length = p_length;
 	_update_shape();
 }
@@ -103,6 +106,9 @@ int32_t SeparationRayShape2D::get_length() const {
 }
 
 void SeparationRayShape2D::set_slide_on_slope(bool p_active) {
+	if (slide_on_slope == p_active) {
+		return;
+	}
 	slide_on_slope = p_active;
 	_update_shape();
 }

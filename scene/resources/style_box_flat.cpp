@@ -30,6 +30,8 @@
 
 #include "style_box_flat.h"
 
+#include "scene/main/scene_tree.h"
+#include "scene/main/window.h"
 #include "servers/rendering_server.h"
 
 float StyleBoxFlat::get_style_margin(Side p_side) const {
@@ -263,12 +265,13 @@ inline void draw_rounded_rectangle(Vector<Vector2> &verts, Vector<int> &indices,
 
 	// If the center is filled, we do not draw the border and directly use the inner ring as reference. Because all calls to this
 	// method either draw a ring or a filled rounded rectangle, but not both.
-	real_t quarter_arc_rad = Math_PI / 2.0;
-	Point2 style_rect_center = style_rect.get_center();
+	const real_t quarter_arc_rad = Math_PI / 2.0;
+	const Point2 style_rect_center = style_rect.get_center();
 
-	int colors_size = colors.size();
-	int verts_size = verts.size();
-	int new_verts_amount = (adapted_corner_detail + 1) * (draw_border ? 8 : 4);
+	const int colors_size = colors.size();
+	const int verts_size = verts.size();
+	const int new_verts_amount = (adapted_corner_detail + 1) * (draw_border ? 8 : 4);
+
 	colors.resize(colors_size + new_verts_amount);
 	verts.resize(verts_size + new_verts_amount);
 	Color *colors_ptr = colors.ptrw();
@@ -282,8 +285,8 @@ inline void draw_rounded_rectangle(Vector<Vector2> &verts, Vector<int> &indices,
 			}
 
 			const real_t pt_angle = (corner_idx + detail / (double)adapted_corner_detail) * quarter_arc_rad + Math_PI;
-			const real_t angle_cosine = cos(pt_angle);
-			const real_t angle_sine = sin(pt_angle);
+			const real_t angle_cosine = Math::cos(pt_angle);
+			const real_t angle_sine = Math::sin(pt_angle);
 
 			{
 				const real_t x = inner_corner_radius[corner_idx] * angle_cosine + inner_points[corner_idx].x;
@@ -407,10 +410,28 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 	Rect2 infill_rect = style_rect.grow_individual(-adapted_border[SIDE_LEFT], -adapted_border[SIDE_TOP], -adapted_border[SIDE_RIGHT], -adapted_border[SIDE_BOTTOM]);
 
 	Rect2 border_style_rect = style_rect;
+
+	real_t aa_size_scaled = 1.0f;
+	if (aa_on) {
+		real_t scale_factor = 1.0f;
+		const SceneTree *tree = Object::cast_to<SceneTree>(OS::get_singleton()->get_main_loop());
+		if (tree) {
+			const Window *window = tree->get_root();
+			const Vector2 stretch_scale = window->get_stretch_transform().get_scale();
+			scale_factor = MIN(stretch_scale.x, stretch_scale.y);
+		}
+
+		// Adjust AA feather size to account for the 2D scale factor, so that
+		// antialiasing doesn't become blurry at viewport resolutions higher
+		// than the default when using the `canvas_items` stretch mode
+		// (or when using `content_scale_factor` values different than `1.0`).
+		aa_size_scaled = aa_size / scale_factor;
+	}
+
 	if (aa_on) {
 		for (int i = 0; i < 4; i++) {
 			if (border_width[i] > 0) {
-				border_style_rect = border_style_rect.grow_side((Side)i, -aa_size);
+				border_style_rect = border_style_rect.grow_side((Side)i, -aa_size_scaled);
 			}
 		}
 	}
@@ -456,26 +477,27 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 		real_t aa_border_width_half[4];
 		real_t aa_fill_width[4];
 		real_t aa_fill_width_half[4];
+
 		if (draw_border) {
 			for (int i = 0; i < 4; i++) {
 				if (border_width[i] > 0) {
-					aa_border_width[i] = aa_size;
-					aa_border_width_half[i] = aa_size / 2;
+					aa_border_width[i] = aa_size_scaled;
+					aa_border_width_half[i] = aa_size_scaled * 0.5;
 					aa_fill_width[i] = 0;
 					aa_fill_width_half[i] = 0;
 				} else {
 					aa_border_width[i] = 0;
 					aa_border_width_half[i] = 0;
-					aa_fill_width[i] = aa_size;
-					aa_fill_width_half[i] = aa_size / 2;
+					aa_fill_width[i] = aa_size_scaled;
+					aa_fill_width_half[i] = aa_size_scaled * 0.5;
 				}
 			}
 		} else {
 			for (int i = 0; i < 4; i++) {
 				aa_border_width[i] = 0;
 				aa_border_width_half[i] = 0;
-				aa_fill_width[i] = aa_size;
-				aa_fill_width_half[i] = aa_size / 2;
+				aa_fill_width[i] = aa_size_scaled;
+				aa_fill_width_half[i] = aa_size_scaled * 0.5;
 			}
 		}
 
@@ -528,7 +550,7 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 	}
 
 	// Compute UV coordinates.
-	Rect2 uv_rect = style_rect.grow(aa_on ? aa_size : 0);
+	Rect2 uv_rect = style_rect.grow(aa_on ? aa_size_scaled : 0);
 	uvs.resize(verts.size());
 	Point2 *uvs_ptr = uvs.ptrw();
 	for (int i = 0; i < verts.size(); i++) {
@@ -596,10 +618,10 @@ void StyleBoxFlat::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "skew"), "set_skew", "get_skew");
 
 	ADD_GROUP("Border Width", "border_width_");
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_left", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_border_width", "get_border_width", SIDE_LEFT);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_top", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_border_width", "get_border_width", SIDE_TOP);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_right", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_border_width", "get_border_width", SIDE_RIGHT);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_bottom", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_border_width", "get_border_width", SIDE_BOTTOM);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_left", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_border_width", "get_border_width", SIDE_LEFT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_top", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_border_width", "get_border_width", SIDE_TOP);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_right", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_border_width", "get_border_width", SIDE_RIGHT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_bottom", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_border_width", "get_border_width", SIDE_BOTTOM);
 
 	ADD_GROUP("Border", "border_");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "border_color"), "set_border_color", "get_border_color");
@@ -607,18 +629,18 @@ void StyleBoxFlat::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "border_blend"), "set_border_blend", "get_border_blend");
 
 	ADD_GROUP("Corner Radius", "corner_radius_");
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_left", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_TOP_LEFT);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_right", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_TOP_RIGHT);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_right", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_RIGHT);
-	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_left", PROPERTY_HINT_RANGE, "0,1024,1,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_LEFT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_left", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_TOP_LEFT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_right", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_TOP_RIGHT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_right", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_RIGHT);
+	ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_left", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_LEFT);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "corner_detail", PROPERTY_HINT_RANGE, "1,20,1"), "set_corner_detail", "get_corner_detail");
 
 	ADD_GROUP("Expand Margins", "expand_margin_");
-	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_LEFT);
-	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_top", PROPERTY_HINT_RANGE, "0,2048,1,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_TOP);
-	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_right", PROPERTY_HINT_RANGE, "0,2048,1,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_RIGHT);
-	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_BOTTOM);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_left", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_LEFT);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_top", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_TOP);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_right", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_RIGHT);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,100,1,or_greater,suffix:px"), "set_expand_margin", "get_expand_margin", SIDE_BOTTOM);
 
 	ADD_GROUP("Shadow", "shadow_");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");

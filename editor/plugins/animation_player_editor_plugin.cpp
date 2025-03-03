@@ -32,8 +32,6 @@
 
 #include "core/config/project_settings.h"
 #include "core/input/input.h"
-#include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_command_palette.h"
 #include "editor/editor_node.h"
@@ -99,7 +97,7 @@ void AnimationPlayerEditor::_notification(int p_what) {
 
 					if (player->has_animation(animname)) {
 						Ref<Animation> anim = player->get_animation(animname);
-						if (!anim.is_null()) {
+						if (anim.is_valid()) {
 							frame->set_max((double)anim->get_length());
 						}
 					}
@@ -113,7 +111,7 @@ void AnimationPlayerEditor::_notification(int p_what) {
 				// Need the last frame after it stopped.
 				frame->set_value(player->get_current_animation_position());
 				track_editor->set_anim_pos(player->get_current_animation_position());
-				stop->set_icon(stop_icon);
+				stop->set_button_icon(stop_icon);
 			}
 
 			last_active = player->is_playing();
@@ -145,16 +143,16 @@ void AnimationPlayerEditor::_notification(int p_what) {
 			stop_icon = get_editor_theme_icon(SNAME("Stop"));
 			pause_icon = get_editor_theme_icon(SNAME("Pause"));
 			if (player && player->is_playing()) {
-				stop->set_icon(pause_icon);
+				stop->set_button_icon(pause_icon);
 			} else {
-				stop->set_icon(stop_icon);
+				stop->set_button_icon(stop_icon);
 			}
 
-			autoplay->set_icon(get_editor_theme_icon(SNAME("AutoPlay")));
-			play->set_icon(get_editor_theme_icon(SNAME("PlayStart")));
-			play_from->set_icon(get_editor_theme_icon(SNAME("Play")));
-			play_bw->set_icon(get_editor_theme_icon(SNAME("PlayStartBackwards")));
-			play_bw_from->set_icon(get_editor_theme_icon(SNAME("PlayBackwards")));
+			autoplay->set_button_icon(get_editor_theme_icon(SNAME("AutoPlay")));
+			play->set_button_icon(get_editor_theme_icon(SNAME("PlayStart")));
+			play_from->set_button_icon(get_editor_theme_icon(SNAME("Play")));
+			play_bw->set_button_icon(get_editor_theme_icon(SNAME("PlayStartBackwards")));
+			play_bw_from->set_button_icon(get_editor_theme_icon(SNAME("PlayBackwards")));
 
 			autoplay_icon = get_editor_theme_icon(SNAME("AutoPlay"));
 			reset_icon = get_editor_theme_icon(SNAME("Reload"));
@@ -168,10 +166,10 @@ void AnimationPlayerEditor::_notification(int p_what) {
 				autoplay_reset_icon = ImageTexture::create_from_image(autoplay_reset_img);
 			}
 
-			onion_toggle->set_icon(get_editor_theme_icon(SNAME("Onion")));
-			onion_skinning->set_icon(get_editor_theme_icon(SNAME("GuiTabMenuHl")));
+			onion_toggle->set_button_icon(get_editor_theme_icon(SNAME("Onion")));
+			onion_skinning->set_button_icon(get_editor_theme_icon(SNAME("GuiTabMenuHl")));
 
-			pin->set_icon(get_editor_theme_icon(SNAME("Pin")));
+			pin->set_button_icon(get_editor_theme_icon(SNAME("Pin")));
 
 			tool_anim->add_theme_style_override(CoreStringName(normal), get_theme_stylebox(CoreStringName(normal), SNAME("Button")));
 			track_editor->get_edit_menu()->add_theme_style_override(CoreStringName(normal), get_theme_stylebox(CoreStringName(normal), SNAME("Button")));
@@ -307,7 +305,7 @@ void AnimationPlayerEditor::_play_pressed() {
 	}
 
 	//unstop
-	stop->set_icon(pause_icon);
+	stop->set_button_icon(pause_icon);
 }
 
 void AnimationPlayerEditor::_play_from_pressed() {
@@ -331,7 +329,7 @@ void AnimationPlayerEditor::_play_from_pressed() {
 	}
 
 	//unstop
-	stop->set_icon(pause_icon);
+	stop->set_button_icon(pause_icon);
 }
 
 String AnimationPlayerEditor::_get_current() const {
@@ -359,7 +357,7 @@ void AnimationPlayerEditor::_play_bw_pressed() {
 	}
 
 	//unstop
-	stop->set_icon(pause_icon);
+	stop->set_button_icon(pause_icon);
 }
 
 void AnimationPlayerEditor::_play_bw_from_pressed() {
@@ -383,7 +381,7 @@ void AnimationPlayerEditor::_play_bw_from_pressed() {
 	}
 
 	//unstop
-	stop->set_icon(pause_icon);
+	stop->set_button_icon(pause_icon);
 }
 
 void AnimationPlayerEditor::_stop_pressed() {
@@ -400,7 +398,7 @@ void AnimationPlayerEditor::_stop_pressed() {
 		frame->set_value(0);
 		track_editor->set_anim_pos(0);
 	}
-	stop->set_icon(stop_icon);
+	stop->set_button_icon(stop_icon);
 }
 
 void AnimationPlayerEditor::_animation_selected(int p_which) {
@@ -504,7 +502,7 @@ void AnimationPlayerEditor::_animation_rename() {
 	String selected_name = animation->get_item_text(selected);
 
 	// Remove library prefix if present.
-	if (selected_name.contains("/")) {
+	if (selected_name.contains_char('/')) {
 		selected_name = selected_name.get_slice("/", 1);
 	}
 
@@ -537,7 +535,7 @@ void AnimationPlayerEditor::_animation_remove_confirmed() {
 	ERR_FAIL_COND(al.is_null());
 
 	// For names of form lib_name/anim_name, remove library name prefix.
-	if (current.contains("/")) {
+	if (current.contains_char('/')) {
 		current = current.get_slice("/", 1);
 	}
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
@@ -580,8 +578,10 @@ float AnimationPlayerEditor::_get_editor_step() const {
 	const Ref<Animation> anim = player->get_animation(current);
 	ERR_FAIL_COND_V(anim.is_null(), 0.0);
 
+	float step = track_editor->get_snap_unit();
+
 	// Use more precise snapping when holding Shift
-	return Input::get_singleton()->is_key_pressed(Key::SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
+	return Input::get_singleton()->is_key_pressed(Key::SHIFT) ? step * 0.25 : step;
 }
 
 void AnimationPlayerEditor::_animation_name_edited() {
@@ -624,7 +624,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
 
 			// Extract library prefix if present.
 			String new_library_prefix = "";
-			if (current.contains("/")) {
+			if (current.contains_char('/')) {
 				new_library_prefix = current.get_slice("/", 0) + "/";
 				current = current.get_slice("/", 1);
 			}
@@ -899,7 +899,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 					player->connect(SNAME("animation_list_changed"), callable_mp(this, &AnimationPlayerEditor::_animation_libraries_updated), CONNECT_DEFERRED);
 				}
 				if (!player->is_connected(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed))) {
-					player->connect(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed), CONNECT_DEFERRED);
+					player->connect(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed));
 				}
 			}
 
@@ -959,9 +959,9 @@ void AnimationPlayerEditor::_update_animation() {
 	updating = true;
 
 	if (player->is_playing()) {
-		stop->set_icon(pause_icon);
+		stop->set_button_icon(pause_icon);
 	} else {
-		stop->set_icon(stop_icon);
+		stop->set_button_icon(stop_icon);
 	}
 
 	scale->set_text(String::num(player->get_speed_scale(), 2));
@@ -1314,7 +1314,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
 
 	String current = animation->get_item_text(animation->get_selected());
 	Ref<Animation> anim = player->get_animation(current);
-	if (!anim.is_valid()) {
+	if (anim.is_null()) {
 		return;
 	}
 
@@ -1338,7 +1338,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
 		break;
 	}
 
-	if (new_name.contains("/")) {
+	if (new_name.contains_char('/')) {
 		// Discard library prefix.
 		new_name = new_name.get_slice("/", 1);
 	}
@@ -1397,7 +1397,7 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_timeline_o
 	}
 
 	track_editor->set_anim_pos(pos);
-};
+}
 
 void AnimationPlayerEditor::_animation_player_changed(Object *p_pl) {
 	_update_player();
@@ -1713,7 +1713,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_1() {
 
 void AnimationPlayerEditor::_prepare_onion_layers_2_prolog() {
 	Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
-	if (!anim.is_valid()) {
+	if (anim.is_null()) {
 		return;
 	}
 
@@ -1931,7 +1931,7 @@ Node *AnimationPlayerEditor::get_cached_root_node() const {
 
 bool AnimationPlayerEditor::_validate_tracks(const Ref<Animation> p_anim) {
 	bool is_valid = true;
-	if (!p_anim.is_valid()) {
+	if (p_anim.is_null()) {
 		return true; // There is a problem outside of the animation track.
 	}
 	int len = p_anim->get_track_count();
@@ -2006,30 +2006,34 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	HBoxContainer *hb = memnew(HBoxContainer);
 	add_child(hb);
 
+	HBoxContainer *playback_container = memnew(HBoxContainer);
+	playback_container->set_layout_direction(LAYOUT_DIRECTION_LTR);
+	hb->add_child(playback_container);
+
 	play_bw_from = memnew(Button);
-	play_bw_from->set_theme_type_variation("FlatButton");
+	play_bw_from->set_theme_type_variation(SceneStringName(FlatButton));
 	play_bw_from->set_tooltip_text(TTR("Play Animation Backwards"));
-	hb->add_child(play_bw_from);
+	playback_container->add_child(play_bw_from);
 
 	play_bw = memnew(Button);
-	play_bw->set_theme_type_variation("FlatButton");
+	play_bw->set_theme_type_variation(SceneStringName(FlatButton));
 	play_bw->set_tooltip_text(TTR("Play Animation Backwards from End"));
-	hb->add_child(play_bw);
+	playback_container->add_child(play_bw);
 
 	stop = memnew(Button);
-	stop->set_theme_type_variation("FlatButton");
+	stop->set_theme_type_variation(SceneStringName(FlatButton));
 	stop->set_tooltip_text(TTR("Pause/Stop Animation"));
-	hb->add_child(stop);
+	playback_container->add_child(stop);
 
 	play = memnew(Button);
-	play->set_theme_type_variation("FlatButton");
+	play->set_theme_type_variation(SceneStringName(FlatButton));
 	play->set_tooltip_text(TTR("Play Animation from Start"));
-	hb->add_child(play);
+	playback_container->add_child(play);
 
 	play_from = memnew(Button);
-	play_from->set_theme_type_variation("FlatButton");
+	play_from->set_theme_type_variation(SceneStringName(FlatButton));
 	play_from->set_tooltip_text(TTR("Play Animation"));
-	hb->add_child(play_from);
+	playback_container->add_child(play_from);
 
 	frame = memnew(SpinBox);
 	hb->add_child(frame);
@@ -2056,17 +2060,17 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	tool_anim->set_flat(false);
 	tool_anim->set_tooltip_text(TTR("Animation Tools"));
 	tool_anim->set_text(TTR("Animation"));
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/new_animation", TTR("New...")), TOOL_NEW_ANIM);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/new_animation", TTRC("New...")), TOOL_NEW_ANIM);
 	tool_anim->get_popup()->add_separator();
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/animation_libraries", TTR("Manage Animations...")), TOOL_ANIM_LIBRARY);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/animation_libraries", TTRC("Manage Animations...")), TOOL_ANIM_LIBRARY);
 	tool_anim->get_popup()->add_separator();
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/duplicate_animation", TTR("Duplicate...")), TOOL_DUPLICATE_ANIM);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/duplicate_animation", TTRC("Duplicate...")), TOOL_DUPLICATE_ANIM);
 	tool_anim->get_popup()->add_separator();
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/rename_animation", TTR("Rename...")), TOOL_RENAME_ANIM);
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/edit_transitions", TTR("Edit Transitions...")), TOOL_EDIT_TRANSITIONS);
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/open_animation_in_inspector", TTR("Open in Inspector")), TOOL_EDIT_RESOURCE);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/rename_animation", TTRC("Rename...")), TOOL_RENAME_ANIM);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/edit_transitions", TTRC("Edit Transitions...")), TOOL_EDIT_TRANSITIONS);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/open_animation_in_inspector", TTRC("Open in Inspector")), TOOL_EDIT_RESOURCE);
 	tool_anim->get_popup()->add_separator();
-	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/remove_animation", TTR("Remove")), TOOL_REMOVE_ANIM);
+	tool_anim->get_popup()->add_shortcut(ED_SHORTCUT("animation_player_editor/remove_animation", TTRC("Remove")), TOOL_REMOVE_ANIM);
 	tool_anim->set_disabled(true);
 	hb->add_child(tool_anim);
 
@@ -2078,7 +2082,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	animation->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
 
 	autoplay = memnew(Button);
-	autoplay->set_theme_type_variation("FlatButton");
+	autoplay->set_theme_type_variation(SceneStringName(FlatButton));
 	hb->add_child(autoplay);
 	autoplay->set_tooltip_text(TTR("Autoplay on Load"));
 
@@ -2090,7 +2094,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	hb->add_child(memnew(VSeparator));
 
 	onion_toggle = memnew(Button);
-	onion_toggle->set_theme_type_variation("FlatButton");
+	onion_toggle->set_theme_type_variation(SceneStringName(FlatButton));
 	onion_toggle->set_toggle_mode(true);
 	onion_toggle->set_tooltip_text(TTR("Enable Onion Skinning"));
 	onion_toggle->connect(SceneStringName(pressed), callable_mp(this, &AnimationPlayerEditor::_onion_skinning_menu).bind(ONION_SKINNING_ENABLE));
@@ -2120,7 +2124,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	hb->add_child(memnew(VSeparator));
 
 	pin = memnew(Button);
-	pin->set_theme_type_variation("FlatButton");
+	pin->set_theme_type_variation(SceneStringName(FlatButton));
 	pin->set_toggle_mode(true);
 	pin->set_tooltip_text(TTR("Pin AnimationPlayer"));
 	hb->add_child(pin);
@@ -2191,7 +2195,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	animation->connect(SceneStringName(item_selected), callable_mp(this, &AnimationPlayerEditor::_animation_selected));
 
 	frame->connect(SceneStringName(value_changed), callable_mp(this, &AnimationPlayerEditor::_seek_value_changed).bind(false));
-	scale->connect(SNAME("text_submitted"), callable_mp(this, &AnimationPlayerEditor::_scale_changed));
+	scale->connect(SceneStringName(text_submitted), callable_mp(this, &AnimationPlayerEditor::_scale_changed));
 
 	add_child(track_editor);
 	track_editor->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -2245,13 +2249,13 @@ void fragment() {
 )");
 	RS::get_singleton()->material_set_shader(onion.capture.material->get_rid(), onion.capture.shader->get_rid());
 
-	ED_SHORTCUT("animation_editor/stop_animation", TTR("Pause/Stop Animation"), Key::S);
-	ED_SHORTCUT("animation_editor/play_animation", TTR("Play Animation"), Key::D);
-	ED_SHORTCUT("animation_editor/play_animation_backwards", TTR("Play Animation Backwards"), Key::A);
-	ED_SHORTCUT("animation_editor/play_animation_from_start", TTR("Play Animation from Start"), KeyModifierMask::SHIFT + Key::D);
-	ED_SHORTCUT("animation_editor/play_animation_from_end", TTR("Play Animation Backwards from End"), KeyModifierMask::SHIFT + Key::A);
-	ED_SHORTCUT("animation_editor/go_to_next_keyframe", TTR("Go to Next Keyframe"), KeyModifierMask::SHIFT + KeyModifierMask::ALT + Key::D);
-	ED_SHORTCUT("animation_editor/go_to_previous_keyframe", TTR("Go to Previous Keyframe"), KeyModifierMask::SHIFT + KeyModifierMask::ALT + Key::A);
+	ED_SHORTCUT("animation_editor/stop_animation", TTRC("Pause/Stop Animation"), Key::S);
+	ED_SHORTCUT("animation_editor/play_animation", TTRC("Play Animation"), Key::D);
+	ED_SHORTCUT("animation_editor/play_animation_backwards", TTRC("Play Animation Backwards"), Key::A);
+	ED_SHORTCUT("animation_editor/play_animation_from_start", TTRC("Play Animation from Start"), KeyModifierMask::SHIFT + Key::D);
+	ED_SHORTCUT("animation_editor/play_animation_from_end", TTRC("Play Animation Backwards from End"), KeyModifierMask::SHIFT + Key::A);
+	ED_SHORTCUT("animation_editor/go_to_next_keyframe", TTRC("Go to Next Keyframe"), KeyModifierMask::SHIFT + KeyModifierMask::ALT + Key::D);
+	ED_SHORTCUT("animation_editor/go_to_previous_keyframe", TTRC("Go to Previous Keyframe"), KeyModifierMask::SHIFT + KeyModifierMask::ALT + Key::A);
 }
 
 AnimationPlayerEditor::~AnimationPlayerEditor() {
@@ -2395,7 +2399,7 @@ void AnimationPlayerEditorPlugin::make_visible(bool p_visible) {
 
 AnimationPlayerEditorPlugin::AnimationPlayerEditorPlugin() {
 	anim_editor = memnew(AnimationPlayerEditor(this));
-	EditorNode::get_bottom_panel()->add_item(TTR("Animation"), anim_editor, ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_animation_bottom_panel", TTR("Toggle Animation Bottom Panel"), KeyModifierMask::ALT | Key::N));
+	EditorNode::get_bottom_panel()->add_item(TTR("Animation"), anim_editor, ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_animation_bottom_panel", TTRC("Toggle Animation Bottom Panel"), KeyModifierMask::ALT | Key::N));
 }
 
 AnimationPlayerEditorPlugin::~AnimationPlayerEditorPlugin() {
