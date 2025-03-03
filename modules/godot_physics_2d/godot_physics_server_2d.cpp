@@ -925,7 +925,7 @@ void GodotPhysicsServer2D::body_get_riding_bodies_solid(RID p_body, List<RID> &p
 		}
 		GodotBody2D *other_body = body_owner.get_or_null(bodies.get(i));
 		ERR_FAIL_NULL(other_body);
-		if (other_body->is_riding_solid(p_body)) {
+		if (other_body->get_space() && other_body->is_riding_solid(p_body)) {
 			p_bodies.push_back(bodies.get(i));
 		}
 	}
@@ -943,7 +943,7 @@ void GodotPhysicsServer2D::body_get_riding_bodies_one_way(RID p_body, List<RID> 
 		}
 		GodotBody2D *other_body = body_owner.get_or_null(bodies.get(i));
 		ERR_FAIL_NULL(other_body);
-		if (other_body->is_riding_one_way(p_body)) {
+		if (other_body->get_space() && other_body->is_riding_one_way(p_body)) {
 			p_bodies.push_back(bodies.get(i));
 		}
 	}
