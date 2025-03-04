@@ -2,7 +2,7 @@
 
 A Godot Engine fork that focuses on 2D pixel perfect games.
 
-Features (WIP):
+Features:
  * Positions of 2D nodes use ints
  * Overhauled 2D lighting system
  * Overhauled 2D physics system (based on [this](https://maddymakesgames.com/articles/celeste_and_towerfall_physics/index.html))
