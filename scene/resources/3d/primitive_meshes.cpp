@@ -283,7 +283,7 @@ Array PrimitiveMesh::get_mesh_arrays() const {
 }
 
 void PrimitiveMesh::set_custom_aabb(const AABB &p_custom) {
-	if (p_custom.is_equal_approx(custom_aabb)) {
+	if (p_custom.is_equal(custom_aabb)) {
 		return;
 	}
 	custom_aabb = p_custom;

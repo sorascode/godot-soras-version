@@ -1129,7 +1129,9 @@ void RasterizerCanvasGLES3::_record_item_commands(const Item *p_item, RID p_rend
 				state.canvas_instance_batches[state.current_batch_index].tex = polygon_i->texture;
 				state.canvas_instance_batches[state.current_batch_index].command_type = Item::Command::TYPE_POLYGON_I;
 				state.canvas_instance_batches[state.current_batch_index].command = c;
-				state.canvas_instance_batches[state.current_batch_index].shader_variant = CanvasShaderGLES3::MODE_ATTRIBUTES;
+				state.canvas_instance_batches[state.current_batch_index].specialization &= specialization_command_mask;
+				state.canvas_instance_batches[state.current_batch_index].specialization |= CanvasShaderGLES3::USE_ATTRIBUTES;
+				state.canvas_instance_batches[state.current_batch_index].flags = 0;
 
 				_prepare_canvas_texture(polygon_i->texture, state.canvas_instance_batches[state.current_batch_index].filter, state.canvas_instance_batches[state.current_batch_index].repeat, r_index, texpixel_size);
 

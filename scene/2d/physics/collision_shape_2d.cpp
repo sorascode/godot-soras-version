@@ -169,6 +169,11 @@ bool CollisionShape2D::is_disabled() const {
 	return disabled;
 }
 
+Color CollisionShape2D::_get_default_debug_color() const {
+	const SceneTree *st = SceneTree::get_singleton();
+	return st ? st->get_debug_collisions_color() : Color(0.0, 0.0, 0.0, 0.0);
+}
+
 void CollisionShape2D::set_debug_color(const Color &p_color) {
 	if (debug_color == p_color) {
 		return;

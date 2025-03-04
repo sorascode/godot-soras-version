@@ -158,9 +158,9 @@ void AbstractPolygonI2DEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ENTER_TREE:
 		case NOTIFICATION_THEME_CHANGED: {
-			button_create->set_icon(get_editor_theme_icon(SNAME("CurveCreate")));
-			button_edit->set_icon(get_editor_theme_icon(SNAME("CurveEdit")));
-			button_delete->set_icon(get_editor_theme_icon(SNAME("CurveDelete")));
+			button_create->set_button_icon(get_editor_theme_icon(SNAME("CurveCreate")));
+			button_edit->set_button_icon(get_editor_theme_icon(SNAME("CurveEdit")));
+			button_delete->set_button_icon(get_editor_theme_icon(SNAME("CurveDelete")));
 		} break;
 
 		case NOTIFICATION_READY: {
@@ -618,9 +618,6 @@ void AbstractPolygonI2DEditor::edit(Node *p_polygon) {
 	}
 
 	canvas_item_editor->update_viewport();
-}
-
-void AbstractPolygonI2DEditor::_bind_methods() {
 }
 
 void AbstractPolygonI2DEditor::remove_point(const Vertex &p_vertex) {

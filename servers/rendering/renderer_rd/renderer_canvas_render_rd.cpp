@@ -1484,7 +1484,7 @@ void RendererCanvasRenderRD::light_update_occluders(RID p_rid, int p_shadow_inde
 	Vector<Color> cc;
 	cc.push_back(Color(1.0, 1.0, 1.0, 1.0));
 	Rect2i rect(0, 0, size.width, size.height);
-	RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(state.occluder_fbs[cl->occluder_details.texture_index], RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_DISCARD, cc, 1.0, 0, rect);
+	RD::DrawListID draw_list = RD::get_singleton()->draw_list_begin(state.occluder_fbs[cl->occluder_details.texture_index], RD::DRAW_CLEAR_ALL, cc, 1.0f, 0, rect);
 
 	OccluderRenderPushConstant push_constant;
 	push_constant.scale[0] = 2.0 / (float)size.width;
@@ -3072,8 +3072,6 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				}
 
 				InstanceData *instance_data = new_instance_data(world, lights, base_flags, r_index, uniforms_ofs, tex_info);
-
-				InstanceData *instance_data = new_instance_data();
 
 				Color color = base_color;
 				if (use_linear_colors) {

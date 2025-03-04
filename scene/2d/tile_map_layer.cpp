@@ -3147,28 +3147,28 @@ void TileMapLayer::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p
 		for (int physics_layer = 0; physics_layer < physics_layers_count; physics_layer++) {
 			if ((parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_STATIC_COLLIDERS || parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_BOTH) &&
 					(tile_set->get_physics_layer_collision_layer(physics_layer) & parsed_collision_mask)) {
-				for (int collision_polygon_index = 0; collision_polygon_index < tile_data->get_collision_polygons_count(physics_layer); collision_polygon_index++) {
-					PackedVector2Array collision_polygon_points = tile_data->get_collision_polygon_points(physics_layer, collision_polygon_index);
-					if (collision_polygon_points.is_empty()) {
-						continue;
-					}
-
-					if (flip_h || flip_v || transpose) {
-						collision_polygon_points = TileData::get_transformed_vertices(collision_polygon_points, flip_h, flip_v, transpose);
-					}
-
-					Vector<Vector2> obstruction_outline;
-					obstruction_outline.resize(collision_polygon_points.size());
-
-					const Vector2 *collision_polygon_points_ptr = collision_polygon_points.ptr();
-					Vector2 *obstruction_outline_ptrw = obstruction_outline.ptrw();
-
-					for (int obstruction_outline_index = 0; obstruction_outline_index < obstruction_outline.size(); obstruction_outline_index++) {
-						obstruction_outline_ptrw[obstruction_outline_index] = tile_transform_offset.xform(collision_polygon_points_ptr[obstruction_outline_index]);
-					}
-
-					p_source_geometry_data->_add_obstruction_outline(obstruction_outline);
-				}
+				// for (int collision_polygon_index = 0; collision_polygon_index < tile_data->get_collision_polygons_count(physics_layer); collision_polygon_index++) {
+				// 	PackedVector2Array collision_polygon_points = tile_data->get_collision_polygon_points(physics_layer, collision_polygon_index);
+				// 	if (collision_polygon_points.is_empty()) {
+				// 		continue;
+				// 	}
+				//
+				// 	if (flip_h || flip_v || transpose) {
+				// 		collision_polygon_points = TileData::get_transformed_vertices(collision_polygon_points, flip_h, flip_v, transpose);
+				// 	}
+				//
+				// 	Vector<Vector2> obstruction_outline;
+				// 	obstruction_outline.resize(collision_polygon_points.size());
+				//
+				// 	const Vector2 *collision_polygon_points_ptr = collision_polygon_points.ptr();
+				// 	Vector2 *obstruction_outline_ptrw = obstruction_outline.ptrw();
+				//
+				// 	for (int obstruction_outline_index = 0; obstruction_outline_index < obstruction_outline.size(); obstruction_outline_index++) {
+				// 		obstruction_outline_ptrw[obstruction_outline_index] = tile_transform_offset.xform(collision_polygon_points_ptr[obstruction_outline_index]);
+				// 	}
+				//
+				// 	p_source_geometry_data->_add_obstruction_outline(obstruction_outline);
+				// }
 			}
 		}
 	}

@@ -36,7 +36,6 @@
 #include "core/object/script_language.h"
 #include "core/templates/local_vector.h"
 #include "scene/2d/physics/collision_object_2d.h"
-#include "scene/2d/physics/collision_polygon_2d.h"
 #include "scene/2d/physics/collision_shape_2d.h"
 #ifndef _3D_DISABLED
 #include "scene/3d/physics/collision_object_3d.h"
@@ -1807,7 +1806,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_n
 
 			// If it's a shape, get the collision object it's from.
 			// FIXME: If the collision object has multiple shapes, only the topmost will be above it in the list.
-			if (Object::cast_to<CollisionShape2D>(ci) || Object::cast_to<CollisionPolygon2D>(ci)) {
+			if (Object::cast_to<CollisionShape2D>(ci)) {
 				CollisionObject2D *collision_object = Object::cast_to<CollisionObject2D>(ci->get_parent());
 				if (collision_object) {
 					SelectResult res_col;
