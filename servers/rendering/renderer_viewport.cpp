@@ -664,7 +664,7 @@ void RendererViewport::_draw_viewport(Viewport *p_viewport) {
 				ptr = ptr->filter_next_ptr;
 			}
 
-			RSG::canvas->render_canvas(p_viewport->render_target, canvas, xform, canvas_lights, canvas_directional_lights, clip_rect, p_viewport->texture_filter, p_viewport->texture_repeat, p_viewport->snap_2d_transforms_to_pixel, p_viewport->snap_2d_vertices_to_pixel, p_viewport->canvas_cull_mask, &p_viewport->render_info);
+			RSG::canvas->render_canvas(p_viewport->render_target, canvas, xform, canvas_lights, canvas_directional_lights, clip_rect, p_viewport->texture_filter, p_viewport->texture_repeat, p_viewport->snap_2d_transforms_to_pixel, p_viewport->snap_2d_vertices_to_pixel, p_viewport->canvas_cull_mask, p_viewport->overwrite_material, &p_viewport->render_info);
 			if (RSG::canvas->was_sdf_used()) {
 				p_viewport->sdf_active = true;
 			}
@@ -1350,6 +1350,17 @@ bool RendererViewport::viewport_is_using_hdr_2d(RID p_viewport) const {
 	return viewport->use_hdr_2d;
 }
 
+void RendererViewport::viewport_set_overwrite_material(RID p_viewport, RID p_overwrite_material) {
+	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
+	ERR_FAIL_NULL(viewport);
+
+	// if (viewport->overwrite_material == p_overwrite_material) {
+	// 	return;
+	// }
+	viewport->overwrite_material = p_overwrite_material;
+	// RSG::texture_storage->render_target_set_use_hdr(viewport->render_target, p_overwrite_material);
+}
+
 void RendererViewport::viewport_set_screen_space_aa(RID p_viewport, RS::ViewportScreenSpaceAA p_mode) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
@@ -1587,6 +1598,8 @@ bool RendererViewport::free(RID p_rid) {
 		viewport_set_scenario(p_rid, RID());
 		active_viewports.erase(viewport);
 		sorted_active_viewports_dirty = true;
+
+		viewport_set_overwrite_material(viewport->self, RID());
 
 		if (viewport->use_occlusion_culling) {
 			RendererSceneOcclusionCull::get_singleton()->remove_buffer(p_rid);

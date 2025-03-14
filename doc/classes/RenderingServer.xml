@@ -4223,6 +4223,14 @@
 				[b]Note:[/b] This setting will have no effect when using the Compatibility renderer, which always renders in low dynamic range for performance reasons.
 			</description>
 		</method>
+		<method name="viewport_set_use_overwrite_material">
+			<return type="void" />
+			<param index="0" name="viewport" type="RID" />
+			<param index="1" name="overwrite_material" type="RID" />
+			<description>
+				Sets a new [param overwrite_material] to the viewport specified by the [param item] RID. This will be used to overwrite all materials canvas items use in the viewport.
+			</description>
+		</method>
 		<method name="viewport_set_use_occlusion_culling">
 			<return type="void" />
 			<param index="0" name="viewport" type="RID" />

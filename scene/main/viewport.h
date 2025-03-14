@@ -265,6 +265,8 @@ private:
 	bool use_hdr_2d = false;
 	bool gen_mipmaps = false;
 
+	Ref<Material> overwrite_material;
+
 	bool snap_controls_to_pixels = true;
 	bool snap_2d_transforms_to_pixel = false;
 	bool snap_2d_vertices_to_pixel = false;
@@ -540,6 +542,9 @@ public:
 
 	void set_use_hdr_2d(bool p_enable);
 	bool is_using_hdr_2d() const;
+
+	virtual void set_overwrite_material(const Ref<Material> &p_material);
+	Ref<Material> get_overwrite_material() const;
 
 	Ref<ViewportTexture> get_texture() const;
 

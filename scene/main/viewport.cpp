@@ -1206,6 +1206,22 @@ bool Viewport::is_using_hdr_2d() const {
 	return use_hdr_2d;
 }
 
+void Viewport::set_overwrite_material(const Ref<Material> &p_overwrite_material) {
+	ERR_THREAD_GUARD;
+	overwrite_material = p_overwrite_material;
+	RID rid;
+	if (overwrite_material.is_valid()) {
+		rid = overwrite_material->get_rid();
+	}
+	RS::get_singleton()->viewport_set_overwrite_material(viewport, rid);
+	notify_property_list_changed(); //properties for material exposed
+}
+
+Ref<Material> Viewport::get_overwrite_material() const {
+	ERR_READ_THREAD_GUARD_V(Ref<Material>());
+	return overwrite_material;
+}
+
 void Viewport::set_world_2d(const Ref<World2D> &p_world_2d) {
 	ERR_MAIN_THREAD_GUARD;
 	if (world_2d == p_world_2d) {
@@ -4776,6 +4792,8 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_transparent_background"), &Viewport::has_transparent_background);
 	ClassDB::bind_method(D_METHOD("set_use_hdr_2d", "enable"), &Viewport::set_use_hdr_2d);
 	ClassDB::bind_method(D_METHOD("is_using_hdr_2d"), &Viewport::is_using_hdr_2d);
+	ClassDB::bind_method(D_METHOD("set_overwrite_material", "overwrite_material"), &Viewport::set_overwrite_material);
+	ClassDB::bind_method(D_METHOD("get_overwrite_material"), &Viewport::get_overwrite_material);
 
 	ClassDB::bind_method(D_METHOD("set_msaa_2d", "msaa"), &Viewport::set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("get_msaa_2d"), &Viewport::get_msaa_2d);
@@ -4955,6 +4973,8 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mesh_lod_threshold", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_mesh_lod_threshold", "get_mesh_lod_threshold");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe,Normal Buffer,VoxelGI Albedo,VoxelGI Lighting,VoxelGI Emission,Shadow Atlas,Directional Shadow Map,Scene Luminance,SSAO,SSIL,Directional Shadow Splits,Decal Atlas,SDFGI Cascades,SDFGI Probes,VoxelGI/SDFGI Buffer,Disable Mesh LOD,OmniLight3D Cluster,SpotLight3D Cluster,Decal Cluster,ReflectionProbe Cluster,Occlusion Culling Buffer,Motion Vectors,Internal Buffer"), "set_debug_draw", "get_debug_draw");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_hdr_2d"), "set_use_hdr_2d", "is_using_hdr_2d");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "overwrite_material", PROPERTY_HINT_RESOURCE_TYPE, "CanvasItemMaterial,ShaderMaterial"), "set_overwrite_material", "get_overwrite_material");
+
 
 #ifndef _3D_DISABLED
 	ADD_GROUP("Scaling 3D", "");
