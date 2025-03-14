@@ -382,6 +382,6 @@ $RECYCLE.BIN/
 *.lnk
 *.generated.props
 
-Godot.app
+godot_macos_editor.app
 macos_template.app
 macos.zip
