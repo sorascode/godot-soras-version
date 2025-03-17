@@ -1525,6 +1525,7 @@ void Viewport::_gui_show_tooltip() {
 	// This way, the custom tooltip from `ConnectionsDockTree` can create
 	// its own tooltip without conflicting with the default one, even an empty tooltip.
 	if (base_tooltip && !base_tooltip->is_visible()) {
+		memdelete(base_tooltip);
 		return;
 	}
 
@@ -1562,6 +1563,8 @@ void Viewport::_gui_show_tooltip() {
 	panel->set_flag(Window::FLAG_POPUP, false);
 	panel->set_flag(Window::FLAG_MOUSE_PASSTHROUGH, true);
 	panel->set_wrap_controls(true);
+	panel->set_default_canvas_item_texture_filter(get_default_canvas_item_texture_filter());
+	panel->set_default_canvas_item_texture_repeat(get_default_canvas_item_texture_repeat());
 	panel->add_child(base_tooltip);
 	panel->gui_parent = this;
 
