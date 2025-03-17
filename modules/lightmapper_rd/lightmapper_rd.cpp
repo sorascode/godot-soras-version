@@ -141,7 +141,7 @@ void LightmapperRD::_plot_triangle_into_triangle_index_list(int p_size, const Ve
 
 	for (int i = 0; i < 8; i++) {
 		AABB aabb = p_bounds;
-		aabb.size *= 0.5;
+		aabb.size /= 2;
 		Vector3i n = p_ofs;
 
 		if (i & 1) {
@@ -158,7 +158,7 @@ void LightmapperRD::_plot_triangle_into_triangle_index_list(int p_size, const Ve
 		}
 
 		{
-			Vector3 qsize = aabb.size * 0.5; //quarter size, for fast aabb test
+			Vector3 qsize = aabb.size / 2; //quarter size, for fast aabb test
 
 			if (!Geometry3D::triangle_box_overlap(aabb.position + qsize, qsize, p_points)) {
 				//does not fit in child, go on
@@ -500,7 +500,7 @@ void LightmapperRD::_create_acceleration_structures(RenderingDevice *rd, Size2i 
 		Vector3 pp(p_probe_positions[i].position[0], p_probe_positions[i].position[1], p_probe_positions[i].position[2]);
 		bounds.expand_to(pp);
 	}
-	bounds.grow_by(0.1); //grow a bit to avoid numerical error
+	// bounds.grow_by(0.1); //grow a bit to avoid numerical error
 
 	triangles.sort(); //sort by slice
 	seams.sort();
