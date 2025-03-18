@@ -475,6 +475,10 @@ vec4 light_color_compute(uint light_base, bool normal_used, vec2 tex_uv_atlas, v
 	return light_color;
 }
 
+float luminance(vec4 col) {
+	return (0.299*col.r + 0.587*col.g + 0.114*col.b);
+}
+
 //float distance = length(shadow_pos);
 vec4 light_shadow_compute(uint light_base, vec4 light_color, vec4 shadow_uv, float intensity
 #ifdef LIGHT_CODE_USED
@@ -810,13 +814,66 @@ void main() {
 			);
 
 			if (interpolation_steps < light_max_steps) {
+				vec4 best_color;
+				vec4 compare_color;
+
 				vec4 shadow_uv = shadow_uv_compute(light_base, interpolated_pos);
-				light_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
+				best_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
 #ifdef LIGHT_CODE_USED
 						,
 						shadow_modulate.rgb
 #endif
 				);
+
+				shadow_uv = shadow_uv_compute(light_base, interpolated_pos + vec2(light_step_size, 0.0));
+				compare_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
+#ifdef LIGHT_CODE_USED
+					,
+					shadow_modulate.rgb
+#endif
+				);
+
+				if (luminance(compare_color) > luminance(best_color)) {
+					best_color = compare_color;
+				}
+
+				shadow_uv = shadow_uv_compute(light_base, interpolated_pos + vec2(-light_step_size, 0.0));
+				compare_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
+#ifdef LIGHT_CODE_USED
+					,
+					shadow_modulate.rgb
+#endif
+				);
+
+				if (luminance(compare_color) > luminance(best_color)) {
+					best_color = compare_color;
+				}
+
+				shadow_uv = shadow_uv_compute(light_base, interpolated_pos + vec2(0.0, light_step_size));
+				compare_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
+#ifdef LIGHT_CODE_USED
+					,
+					shadow_modulate.rgb
+#endif
+				);
+
+				if (luminance(compare_color) > luminance(best_color)) {
+					best_color = compare_color;
+				}
+
+				shadow_uv = shadow_uv_compute(light_base, interpolated_pos + vec2(0.0, -light_step_size));
+				compare_color = light_shadow_compute(light_base, light_color, shadow_uv, float(interpolation_steps) / float(light_max_steps)
+#ifdef LIGHT_CODE_USED
+					,
+					shadow_modulate.rgb
+#endif
+				);
+
+				if (luminance(compare_color) > luminance(best_color)) {
+					best_color = compare_color;
+				}
+
+				light_color = best_color;
 			}
 			else {
 				vec4 shadow_color = unpackUnorm4x8(light_array.data[light_base].shadow_color);
