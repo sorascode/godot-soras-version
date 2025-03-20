@@ -51,10 +51,16 @@ public:
 	bool move_h(real_t p_amount, const Callable &p_callback = Callable());
 	bool move_v(real_t p_amount, const Callable &p_callback = Callable());
 	virtual bool move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) {
+		if (p_amount == 0) {
+			return false;
+		}
 		translate(Vector2i(p_amount, 0));
 		return false;
 	};
 	virtual bool move_v_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID()) {
+		if (p_amount == 0) {
+			return false;
+		}
 		translate(Vector2i(0, p_amount));
 		return false;
 	};

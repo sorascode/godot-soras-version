@@ -62,6 +62,9 @@ CharacterBody2D::CharacterBody2D() :
 }
 
 bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
 	int move_dir = SIGN(p_amount);
 	Vector2i move_dir_vector = Vector2i(move_dir, 0);
 	int amount_moved = 0;
@@ -86,6 +89,9 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback,
 }
 
 bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
 	int move_dir = SIGN(p_amount);
 	Vector2i move_dir_vector = Vector2i(0, move_dir);
 	int amount_moved = 0;

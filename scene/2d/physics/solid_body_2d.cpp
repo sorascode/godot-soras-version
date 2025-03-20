@@ -35,6 +35,9 @@ SolidBody2D::SolidBody2D() :
 }
 
 bool SolidBody2D::move_h_exact(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
 	update_riders();
 	if (one_way_collision) {
 		move_h_exact_one_way(p_amount, p_collision_callback, p_pusher);
@@ -84,6 +87,9 @@ void SolidBody2D::move_h_exact_one_way(int32_t p_amount, const Callable &p_colli
 }
 
 bool SolidBody2D::move_v_exact(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
 	update_riders();
 	if (one_way_collision) {
 		move_v_exact_one_way(p_amount, p_collision_callback, p_pusher);
