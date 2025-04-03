@@ -62,8 +62,8 @@ msgstr ""
 "Project-Id-Version: Ukrainian (Godot Engine)\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-03-04 21:58+0000\n"
-"Last-Translator: Veydzher <Veydzher@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2025-03-19 17:59+0000\n"
+"Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/godot-engine/"
 "godot/uk/>\n"
 "Language: uk\n"
@@ -72,7 +72,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 msgid "Main Thread"
 msgstr "Головний потік"
@@ -926,6 +926,9 @@ msgstr "AnimationPlayer не може анімувати себе, лише ін
 
 msgid "property '%s'"
 msgstr "властивість '%s'"
+
+msgid "Nearest FPS: %d"
+msgstr "Найближчий FPS: %d"
 
 msgid "Change Animation Step"
 msgstr "Змінити крок анімації"
@@ -3394,7 +3397,7 @@ msgid "Make this property be put back at its original place."
 msgstr "Повернути це майно на колишнє місце."
 
 msgid "Favorite Property"
-msgstr "Додати властивість в обране"
+msgstr "Додати властивість до обраного"
 
 msgid "Make this property be placed at the top for all objects of this class."
 msgstr ""
@@ -3598,6 +3601,27 @@ msgstr "Переключити видимість повідомлень ред�
 
 msgid "Native Shader Source Inspector"
 msgstr "Інспектор джерел нативних шейдерів"
+
+msgid ""
+"The Android build template is already installed in this project and it won't "
+"be overwritten.\n"
+"Remove the \"%s\" directory manually before attempting this operation again."
+msgstr ""
+"Шаблон збірки Android уже встановлено в цьому проекті, і його не буде "
+"перезаписано.\n"
+"Видаліть каталог \"%s\" вручну перед повторною спробою цієї операції."
+
+msgid ""
+"This will set up your project for gradle Android builds by installing the "
+"source template to \"%s\".\n"
+"Note that in order to make gradle builds instead of using pre-built APKs, the "
+"\"Use Gradle Build\" option should be enabled in the Android export preset."
+msgstr ""
+"Це налаштує ваш проект на збірки gradle для Android, встановивши вихідний "
+"шаблон до \"%s\".\n"
+"Зауважте, що для того, щоб створювати збірки gradle замість використання "
+"готових APK, вам слід увімкнути опцію \"Використовувати збірку gradle\" у "
+"налаштуванні експорту до Android."
 
 msgid "Unnamed Project"
 msgstr "Проєкт без назви"
@@ -5246,6 +5270,9 @@ msgstr "Встановити з файла"
 
 msgid "Install templates from a local file."
 msgstr "Встановити шаблони з локального файла."
+
+msgid "Online mode is needed to download the templates."
+msgstr "Для завантаження шаблонів потрібен режим онлайн."
 
 msgid "Go Online"
 msgstr "Вийти в Інтернет"
@@ -14856,6 +14883,9 @@ msgstr ""
 "Вільно перенаправляйте підключення, можна використовувати для підключення "
 "кількох вхідних портів до одного вихідного порту."
 
+msgid "[None]"
+msgstr "[Жодного]"
+
 msgid "Edit Visual Property: %s"
 msgstr "Редагувати візуальну властивість: %s"
 
@@ -16403,10 +16433,27 @@ msgstr ""
 "до повільнішого завантаження при кожному старті цього проекта."
 
 msgid "Restart & Upgrade"
-msgstr "Перезапустити й оновити"
+msgstr "Перезапустити і оновити"
 
 msgid "Updating Script UIDs"
 msgstr "Оновлення UID сценарію"
+
+msgid ""
+"As of Godot 4.4, scenes and resources use UIDs to reference scripts and "
+"shaders. Upgrades apply on the next save of each scene/resource.\n"
+"\n"
+"To save time, this tool can open and save each of these files. Depending on "
+"the project size, it may take several minutes."
+msgstr ""
+"Починаючи з версії Godot 4.4, сцени та ресурси використовують UID для "
+"посилання на скрипти та шейдери. Оновлення застосовуються при наступному "
+"збереженні кожної сцени/ресурсу.\n"
+"\n"
+"Щоб заощадити час, цей інструмент може відкривати і зберігати кожен з цих "
+"файлів. Залежно від розміру проекту це може зайняти кілька хвилин."
+
+msgid "Re-save all scenes and resources to use UIDs"
+msgstr "Перезбережіть усі сцени та ресурси, щоб використовувати UID"
 
 msgid "Learn More"
 msgstr "Дізнатися більше"
