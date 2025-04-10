@@ -1046,10 +1046,6 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 		return false;
 	}
 
-	static const int max_excluded_shape_pairs = 32;
-	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
-	int excluded_shape_pair_count = 0;
-
 	{
 		Rect2i moved_aabb = body_aabb;
 		moved_aabb.position += p_delta;
@@ -1070,8 +1066,6 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 
 			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
 
-			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
-
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
 
@@ -1090,19 +1084,6 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 
 				int col_shape_idx = intersection_query_subindex_results[i];
 
-				//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
-
-				bool excluded = false;
-				for (int k = 0; k < excluded_shape_pair_count; k++) {
-					if (excluded_shape_pairs[k].local_shape == body_shape && excluded_shape_pairs[k].against_object == col_obj && excluded_shape_pairs[k].against_shape_index == col_shape_idx) {
-						excluded = true;
-						break;
-					}
-				}
-				if (excluded) {
-					continue;
-				}
-
 				if (r_result) {
 					r_result->collider = col_obj->get_self();
 					r_result->collider_id = col_obj->get_instance_id();
@@ -1120,7 +1101,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 }
 
 bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_delta, const GodotBody2D *p_other, const bool p_smear) {
-	if (!p_body->is_collidable() || !p_other->is_collidable()) {
+	if (p_body->get_space() != p_other->get_space() || !p_body->is_collidable() || !p_other->is_collidable()) {
 		return false;
 	}
 
@@ -1189,8 +1170,6 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_
 				shape_moved_aabb = shape_moved_aabb.merge(shape_aabb);
 			}
 
-			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
-
 			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
 				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
 
@@ -1232,10 +1211,6 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 		return false;
 	}
 
-	static const int max_excluded_shape_pairs = 32;
-	ExcludedShapeSW excluded_shape_pairs[max_excluded_shape_pairs];
-	int excluded_shape_pair_count = 0;
-
 	{
 		Rect2i moved_aabb = body_aabb;
 		moved_aabb.position += p_delta;
@@ -1263,8 +1238,6 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 
 			amount = _cull_aabb_for_body(p_body, shape_moved_aabb);
 
-			GodotShape2D *body_shape = p_body->get_shape(body_shape_idx);
-
 			for (int i = 0; i < amount; i++) {
 				GodotCollisionObject2D *col_obj = intersection_query_results[i];
 
@@ -1279,21 +1252,6 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 							continue;
 						}
 					}
-				}
-
-				int col_shape_idx = intersection_query_subindex_results[i];
-
-				//				GodotShape2D *against_shape = col_obj->get_shape(col_shape_idx);
-
-				bool excluded = false;
-				for (int k = 0; k < excluded_shape_pair_count; k++) {
-					if (excluded_shape_pairs[k].local_shape == body_shape && excluded_shape_pairs[k].against_object == col_obj && excluded_shape_pairs[k].against_shape_index == col_shape_idx) {
-						excluded = true;
-						break;
-					}
-				}
-				if (excluded) {
-					continue;
 				}
 
 				if (r_bodies.find(col_obj->get_self()) == nullptr) {
