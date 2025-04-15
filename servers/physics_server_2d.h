@@ -546,7 +546,7 @@ public:
 	};
 
 	struct CollisionResult {
-		Vector2 collision_point;
+		Vector2i collision_point;
 		Vector2 collision_normal;
 		int collision_local_shape = 0;
 		ObjectID collider_id;

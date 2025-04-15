@@ -1090,7 +1090,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 					r_result->collider_shape = col_shape_idx;
 					r_result->collision_local_shape = i;
 					//					r_result->collision_normal = ccd.normal;
-					//					r_result->collision_point = ccd.contact;
+					r_result->collision_point = col_obj->get_transform().get_origin();
 				}
 				return true;
 			}

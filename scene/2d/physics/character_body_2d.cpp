@@ -77,7 +77,9 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback,
 			position_delta.x = 0;
 			if (p_callback.is_valid())
 			{
-				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
+				Object *obj = ObjectDB::get_instance(r_result.collider_id);
+				Node2D *collider_body = cast_to<Node2D>(obj);
+				p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, p_pusher);
 			}
 			return true;
 		}
@@ -105,7 +107,9 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 			position_delta.y = 0;
 			if (p_callback.is_valid())
 			{
-				p_callback.call(move_dir_vector, amount_moved, p_amount, r_result.collider, p_pusher);
+				Object *obj = ObjectDB::get_instance(r_result.collider_id);
+				Node2D *collider_body = cast_to<Node2D>(obj);
+				p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, p_pusher);
 			}
 			return true;
 		}
@@ -116,7 +120,9 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 				position_delta.y = 0;
 				if (p_callback.is_valid())
 				{
-					p_callback.call(move_dir_vector, amount_moved, p_amount, bodies.get(0), p_pusher);
+					Object *obj = ObjectDB::get_instance(r_result.collider_id);
+					Node2D *collider_body = cast_to<Node2D>(obj);
+					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, p_pusher);
 				}
 				return true;
 			}

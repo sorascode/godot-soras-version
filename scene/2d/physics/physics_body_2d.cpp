@@ -143,12 +143,15 @@ bool PhysicsBody2D::collides_at_all_outside(const Vector2i &p_delta, List<RID> &
 	return r_bodies.size() > 0;
 }
 
-TypedArray<RID> PhysicsBody2D::_collides_at_all_outside(const Vector2i &p_delta, const int16_t p_collision_type_filter) {
+TypedArray<Node2D> PhysicsBody2D::_collides_at_all_outside(const Vector2i &p_delta, const int16_t p_collision_type_filter) {
 	List<RID> bodies;
-	TypedArray<RID> r_bodies;
+	TypedArray<Node2D> r_bodies;
 	collides_at_all_outside(p_delta, bodies, p_collision_type_filter);
 	for (const auto &item : bodies) {
-		r_bodies.push_back(item);
+		ObjectID instance_id = PhysicsServer2D::get_singleton()->body_get_object_instance_id(item);
+		Object *obj = ObjectDB::get_instance(instance_id);
+		Node2D *node = cast_to<Node2D>(obj);
+		r_bodies.push_back(node);
 	}
 	return r_bodies;
 }
@@ -165,12 +168,15 @@ bool PhysicsBody2D::collides_at_all(const Vector2i &p_delta, List<RID> &r_bodies
 	return PhysicsServer2D::get_singleton()->body_collides_at_all(get_rid(), p_delta, r_bodies, p_smear, p_collision_type_filter);
 }
 
-TypedArray<RID> PhysicsBody2D::_collides_at_all(const Vector2i &p_delta, const bool p_smear, const int16_t p_collision_type_filter) {
+TypedArray<Node2D> PhysicsBody2D::_collides_at_all(const Vector2i &p_delta, const bool p_smear, const int16_t p_collision_type_filter) {
 	List<RID> bodies;
-	TypedArray<RID> r_bodies;
+	TypedArray<Node2D> r_bodies;
 	collides_at_all(p_delta, bodies, p_smear, p_collision_type_filter);
 	for (const auto &item : bodies) {
-		r_bodies.push_back(item);
+		ObjectID instance_id = PhysicsServer2D::get_singleton()->body_get_object_instance_id(item);
+		Object *obj = ObjectDB::get_instance(instance_id);
+		Node2D *node = cast_to<Node2D>(obj);
+		r_bodies.push_back(node);
 	}
 	return r_bodies;
 }
