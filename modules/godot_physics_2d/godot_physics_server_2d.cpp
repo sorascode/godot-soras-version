@@ -1115,7 +1115,7 @@ bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Vector2i &p_d
 	return body->get_space()->body_collides_at_with(body, p_delta, other);
 }
 
-bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter) {
+bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1123,7 +1123,7 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_de
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at_all(body, p_delta, r_bodies, p_smear, p_collision_type_filter);
+	return body->get_space()->body_collides_at_all(body, p_delta, r_result, p_smear, p_collision_type_filter);
 }
 
 bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) {

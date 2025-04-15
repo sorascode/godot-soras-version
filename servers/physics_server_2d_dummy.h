@@ -310,7 +310,7 @@ public:
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override { return false; }
 	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
 	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) override { return false; };
-	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
 
 	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override { return false; };
 

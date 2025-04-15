@@ -429,6 +429,25 @@ public:
 		return nullptr;
 	}
 
+	int index_of(Element *p_I) {
+		Element *it = front();
+		int index = 0;
+		while (it) {
+			if (it == p_I) {
+				return index;
+			}
+			index++;
+			it = it->next();
+		}
+
+		return -1;
+	}
+
+	int index_of(const T &value) {
+		Element *I = find(value);
+		return index_of(I);
+	}
+
 	/**
 	 * erase an element in the list, by iterator pointing to it. Return true if it was found/erased.
 	 */

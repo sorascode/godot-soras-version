@@ -306,9 +306,9 @@ public:
 		return physics_server_2d->body_collides_at_with(p_body, delta, p_other);
 	}
 
-	bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at_all(p_body, delta, r_bodies, p_smear, p_collision_type_filter);
+		return physics_server_2d->body_collides_at_all(p_body, delta, r_result, p_smear, p_collision_type_filter);
 	}
 
 	bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override {

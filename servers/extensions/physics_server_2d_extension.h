@@ -188,6 +188,10 @@ typedef PhysicsServer2D::CollisionResult PhysicsServer2DExtensionCollisionResult
 
 GDVIRTUAL_NATIVE_PTR(PhysicsServer2DExtensionCollisionResult)
 
+typedef PhysicsServer2D::CollisionResults PhysicsServer2DExtensionCollisionResults;
+
+GDVIRTUAL_NATIVE_PTR(PhysicsServer2DExtensionCollisionResults)
+
 class PhysicsServer2DExtension : public PhysicsServer2D {
 	GDCLASS(PhysicsServer2DExtension, PhysicsServer2D);
 
@@ -396,7 +400,7 @@ public:
 	GDVIRTUAL6RC_REQUIRED(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
 	GDVIRTUAL4RC_REQUIRED(bool, _body_collides_at, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResult>, const int16_t &)
 	GDVIRTUAL3RC_REQUIRED(bool, _body_collides_at_with, RID, const Vector2i &, const RID &)
-	GDVIRTUAL4RC_REQUIRED(TypedArray<RID>, _body_collides_at_all, RID, const Vector2i &, const bool &, const int16_t &)
+	GDVIRTUAL5RC_REQUIRED(bool, _body_collides_at_all, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResults>, const bool &, const int16_t &)
 
 	GDVIRTUAL3RC_REQUIRED(bool, _area_collides_at_with, RID, const Vector2i &, const RID &)
 
@@ -481,14 +485,10 @@ public:
 		return ret;
 	}
 
-	bool body_collides_at_all(RID p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
-		r_bodies.clear();
-		TypedArray<RID> ret;
-		GDVIRTUAL_CALL(_body_collides_at_all, p_body, p_delta, p_smear, p_collision_type_filter, ret);
-		for (int i = 0; i < ret.size(); i++) {
-			r_bodies.push_back(ret[i]);
-		}
-		return !ret.is_empty();
+	bool body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+		bool ret = false;
+		GDVIRTUAL_CALL(_body_collides_at_all, p_body, p_delta, r_result, p_smear, p_collision_type_filter, ret);
+		return ret;
 	}
 
 

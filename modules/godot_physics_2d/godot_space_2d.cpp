@@ -1183,12 +1183,16 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, List<RID> &r_bodies, const bool p_smear, const int16_t p_collision_type_filter) {
+bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter) {
 	if (!p_body->is_collidable()) {
 		return false;
 	}
 
-	r_bodies.clear();
+	if (r_result) {
+		r_result->clear();
+	}
+
+	bool collided_with_something = false;
 
 	Rect2i body_aabb;
 
@@ -1254,14 +1258,23 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 					}
 				}
 
-				if (r_bodies.find(col_obj->get_self()) == nullptr) {
-					r_bodies.push_back(col_obj->get_self());
+				collided_with_something = true;
+
+				if (r_result and r_result->colliders.find(col_obj->get_self()) == nullptr) {
+					int col_shape_idx = intersection_query_subindex_results[i];
+
+					r_result->colliders.push_back(col_obj->get_self());
+					r_result->collider_ids.push_back(col_obj->get_instance_id());
+					r_result->collider_shapes.push_back(col_shape_idx);
+					r_result->collision_local_shapes.push_back(i);
+					r_result->collision_normals.push_back(Vector2());
+					r_result->collision_points.push_back(col_obj->get_transform().get_origin());
 				}
 			}
 		}
 	}
 
-	return !r_bodies.is_empty();
+	return collided_with_something;
 }
 
 bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_delta, const GodotBody2D *p_other) {

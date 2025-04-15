@@ -597,7 +597,7 @@ void PhysicsTestMotionResult2D::_bind_methods() {
 
 ///////////////////////////////
 
-Vector2 PhysicsCollisionResult2D::get_collision_point() const {
+Vector2i PhysicsCollisionResult2D::get_collision_point() const {
 	return result.collision_point;
 }
 
@@ -634,6 +634,51 @@ void PhysicsCollisionResult2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_collider"), &PhysicsCollisionResult2D::get_collider);
 	ClassDB::bind_method(D_METHOD("get_collider_shape"), &PhysicsCollisionResult2D::get_collider_shape);
 	ClassDB::bind_method(D_METHOD("get_collision_local_shape"), &PhysicsCollisionResult2D::get_collision_local_shape);
+}
+
+///////////////////////////////
+
+Vector2i PhysicsCollisionResults2D::get_collision_point(int p_index) const {
+	return result.collision_points.get(p_index);
+}
+
+Vector2 PhysicsCollisionResults2D::get_collision_normal(int p_index) const {
+	return result.collision_normals.get(p_index);
+}
+
+ObjectID PhysicsCollisionResults2D::get_collider_id(int p_index) const {
+	return result.collider_ids.get(p_index);
+}
+
+RID PhysicsCollisionResults2D::get_collider_rid(int p_index) const {
+	return result.colliders.get(p_index);
+}
+
+Object *PhysicsCollisionResults2D::get_collider(int p_index) const {
+	return ObjectDB::get_instance(result.collider_ids.get(p_index));
+}
+
+int PhysicsCollisionResults2D::get_collider_shape(int p_index) const {
+	return result.collider_shapes.get(p_index);
+}
+
+int PhysicsCollisionResults2D::get_collision_local_shape(int p_index) const {
+	return result.collision_local_shapes.get(p_index);
+}
+
+int PhysicsCollisionResults2D::size() const {
+	return result.colliders.size();
+}
+
+void PhysicsCollisionResults2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_collision_point", "index"), &PhysicsCollisionResults2D::get_collision_point);
+	ClassDB::bind_method(D_METHOD("get_collision_normal", "index"), &PhysicsCollisionResults2D::get_collision_normal);
+	ClassDB::bind_method(D_METHOD("get_collider_id", "index"), &PhysicsCollisionResults2D::get_collider_id);
+	ClassDB::bind_method(D_METHOD("get_collider_rid", "index"), &PhysicsCollisionResults2D::get_collider_rid);
+	ClassDB::bind_method(D_METHOD("get_collider", "index"), &PhysicsCollisionResults2D::get_collider);
+	ClassDB::bind_method(D_METHOD("get_collider_shape", "index"), &PhysicsCollisionResults2D::get_collider_shape);
+	ClassDB::bind_method(D_METHOD("get_collision_local_shape", "index"), &PhysicsCollisionResults2D::get_collision_local_shape);
+	ClassDB::bind_method(D_METHOD("size"), &PhysicsCollisionResults2D::size);
 }
 
 ///////////////////////////////////////
@@ -696,14 +741,13 @@ bool PhysicsServer2D::_body_collides_at_with(RID p_body, const Vector2i &delta, 
 	return body_collides_at_with(p_body, delta, p_other);
 }
 
-TypedArray<RID> PhysicsServer2D::_body_collides_at_all(RID p_body, const Vector2i &delta, const bool p_smear, const int16_t &collision_type_filter) {
-	List<RID> bodies;
-	TypedArray<RID> r_bodies;
-	body_collides_at_all(p_body, delta, bodies, p_smear, collision_type_filter);
-	for (const RID &rid : bodies) {
-		r_bodies.push_back(rid);
+bool PhysicsServer2D::_body_collides_at_all(RID p_body, const Vector2i &delta, const Ref<PhysicsCollisionResults2D> &r_result, const bool p_smear, const int16_t &collision_type_filter) {
+	CollisionResults *result_ptr = nullptr;
+	if (r_result.is_valid()) {
+		result_ptr = r_result->get_result_ptr();
 	}
-	return r_bodies;
+
+	return body_collides_at_all(p_body, delta, result_ptr, p_smear, collision_type_filter);
 }
 
 bool PhysicsServer2D::_area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) {
@@ -867,7 +911,7 @@ void PhysicsServer2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("body_test_motion", "body", "parameters", "result"), &PhysicsServer2D::_body_test_motion, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("body_collides_at_with", "body", "delta", "other"), &PhysicsServer2D::_body_collides_at_with);
-	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "delta", "smear", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(false), DEFVAL(DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "delta", "result", "smear", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(false), DEFVAL(DEFAULT_COLLIDER_FILTER));
 
 	ClassDB::bind_method(D_METHOD("area_collides_at_with", "area", "delta", "other"), &PhysicsServer2D::_area_collides_at_with);
 

@@ -204,6 +204,7 @@ public:
 class PhysicsTestMotionParameters2D;
 class PhysicsTestMotionResult2D;
 class PhysicsCollisionResult2D;
+class PhysicsCollisionResults2D;
 
 class PhysicsServer2D : public Object {
 	GDCLASS(PhysicsServer2D, Object);
@@ -221,7 +222,7 @@ class PhysicsServer2D : public Object {
 	virtual bool _body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result = Ref<PhysicsTestMotionResult2D>());
 	virtual bool _body_collides_at(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
 	virtual bool _body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other);
-	virtual TypedArray<RID> _body_collides_at_all(RID p_body, const Vector2i &p_delta, const bool p_smear = false, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
+	virtual bool _body_collides_at_all(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResults2D> &r_result = Ref<PhysicsCollisionResults2D>(), const bool p_smear = false, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
 
 	virtual bool _area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other);
 
@@ -558,6 +559,34 @@ public:
 		}
 	};
 
+	struct CollisionResults {
+		List<Vector2i> collision_points = List<Vector2i>();
+		List<Vector2> collision_normals = List<Vector2>();
+		List<int> collision_local_shapes = List<int>();
+		List<ObjectID> collider_ids = List<ObjectID>();
+		List<RID> colliders = List<RID>();
+		List<int> collider_shapes = List<int>();
+
+		void erase(RID collider_id) {
+			int index = colliders.index_of(collider_id);
+			collision_points.erase(collision_points.get(index));
+			collision_normals.erase(collision_normals.get(index));
+			collision_local_shapes.erase(collision_local_shapes.get(index));
+			collider_ids.erase(collider_ids.get(index));
+			colliders.erase(colliders.get(index));
+			collider_shapes.erase(collider_shapes.get(index));
+		}
+
+		void clear() {
+			collision_points.clear();
+			collision_normals.clear();
+			collision_local_shapes.clear();
+			collider_ids.clear();
+			colliders.clear();
+			collider_shapes.clear();
+		}
+	};
+
 	virtual void body_set_is_riding_solid(RID p_body, const Callable &p_callable) = 0;
 	virtual void body_set_is_riding_one_way(RID p_body, const Callable &p_callable) = 0;
 	virtual void body_set_squish(RID p_body, const Callable &p_callable) = 0;
@@ -570,7 +599,7 @@ public:
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) = 0;
 	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) = 0;
-	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, List<RID> &r_bodies, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 
 	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) = 0;
 
@@ -843,13 +872,34 @@ protected:
 public:
 	PhysicsServer2D::CollisionResult *get_result_ptr() const { return const_cast<PhysicsServer2D::CollisionResult *>(&result); }
 
-	Vector2 get_collision_point() const;
+	Vector2i get_collision_point() const;
 	Vector2 get_collision_normal() const;
 	ObjectID get_collider_id() const;
 	RID get_collider_rid() const;
 	Object *get_collider() const;
 	int get_collider_shape() const;
 	int get_collision_local_shape() const;
+};
+
+class PhysicsCollisionResults2D : public RefCounted {
+	GDCLASS(PhysicsCollisionResults2D, RefCounted);
+
+	PhysicsServer2D::CollisionResults result;
+
+protected:
+	static void _bind_methods();
+
+public:
+	PhysicsServer2D::CollisionResults *get_result_ptr() const { return const_cast<PhysicsServer2D::CollisionResults *>(&result); }
+
+	Vector2i get_collision_point(int p_index) const;
+	Vector2 get_collision_normal(int p_index) const;
+	ObjectID get_collider_id(int p_index) const;
+	RID get_collider_rid(int p_index) const;
+	Object *get_collider(int p_index) const;
+	int get_collider_shape(int p_index) const;
+	int get_collision_local_shape(int p_index) const;
+	int size() const;
 };
 
 class PhysicsServer2DManager : public Object {
