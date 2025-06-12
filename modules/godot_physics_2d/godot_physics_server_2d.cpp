@@ -914,9 +914,13 @@ void GodotPhysicsServer2D::body_get_collision_exceptions(RID p_body, List<RID> *
 }
 
 void GodotPhysicsServer2D::body_get_riding_bodies_solid(RID p_body, List<RID> &p_bodies) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	ERR_FAIL_NULL(body->get_space());
+	ERR_FAIL_COND(body->get_space()->is_locked());
 	p_bodies.clear();
 	List<RID> bodies;
-	body_owner.get_owned_list(&bodies);
+	body->get_space()->body_get_all_in_range(body, 8, Vector2i(), &bodies, false, COLLIDER_TYPE_ACTOR | COLLIDER_TYPE_SIMULATED);
 	ERR_FAIL_NULL(&bodies);
 
 	for (int i = 0; i < bodies.size(); i++) {
@@ -932,9 +936,13 @@ void GodotPhysicsServer2D::body_get_riding_bodies_solid(RID p_body, List<RID> &p
 };
 
 void GodotPhysicsServer2D::body_get_riding_bodies_one_way(RID p_body, List<RID> &p_bodies) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	ERR_FAIL_NULL(body->get_space());
+	ERR_FAIL_COND(body->get_space()->is_locked());
 	p_bodies.clear();
 	List<RID> bodies;
-	body_owner.get_owned_list(&bodies);
+	body->get_space()->body_get_all_in_range(body, 8, Vector2i(), &bodies, false, COLLIDER_TYPE_ACTOR | COLLIDER_TYPE_SIMULATED);
 	ERR_FAIL_NULL(&bodies);
 
 	for (int i = 0; i < bodies.size(); i++) {

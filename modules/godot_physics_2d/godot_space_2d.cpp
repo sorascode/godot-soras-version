@@ -1355,6 +1355,79 @@ bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_
 	return false;
 }
 
+bool GodotSpace2D::body_get_all_in_range(GodotBody2D *p_body, const int16_t p_range, const Vector2i &p_delta, List<RID> *r_result, const bool p_smear, const int16_t p_collision_type_filter) {
+	if (!p_body->is_collidable()) {
+		return false;
+	}
+
+	if (r_result) {
+		r_result->clear();
+	}
+
+	bool collided_with_something = false;
+
+	Rect2i body_aabb;
+
+	bool shapes_found = false;
+
+	for (int i = 0; i < p_body->get_shape_count(); i++) {
+		if (p_body->is_shape_disabled(i)) {
+			continue;
+		}
+
+		if (!shapes_found) {
+			body_aabb = p_body->get_shape_aabb(i);
+			shapes_found = true;
+		} else {
+			body_aabb = body_aabb.merge(p_body->get_shape_aabb(i));
+		}
+	}
+
+	if (!shapes_found) {
+		return false;
+	}
+
+	{
+		Rect2i moved_aabb = body_aabb;
+		moved_aabb.position += p_delta;
+		if (p_smear) {
+			moved_aabb = moved_aabb.merge(body_aabb);
+		}
+		moved_aabb.grow_by(p_range);
+
+		int amount = _cull_aabb_for_body(p_body, moved_aabb);
+
+		if (amount == 0) {
+			return false;
+		}
+
+		for (int i = 0; i < amount; i++) {
+			GodotCollisionObject2D *col_obj = intersection_query_results[i];
+
+			if (!col_obj->is_collidable()) {
+				continue;
+			}
+
+			if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
+				GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
+				if (col_body) {
+					if (!(col_body->get_collider_type() & p_collision_type_filter)) {
+						continue;
+					}
+				}
+			}
+
+			collided_with_something = true;
+
+			if (r_result and r_result->find(col_obj->get_self()) == nullptr) {
+				r_result->push_back(col_obj->get_self());
+			}
+		}
+	}
+
+	return collided_with_something;
+}
+
 int GodotSpace2D::body_push_amount_h(GodotBody2D *p_body, const int p_move_amount, const GodotBody2D *p_other) {
 	if (p_move_amount == 0 || !body_collides_at_with(p_body, Vector2i(p_move_amount, 0), p_other, true)) {
 		return 0;

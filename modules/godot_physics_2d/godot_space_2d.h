@@ -193,6 +193,8 @@ public:
 
 	bool area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_delta, const GodotBody2D *p_other);
 
+	bool body_get_all_in_range(GodotBody2D *p_body, const int16_t p_range, const Vector2i &p_delta, List<RID> *r_result, const bool p_smear, const int16_t p_collision_type_filter);
+
 	int body_push_amount_h(GodotBody2D *p_body, const int p_move_amount, const GodotBody2D *p_other);
 	int body_push_amount_v(GodotBody2D *p_body, const int p_move_amount, const GodotBody2D *p_other);
 

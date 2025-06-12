@@ -156,7 +156,7 @@ struct [[nodiscard]] Rect2i {
 		return g;
 	}
 
-	inline void grow_by(real_t p_amount) {
+	inline void grow_by(int p_amount) {
 		position.x -= p_amount;
 		position.y -= p_amount;
 		size.width += p_amount * 2;
