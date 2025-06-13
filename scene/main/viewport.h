@@ -266,6 +266,7 @@ private:
 	bool gen_mipmaps = false;
 
 	Ref<Material> overwrite_material;
+	bool use_override = false;
 
 	bool snap_controls_to_pixels = true;
 	bool snap_2d_transforms_to_pixel = false;
@@ -545,6 +546,9 @@ public:
 
 	virtual void set_overwrite_material(const Ref<Material> &p_material);
 	Ref<Material> get_overwrite_material() const;
+
+	virtual void set_use_override(const bool p_use_override);
+	bool get_use_override() const;
 
 	Ref<ViewportTexture> get_texture() const;
 

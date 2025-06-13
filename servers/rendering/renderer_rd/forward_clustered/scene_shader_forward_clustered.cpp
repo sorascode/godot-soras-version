@@ -483,7 +483,7 @@ void SceneShaderForwardClustered::MaterialData::set_next_pass(RID p_pass) {
 bool SceneShaderForwardClustered::MaterialData::update_parameters(const HashMap<StringName, Variant> &p_parameters, bool p_uniform_dirty, bool p_textures_dirty) {
 	if (shader_data->version.is_valid()) {
 		MutexLock lock(SceneShaderForwardClustered::singleton_mutex);
-		return update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set, SceneShaderForwardClustered::singleton->shader.version_get_shader(shader_data->version, 0), RenderForwardClustered::MATERIAL_UNIFORM_SET, true, true);
+		return update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set, SceneShaderForwardClustered::singleton->shader.version_get_shader(shader_data->version, 0), RenderForwardClustered::MATERIAL_UNIFORM_SET, true, true, false);
 	} else {
 		return false;
 	}

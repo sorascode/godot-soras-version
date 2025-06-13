@@ -1228,6 +1228,18 @@ Ref<Material> Viewport::get_overwrite_material() const {
 	return overwrite_material;
 }
 
+void Viewport::set_use_override(const bool p_use_override) {
+	ERR_THREAD_GUARD;
+	use_override = p_use_override;
+	RS::get_singleton()->viewport_set_use_override(viewport, use_override);
+	notify_property_list_changed(); //properties for material exposed
+}
+
+bool Viewport::get_use_override() const {
+	ERR_READ_THREAD_GUARD_V(false);
+	return use_override;
+}
+
 void Viewport::set_world_2d(const Ref<World2D> &p_world_2d) {
 	ERR_MAIN_THREAD_GUARD;
 	if (world_2d == p_world_2d) {
@@ -4803,6 +4815,8 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_using_hdr_2d"), &Viewport::is_using_hdr_2d);
 	ClassDB::bind_method(D_METHOD("set_overwrite_material", "overwrite_material"), &Viewport::set_overwrite_material);
 	ClassDB::bind_method(D_METHOD("get_overwrite_material"), &Viewport::get_overwrite_material);
+	ClassDB::bind_method(D_METHOD("set_use_override", "use_override"), &Viewport::set_use_override);
+	ClassDB::bind_method(D_METHOD("get_use_override"), &Viewport::get_use_override);
 
 	ClassDB::bind_method(D_METHOD("set_msaa_2d", "msaa"), &Viewport::set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("get_msaa_2d"), &Viewport::get_msaa_2d);
@@ -4983,6 +4997,7 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Lighting,Overdraw,Wireframe,Normal Buffer,VoxelGI Albedo,VoxelGI Lighting,VoxelGI Emission,Shadow Atlas,Directional Shadow Map,Scene Luminance,SSAO,SSIL,Directional Shadow Splits,Decal Atlas,SDFGI Cascades,SDFGI Probes,VoxelGI/SDFGI Buffer,Disable Mesh LOD,OmniLight3D Cluster,SpotLight3D Cluster,Decal Cluster,ReflectionProbe Cluster,Occlusion Culling Buffer,Motion Vectors,Internal Buffer"), "set_debug_draw", "get_debug_draw");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_hdr_2d"), "set_use_hdr_2d", "is_using_hdr_2d");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "overwrite_material", PROPERTY_HINT_RESOURCE_TYPE, "CanvasItemMaterial,ShaderMaterial"), "set_overwrite_material", "get_overwrite_material");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_override"), "set_use_override", "get_use_override");
 
 
 #ifndef _3D_DISABLED

@@ -123,6 +123,7 @@ public:
 		bool use_hdr_2d = false;
 
 		RID overwrite_material;
+		bool use_override = false;
 
 		uint32_t canvas_cull_mask = 0xffffffff;
 
@@ -268,6 +269,7 @@ public:
 	bool viewport_is_using_hdr_2d(RID p_viewport) const;
 
 	void viewport_set_overwrite_material(RID p_viewport, RID p_material_overwrite);
+	void viewport_set_use_override(RID p_viewport, bool p_use_override);
 
 	void viewport_set_global_canvas_transform(RID p_viewport, const Transform2D &p_transform);
 	void viewport_set_canvas_stacking(RID p_viewport, RID p_canvas, int p_layer, int p_sublayer);
