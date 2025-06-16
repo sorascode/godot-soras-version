@@ -390,3 +390,4 @@ $RECYCLE.BIN/
 godot_macos_editor.app
 macos_template.app
 macos.zip
+build-export-templates.sh
