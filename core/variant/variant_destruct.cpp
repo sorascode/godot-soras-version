@@ -52,6 +52,7 @@ void Variant::_register_variant_destructors() {
 	add_destructor<VariantDestruct<PackedFloat64Array>>();
 	add_destructor<VariantDestruct<PackedStringArray>>();
 	add_destructor<VariantDestruct<PackedVector2Array>>();
+	add_destructor<VariantDestruct<PackedVector2iArray>>();
 	add_destructor<VariantDestruct<PackedVector3Array>>();
 	add_destructor<VariantDestruct<PackedColorArray>>();
 	add_destructor<VariantDestruct<PackedVector4Array>>();

@@ -639,35 +639,35 @@ void PhysicsCollisionResult2D::_bind_methods() {
 ///////////////////////////////
 
 Vector2i PhysicsCollisionResults2D::get_collision_point(int p_index) const {
-	return result.collision_points.get(p_index);
+	return result.collision_points[p_index];
 }
 
 Vector2 PhysicsCollisionResults2D::get_collision_normal(int p_index) const {
-	return result.collision_normals.get(p_index);
+	return result.collision_normals[p_index];
 }
 
 ObjectID PhysicsCollisionResults2D::get_collider_id(int p_index) const {
-	return result.collider_ids.get(p_index);
+	return result.collider_ids[p_index];
 }
 
 RID PhysicsCollisionResults2D::get_collider_rid(int p_index) const {
-	return result.colliders.get(p_index);
+	return result.colliders[p_index];
 }
 
 Object *PhysicsCollisionResults2D::get_collider(int p_index) const {
-	return ObjectDB::get_instance(result.collider_ids.get(p_index));
+	return ObjectDB::get_instance(result.collider_ids[p_index]);
 }
 
 int PhysicsCollisionResults2D::get_collider_shape(int p_index) const {
-	return result.collider_shapes.get(p_index);
+	return result.collider_shapes[p_index];
 }
 
 int PhysicsCollisionResults2D::get_collision_local_shape(int p_index) const {
-	return result.collision_local_shapes.get(p_index);
+	return result.collision_local_shapes[p_index];
 }
 
 int PhysicsCollisionResults2D::size() const {
-	return result.colliders.size();
+	return result.collision_count;
 }
 
 void PhysicsCollisionResults2D::_bind_methods() {

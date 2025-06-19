@@ -60,6 +60,7 @@ var temp_packed_float32_array: PackedFloat32Array
 var temp_packed_float64_array: PackedFloat64Array
 var temp_packed_color_array: PackedColorArray
 var temp_packed_vector2_array: PackedVector2Array
+var temp_packed_vector2i_array: PackedVector2iArray
 var temp_packed_vector3_array: PackedVector3Array
 var temp_packed_vector4_array: PackedVector4Array
 

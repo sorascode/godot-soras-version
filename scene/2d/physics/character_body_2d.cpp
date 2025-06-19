@@ -120,7 +120,7 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 				position_delta.y = 0;
 				if (p_callback.is_valid())
 				{
-					Object *obj = ObjectDB::get_instance(r_results.collider_ids.get(0));
+					Object *obj = ObjectDB::get_instance(r_results.collider_ids[0]);
 					Node2D *collider_body = cast_to<Node2D>(obj);
 					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, p_pusher);
 				}

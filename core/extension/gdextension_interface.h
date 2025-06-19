@@ -2256,6 +2256,32 @@ typedef GDExtensionTypePtr (*GDExtensionInterfacePackedVector2ArrayOperatorIndex
 typedef GDExtensionTypePtr (*GDExtensionInterfacePackedVector2ArrayOperatorIndexConst)(GDExtensionConstTypePtr p_self, GDExtensionInt p_index);
 
 /**
+ * @name packed_vector2i_array_operator_index
+ * @since 4.1
+ *
+ * Gets a pointer to a Vector2i in a PackedVector2iArray.
+ *
+ * @param p_self A pointer to a PackedVector2iArray object.
+ * @param p_index The index of the Vector2i to get.
+ *
+ * @return A pointer to the requested Vector2i.
+ */
+typedef GDExtensionTypePtr (*GDExtensionInterfacePackedVector2iArrayOperatorIndex)(GDExtensionTypePtr p_self, GDExtensionInt p_index);
+
+/**
+ * @name packed_vector2i_array_operator_index_const
+ * @since 4.1
+ *
+ * Gets a const pointer to a Vector2i in a PackedVector2Array.
+ *
+ * @param p_self A const pointer to a PackedVector2iArray object.
+ * @param p_index The index of the Vector2i to get.
+ *
+ * @return A const pointer to the requested Vector2i.
+ */
+typedef GDExtensionTypePtr (*GDExtensionInterfacePackedVector2iArrayOperatorIndexConst)(GDExtensionConstTypePtr p_self, GDExtensionInt p_index);
+
+/**
  * @name packed_vector3_array_operator_index
  * @since 4.1
  *

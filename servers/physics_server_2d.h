@@ -560,30 +560,39 @@ public:
 	};
 
 	struct CollisionResults {
-		List<Vector2i> collision_points = List<Vector2i>();
-		List<Vector2> collision_normals = List<Vector2>();
-		List<int> collision_local_shapes = List<int>();
-		List<ObjectID> collider_ids = List<ObjectID>();
-		List<RID> colliders = List<RID>();
-		List<int> collider_shapes = List<int>();
+		static const int MAX_COLLISIONS = 32;
 
-		void erase(RID collider_id) {
-			int index = colliders.index_of(collider_id);
-			collision_points.erase(collision_points.get(index));
-			collision_normals.erase(collision_normals.get(index));
-			collision_local_shapes.erase(collision_local_shapes.get(index));
-			collider_ids.erase(collider_ids.get(index));
-			colliders.erase(colliders.get(index));
-			collider_shapes.erase(collider_shapes.get(index));
+		Vector2i collision_points[MAX_COLLISIONS];
+		Vector2 collision_normals[MAX_COLLISIONS];
+		int collision_local_shapes[MAX_COLLISIONS];
+		ObjectID collider_ids[MAX_COLLISIONS];
+		RID colliders[MAX_COLLISIONS];
+		int collider_shapes[MAX_COLLISIONS];
+		int collision_count = 0;
+
+		void erase(int index) {
+			collision_count--;
+			for (int i = index; i < collision_count; i++) {
+				collision_points[i] = collision_points[i + 1];
+				collision_normals[i] = collision_normals[i + 1];
+				collision_local_shapes[i] = collision_local_shapes[i + 1];
+				collider_ids[i] = collider_ids[i + 1];
+				colliders[i] = colliders[i + 1];
+				collider_shapes[i] = collider_shapes[i + 1];
+			}
 		}
 
 		void clear() {
-			collision_points.clear();
-			collision_normals.clear();
-			collision_local_shapes.clear();
-			collider_ids.clear();
-			colliders.clear();
-			collider_shapes.clear();
+			collision_count = 0;
+		}
+
+		bool has(RID collider) {
+			for (int i = 0; i < collision_count; ++i) {
+				if (colliders[i] == collider) {
+					return true;
+				}
+			}
+			return false;
 		}
 	};
 

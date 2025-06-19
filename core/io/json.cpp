@@ -735,6 +735,19 @@ Variant JSON::_from_native(const Variant &p_variant, bool p_full_objects, int p_
 
 			RETURN_ARGS;
 		} break;
+		case Variant::TRANSFORM2DI: {
+			const Transform2Di t = p_variant;
+
+			Array args;
+			args.push_back(t[0].x);
+			args.push_back(t[0].y);
+			args.push_back(t[1].x);
+			args.push_back(t[1].y);
+			args.push_back(t[2].x);
+			args.push_back(t[2].y);
+
+			RETURN_ARGS;
+		} break;
 		case Variant::VECTOR4: {
 			const Vector4 v = p_variant;
 
@@ -1032,6 +1045,18 @@ Variant JSON::_from_native(const Variant &p_variant, bool p_full_objects, int p_
 
 			RETURN_ARGS;
 		} break;
+		case Variant::PACKED_VECTOR2I_ARRAY: {
+			const PackedVector2iArray arr = p_variant;
+
+			Array args;
+			for (int i = 0; i < arr.size(); i++) {
+				Vector2i v = arr[i];
+				args.push_back(v.x);
+				args.push_back(v.y);
+			}
+
+			RETURN_ARGS;
+		} break;
 		case Variant::PACKED_VECTOR3_ARRAY: {
 			const PackedVector3Array arr = p_variant;
 
@@ -1252,6 +1277,16 @@ Variant JSON::_to_native(const Variant &p_json, bool p_allow_objects, int p_dept
 					t[0] = Vector2(args[0], args[1]);
 					t[1] = Vector2(args[2], args[3]);
 					t[2] = Vector2(args[4], args[5]);
+
+					return t;
+				} break;
+				case Variant::TRANSFORM2DI: {
+					LOAD_ARGS_CHECK_SIZE(6);
+
+					Transform2Di t;
+					t[0] = Vector2i(args[0], args[1]);
+					t[1] = Vector2i(args[2], args[3]);
+					t[2] = Vector2i(args[4], args[5]);
 
 					return t;
 				} break;
@@ -1479,6 +1514,17 @@ Variant JSON::_to_native(const Variant &p_json, bool p_allow_objects, int p_dept
 					arr.resize(args.size() / 2);
 					for (int i = 0; i < arr.size(); i++) {
 						arr.write[i] = Vector2(args[i * 2 + 0], args[i * 2 + 1]);
+					}
+
+					return arr;
+				} break;
+				case Variant::PACKED_VECTOR2I_ARRAY: {
+					LOAD_ARGS_CHECK_FACTOR(2);
+
+					PackedVector2iArray arr;
+					arr.resize(args.size() / 2);
+					for (int i = 0; i < arr.size(); i++) {
+						arr.write[i] = Vector2i(args[i * 2 + 0], args[i * 2 + 1]);
 					}
 
 					return arr;

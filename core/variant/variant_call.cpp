@@ -676,6 +676,7 @@ struct _VariantCall {
 	VARCALL_ARRAY_GETTER_SETTER(PackedInt64Array, int64_t)
 	VARCALL_ARRAY_GETTER_SETTER(PackedStringArray, String)
 	VARCALL_ARRAY_GETTER_SETTER(PackedVector2Array, Vector2)
+	VARCALL_ARRAY_GETTER_SETTER(PackedVector2iArray, Vector2i)
 	VARCALL_ARRAY_GETTER_SETTER(PackedVector3Array, Vector3)
 	VARCALL_ARRAY_GETTER_SETTER(PackedVector4Array, Vector4)
 	VARCALL_ARRAY_GETTER_SETTER(Array, Variant)
@@ -2417,6 +2418,7 @@ static void _register_variant_builtin_methods_array() {
 	bind_function(PackedInt64Array, get, _VariantCall::func_PackedInt64Array_get, sarray("index"), varray());
 	bind_function(PackedStringArray, get, _VariantCall::func_PackedStringArray_get, sarray("index"), varray());
 	bind_function(PackedVector2Array, get, _VariantCall::func_PackedVector2Array_get, sarray("index"), varray());
+	bind_function(PackedVector2iArray, get, _VariantCall::func_PackedVector2iArray_get, sarray("index"), varray());
 	bind_function(PackedVector3Array, get, _VariantCall::func_PackedVector3Array_get, sarray("index"), varray());
 	bind_function(PackedVector4Array, get, _VariantCall::func_PackedVector4Array_get, sarray("index"), varray());
 
@@ -2428,6 +2430,7 @@ static void _register_variant_builtin_methods_array() {
 	bind_functionnc(PackedInt64Array, set, _VariantCall::func_PackedInt64Array_set, sarray("index", "value"), varray());
 	bind_functionnc(PackedStringArray, set, _VariantCall::func_PackedStringArray_set, sarray("index", "value"), varray());
 	bind_functionnc(PackedVector2Array, set, _VariantCall::func_PackedVector2Array_set, sarray("index", "value"), varray());
+	bind_functionnc(PackedVector2iArray, set, _VariantCall::func_PackedVector2iArray_set, sarray("index", "value"), varray());
 	bind_functionnc(PackedVector3Array, set, _VariantCall::func_PackedVector3Array_set, sarray("index", "value"), varray());
 	bind_functionnc(PackedVector4Array, set, _VariantCall::func_PackedVector4Array_set, sarray("index", "value"), varray());
 
@@ -2637,7 +2640,6 @@ static void _register_variant_builtin_methods_array() {
 
 	bind_method(PackedVector2iArray, size, sarray(), varray());
 	bind_method(PackedVector2iArray, is_empty, sarray(), varray());
-	bind_method(PackedVector2iArray, set, sarray("index", "value"), varray());
 	bind_method(PackedVector2iArray, push_back, sarray("value"), varray());
 	bind_method(PackedVector2iArray, append, sarray("value"), varray());
 	bind_method(PackedVector2iArray, append_array, sarray("array"), varray());

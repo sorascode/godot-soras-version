@@ -122,6 +122,7 @@ CLASSES_WITH_CSHARP_DIFFERENCES: List[str] = [
     "RID",
     "Basis",
     "Transform2D",
+    "Transform2Di",
     "Transform3D",
     "Rect2",
     "Rect2i",
@@ -139,6 +140,7 @@ CLASSES_WITH_CSHARP_DIFFERENCES: List[str] = [
     "PackedInt64Array",
     "PackedStringArray",
     "PackedVector2Array",
+    "PackedVector2iArray",
     "PackedVector3Array",
     "PackedVector4Array",
     "Variant",
@@ -153,6 +155,7 @@ PACKED_ARRAY_TYPES: List[str] = [
     "PackedInt64Array",
     "PackedStringArray",
     "PackedVector2Array",
+    "PackedVector2iArray",
     "PackedVector3Array",
     "PackedVector4Array",
 ]

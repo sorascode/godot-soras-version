@@ -216,6 +216,7 @@ void Variant::_register_variant_constructors() {
 	add_constructor<VariantConstructorToArray<PackedFloat64Array>>(sarray("from"));
 	add_constructor<VariantConstructorToArray<PackedStringArray>>(sarray("from"));
 	add_constructor<VariantConstructorToArray<PackedVector2Array>>(sarray("from"));
+	add_constructor<VariantConstructorToArray<PackedVector2iArray>>(sarray("from"));
 	add_constructor<VariantConstructorToArray<PackedVector3Array>>(sarray("from"));
 	add_constructor<VariantConstructorToArray<PackedColorArray>>(sarray("from"));
 	add_constructor<VariantConstructorToArray<PackedVector4Array>>(sarray("from"));
@@ -247,6 +248,10 @@ void Variant::_register_variant_constructors() {
 	add_constructor<VariantConstructNoArgs<PackedVector2Array>>(sarray());
 	add_constructor<VariantConstructor<PackedVector2Array, PackedVector2Array>>(sarray("from"));
 	add_constructor<VariantConstructorFromArray<PackedVector2Array>>(sarray("from"));
+
+	add_constructor<VariantConstructNoArgs<PackedVector2iArray>>(sarray());
+	add_constructor<VariantConstructor<PackedVector2iArray, PackedVector2iArray>>(sarray("from"));
+	add_constructor<VariantConstructorFromArray<PackedVector2iArray>>(sarray("from"));
 
 	add_constructor<VariantConstructNoArgs<PackedVector3Array>>(sarray());
 	add_constructor<VariantConstructor<PackedVector3Array, PackedVector3Array>>(sarray("from"));

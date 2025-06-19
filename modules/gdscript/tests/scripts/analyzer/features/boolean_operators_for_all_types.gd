@@ -328,6 +328,15 @@ func test():
 	prints(x or false)
 	prints(x or true)
 
+	# TYPE_PACKED_VECTOR2I_ARRAY
+	x = PackedVector2iArray([Vector2i.ONE])
+	prints("TYPE_PACKED_VECTOR2I_ARRAY")
+	prints(not x)
+	prints(x and false)
+	prints(x and true)
+	prints(x or false)
+	prints(x or true)
+
 	# TYPE_PACKED_VECTOR3_ARRAY
 	x = PackedVector3Array([Vector3.ONE])
 	prints("TYPE_PACKED_VECTOR3_ARRAY")

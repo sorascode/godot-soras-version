@@ -732,6 +732,8 @@ static GDExtensionVariantGetInternalPtrFunc gdextension_variant_get_ptr_internal
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<Vector3i *(*)(Variant *)>(VariantInternal::get_vector3i));
 		case GDEXTENSION_VARIANT_TYPE_TRANSFORM2D:
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<Transform2D *(*)(Variant *)>(VariantInternal::get_transform2d));
+		case GDEXTENSION_VARIANT_TYPE_TRANSFORM2DI:
+			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<Transform2Di *(*)(Variant *)>(VariantInternal::get_transform2di));
 		case GDEXTENSION_VARIANT_TYPE_VECTOR4:
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<Vector4 *(*)(Variant *)>(VariantInternal::get_vector4));
 		case GDEXTENSION_VARIANT_TYPE_VECTOR4I:
@@ -780,6 +782,8 @@ static GDExtensionVariantGetInternalPtrFunc gdextension_variant_get_ptr_internal
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<PackedStringArray *(*)(Variant *)>(VariantInternal::get_string_array));
 		case GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2_ARRAY:
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<PackedVector2Array *(*)(Variant *)>(VariantInternal::get_vector2_array));
+		case GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2I_ARRAY:
+			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<PackedVector2iArray *(*)(Variant *)>(VariantInternal::get_vector2i_array));
 		case GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR3_ARRAY:
 			return reinterpret_cast<GDExtensionVariantGetInternalPtrFunc>(static_cast<PackedVector3Array *(*)(Variant *)>(VariantInternal::get_vector3_array));
 		case GDEXTENSION_VARIANT_TYPE_PACKED_COLOR_ARRAY:
@@ -1222,6 +1226,22 @@ static GDExtensionTypePtr gdextension_packed_vector2_array_operator_index(GDExte
 
 static GDExtensionTypePtr gdextension_packed_vector2_array_operator_index_const(GDExtensionConstTypePtr p_self, GDExtensionInt p_index) {
 	const PackedVector2Array *self = (const PackedVector2Array *)p_self;
+	if (unlikely(p_index < 0 || p_index >= self->size())) {
+		return nullptr;
+	}
+	return (GDExtensionTypePtr)&self->ptr()[p_index];
+}
+
+static GDExtensionTypePtr gdextension_packed_vector2i_array_operator_index(GDExtensionTypePtr p_self, GDExtensionInt p_index) {
+	PackedVector2iArray *self = (PackedVector2iArray *)p_self;
+	if (unlikely(p_index < 0 || p_index >= self->size())) {
+		return nullptr;
+	}
+	return (GDExtensionTypePtr)&self->ptrw()[p_index];
+}
+
+static GDExtensionTypePtr gdextension_packed_vector2i_array_operator_index_const(GDExtensionConstTypePtr p_self, GDExtensionInt p_index) {
+	const PackedVector2iArray *self = (const PackedVector2iArray *)p_self;
 	if (unlikely(p_index < 0 || p_index >= self->size())) {
 		return nullptr;
 	}
@@ -1782,6 +1802,8 @@ void gdextension_setup_interface() {
 	REGISTER_INTERFACE_FUNC(packed_string_array_operator_index_const);
 	REGISTER_INTERFACE_FUNC(packed_vector2_array_operator_index);
 	REGISTER_INTERFACE_FUNC(packed_vector2_array_operator_index_const);
+	REGISTER_INTERFACE_FUNC(packed_vector2i_array_operator_index);
+	REGISTER_INTERFACE_FUNC(packed_vector2i_array_operator_index_const);
 	REGISTER_INTERFACE_FUNC(packed_vector3_array_operator_index);
 	REGISTER_INTERFACE_FUNC(packed_vector3_array_operator_index_const);
 	REGISTER_INTERFACE_FUNC(packed_vector4_array_operator_index);

@@ -868,6 +868,7 @@ INDEXED_SETGET_STRUCT_TYPED_NUMERIC(PackedInt64Array, int64_t, int64_t)
 INDEXED_SETGET_STRUCT_TYPED_NUMERIC(PackedFloat32Array, double, float)
 INDEXED_SETGET_STRUCT_TYPED_NUMERIC(PackedFloat64Array, double, double)
 INDEXED_SETGET_STRUCT_TYPED(PackedVector2Array, Vector2)
+INDEXED_SETGET_STRUCT_TYPED(PackedVector2iArray, Vector2i)
 INDEXED_SETGET_STRUCT_TYPED(PackedVector3Array, Vector3)
 INDEXED_SETGET_STRUCT_TYPED(PackedStringArray, String)
 INDEXED_SETGET_STRUCT_TYPED(PackedColorArray, Color)
@@ -935,6 +936,7 @@ void register_indexed_setters_getters() {
 	REGISTER_INDEXED_MEMBER(PackedFloat32Array);
 	REGISTER_INDEXED_MEMBER(PackedFloat64Array);
 	REGISTER_INDEXED_MEMBER(PackedVector2Array);
+	REGISTER_INDEXED_MEMBER(PackedVector2iArray);
 	REGISTER_INDEXED_MEMBER(PackedVector3Array);
 	REGISTER_INDEXED_MEMBER(PackedStringArray);
 	REGISTER_INDEXED_MEMBER(PackedColorArray);

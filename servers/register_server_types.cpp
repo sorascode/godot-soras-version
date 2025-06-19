@@ -261,6 +261,8 @@ void register_server_types() {
 	GDREGISTER_NATIVE_STRUCT(PhysicsServer2DExtensionShapeResult, "RID rid;ObjectID collider_id;Object *collider;int shape");
 	GDREGISTER_NATIVE_STRUCT(PhysicsServer2DExtensionShapeRestInfo, "Vector2 point;Vector2 normal;RID rid;ObjectID collider_id;int shape;Vector2 linear_velocity");
 	GDREGISTER_NATIVE_STRUCT(PhysicsServer2DExtensionMotionResult, "Vector2 travel;Vector2 remainder;Vector2 collision_point;Vector2 collision_normal;Vector2 collider_velocity;real_t collision_depth;real_t collision_safe_fraction;real_t collision_unsafe_fraction;int collision_local_shape;ObjectID collider_id;RID collider;int collider_shape");
+	GDREGISTER_NATIVE_STRUCT(PhysicsServer2DExtensionCollisionResult, "Vector2i collision_point;Vector2 collision_normal;int collision_local_shape;ObjectID collider_id;RID collider;int collider_shape");
+	GDREGISTER_NATIVE_STRUCT(PhysicsServer2DExtensionCollisionResults, "Vector2i collision_points[32];Vector2 collision_normals[32];int collision_local_shapes[32];ObjectID collider_ids[32];RID colliders[32];int collider_shapes[32];int collision_count");
 
 	GDREGISTER_ABSTRACT_CLASS(PhysicsDirectBodyState2D);
 	GDREGISTER_ABSTRACT_CLASS(PhysicsDirectSpaceState2D);

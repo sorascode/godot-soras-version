@@ -137,13 +137,13 @@ bool PhysicsBody2D::collides_at_all_outside(const Vector2i &p_delta, PhysicsServ
 		r_result = new PhysicsServer2D::CollisionResults();
 	}
 	collides_at_all(p_delta, r_result, false, p_collision_type_filter);
-	for (int i = r_result->colliders.size() - 1; i >= 0; --i) {
-		RID current = r_result->colliders.get(i);
+	for (int i = r_result->collision_count - 1; i >= 0; --i) {
+		RID current = r_result->colliders[i];
 		if (collides_at_with(Vector2i(0,0), current)) {
-			r_result->erase(current);
+			r_result->erase(i);
 		}
 	}
-	return r_result->colliders.size() > 0;
+	return r_result->collision_count > 0;
 }
 
 bool PhysicsBody2D::_collides_at_all_outside(const Vector2i &p_delta, const Ref<PhysicsCollisionResults2D> &r_result, const int16_t p_collision_type_filter) {

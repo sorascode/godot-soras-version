@@ -1260,15 +1260,20 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 
 				collided_with_something = true;
 
-				if (r_result and r_result->colliders.find(col_obj->get_self()) == nullptr) {
+				if (r_result and !r_result->has(col_obj->get_self())) {
 					int col_shape_idx = intersection_query_subindex_results[i];
 
-					r_result->colliders.push_back(col_obj->get_self());
-					r_result->collider_ids.push_back(col_obj->get_instance_id());
-					r_result->collider_shapes.push_back(col_shape_idx);
-					r_result->collision_local_shapes.push_back(i);
-					r_result->collision_normals.push_back(Vector2());
-					r_result->collision_points.push_back(col_obj->get_transform().get_origin());
+					r_result->colliders[r_result->collision_count] = col_obj->get_self();
+					r_result->collider_ids[r_result->collision_count] = col_obj->get_instance_id();
+					r_result->collider_shapes[r_result->collision_count] = col_shape_idx;
+					r_result->collision_local_shapes[r_result->collision_count] = i;
+					r_result->collision_normals[r_result->collision_count] = Vector2();
+					r_result->collision_points[r_result->collision_count] = col_obj->get_transform().get_origin();
+					r_result->collision_count++;
+
+					if (r_result->collision_count >= PhysicsServer2D::CollisionResults::MAX_COLLISIONS) {
+						return collided_with_something;
+					}
 				}
 			}
 		}

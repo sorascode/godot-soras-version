@@ -121,6 +121,8 @@ var test_weak_packed_color_array: PackedColorArray
   hint=TYPE_STRING hint_string="<Color>:" usage=DEFAULT|SCRIPT_VARIABLE class_name=&""
 var test_weak_packed_vector2_array: PackedVector2Array
   hint=TYPE_STRING hint_string="<Vector2>:" usage=DEFAULT|SCRIPT_VARIABLE class_name=&""
+var test_weak_packed_vector2i_array: PackedVector2iArray
+  hint=TYPE_STRING hint_string="<Vector2i>:" usage=DEFAULT|SCRIPT_VARIABLE class_name=&""
 var test_weak_packed_vector3_array: PackedVector3Array
   hint=TYPE_STRING hint_string="<Vector3>:" usage=DEFAULT|SCRIPT_VARIABLE class_name=&""
 var test_weak_packed_vector4_array: PackedVector4Array
