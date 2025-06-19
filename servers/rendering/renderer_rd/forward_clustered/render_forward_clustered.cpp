@@ -937,7 +937,7 @@ void RenderForwardClustered::_fill_render_list(RenderListType p_render_list, con
 			inst->depth = near_plane.distance_to(center) - inst->sorting_offset;
 		} else {
 			if (inst->use_aabb_center) {
-				center = inst->transformed_aabb.position + (inst->transformed_aabb.size * 0.5);
+				center = inst->transformed_aabb.position + (Vector3(inst->transformed_aabb.size) * 0.5);
 			}
 			inst->depth = p_render_data->scene_data->cam_transform.origin.distance_to(center) - inst->sorting_offset;
 		}
@@ -3022,7 +3022,7 @@ void RenderForwardClustered::_render_sdfgi(Ref<RenderSceneBuffersRD> p_render_bu
 	render_list[RENDER_LIST_SECONDARY].sort_by_key();
 	_fill_instance_data(RENDER_LIST_SECONDARY);
 
-	Vector3 half_size = p_bounds.size * 0.5;
+	Vector3 half_size = Vector3(p_bounds.size) * 0.5;
 	Vector3 center = p_bounds.position + half_size;
 
 	//print_line("re-render " + p_from + " - " + p_size + " bounds " + p_bounds);

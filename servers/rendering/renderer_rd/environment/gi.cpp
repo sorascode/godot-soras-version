@@ -3101,7 +3101,7 @@ void GI::VoxelGIInstance::update(bool p_update_light_instances, const Vector<RID
 
 				Vector3 center = aabb.get_center();
 				Transform3D xform;
-				xform.set_look_at(center - aabb.size * 0.5 * render_dir, center, up_dir);
+				xform.set_look_at(center - Vector3(aabb.size) * 0.5 * render_dir, center, up_dir);
 
 				Vector3 x_dir = xform.basis.get_column(0).abs();
 				int x_axis = int(Vector3(0, 1, 2).dot(x_dir));

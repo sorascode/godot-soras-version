@@ -634,7 +634,7 @@ Vector3 GodotCapsuleShape3D::get_closest_point_to(const Vector3 &p_point) const 
 
 Vector3 GodotCapsuleShape3D::get_moment_of_inertia(real_t p_mass) const {
 	// use bad AABB approximation
-	Vector3 extents = get_aabb().size * 0.5;
+	Vector3 extents = Vector3(get_aabb().size) * 0.5;
 
 	return Vector3(
 			(p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
@@ -789,7 +789,7 @@ Vector3 GodotCylinderShape3D::get_closest_point_to(const Vector3 &p_point) const
 
 Vector3 GodotCylinderShape3D::get_moment_of_inertia(real_t p_mass) const {
 	// use bad AABB approximation
-	Vector3 extents = get_aabb().size * 0.5;
+	Vector3 extents = Vector3(get_aabb().size) * 0.5;
 
 	return Vector3(
 			(p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
@@ -1086,7 +1086,7 @@ Vector3 GodotConvexPolygonShape3D::get_closest_point_to(const Vector3 &p_point) 
 
 Vector3 GodotConvexPolygonShape3D::get_moment_of_inertia(real_t p_mass) const {
 	// use bad AABB approximation
-	Vector3 extents = get_aabb().size * 0.5;
+	Vector3 extents = Vector3(get_aabb().size) * 0.5;
 
 	return Vector3(
 			(p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
@@ -1495,7 +1495,7 @@ void GodotConcavePolygonShape3D::cull(const AABB &p_local_aabb, QueryCallback p_
 
 Vector3 GodotConcavePolygonShape3D::get_moment_of_inertia(real_t p_mass) const {
 	// use bad AABB approximation
-	Vector3 extents = get_aabb().size * 0.5;
+	Vector3 extents = Vector3(get_aabb().size) * 0.5;
 
 	return Vector3(
 			(p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
@@ -2082,7 +2082,7 @@ void GodotHeightMapShape3D::cull(const AABB &p_local_aabb, QueryCallback p_callb
 
 Vector3 GodotHeightMapShape3D::get_moment_of_inertia(real_t p_mass) const {
 	// use bad AABB approximation
-	Vector3 extents = get_aabb().size * 0.5;
+	Vector3 extents = Vector3(get_aabb().size) * 0.5;
 
 	return Vector3(
 			(p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),

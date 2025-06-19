@@ -1028,8 +1028,6 @@ GenericTilePolygonEditor::GenericTilePolygonEditor() {
 void GenericTileRectangleEditor::_base_control_draw() {
 	ERR_FAIL_COND(!tile_set.is_valid());
 
-	real_t grab_threshold = EDITOR_GET("editors/polygon_editor/point_grab_radius");
-
 	Color grid_color = EDITOR_GET("editors/tiles_editor/grid_color");
 	const Ref<Texture2D> handle = get_editor_theme_icon(SNAME("EditorPathSharpHandle"));
 	const Ref<StyleBox> focus_stylebox = get_theme_stylebox(SNAME("Focus"), EditorStringName(EditorStyles));

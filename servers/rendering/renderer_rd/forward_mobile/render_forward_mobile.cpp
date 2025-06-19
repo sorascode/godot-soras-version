@@ -1949,7 +1949,7 @@ void RenderForwardMobile::_fill_render_list(RenderListType p_render_list, const 
 			inst->depth = near_plane.distance_to(center) - inst->sorting_offset;
 		} else {
 			if (inst->use_aabb_center) {
-				center = inst->transformed_aabb.position + (inst->transformed_aabb.size * 0.5);
+				center = inst->transformed_aabb.position + (Vector3(inst->transformed_aabb.size) * 0.5);
 			}
 			inst->depth = p_render_data->scene_data->cam_transform.origin.distance_to(center) - inst->sorting_offset;
 		}

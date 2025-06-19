@@ -869,12 +869,10 @@ void TileMapLayer::_physics_update_cell(CellData &r_cell_data) {
 						ps->body_clear_shapes(body);
 
 						// Add the shapes to the body.
-						int body_shape_index = 0;
 						for (int rectangle_index = 0; rectangle_index < tile_data->get_collision_rectangles_count(tile_set_physics_layer); rectangle_index++) {
 							// Iterate over the rectangles.
 							Ref<RectangleShape2D> shape = tile_data->get_collision_rectangle_shape(tile_set_physics_layer, rectangle_index, flip_h, flip_v, transpose);
 							ps->body_add_shape(body, shape->get_rid());
-							body_shape_index++;
 						}
 					}
 

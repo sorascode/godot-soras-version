@@ -6667,8 +6667,6 @@ Vector2i TileData::get_transformed_offset(const Vector2i &p_offset, const Vector
 	}
 	if (p_transpose) {
 		new_offset = Vector2(new_offset.y, new_offset.x);
-	} else {
-		new_offset = new_offset;
 	}
 
 	if (p_flip_h) {

@@ -463,7 +463,7 @@ Vector<Face3> Geometry3D::wrap_geometry(const Vector<Face3> &p_array, real_t *p_
 		}
 	}
 
-	global_aabb.grow_by(0.01f); // Avoid numerical error.
+	// global_aabb.grow_by(0.01f); // Avoid numerical error.
 
 	// Determine amount of cells in grid axis.
 	int div_x, div_y, div_z;

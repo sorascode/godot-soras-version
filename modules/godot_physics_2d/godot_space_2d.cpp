@@ -1340,8 +1340,6 @@ bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_
 			Rect2i shape_moved_aabb = p_area->get_shape_aabb(area_shape_idx);
 			shape_moved_aabb.position += p_delta;
 
-			GodotShape2D *area_shape = p_area->get_shape(area_shape_idx);
-
 			for (int other_shape_idx = 0; other_shape_idx < p_other->get_shape_count(); other_shape_idx++) {
 				Rect2i other_shape_aabb = p_other->get_shape_aabb(other_shape_idx);
 

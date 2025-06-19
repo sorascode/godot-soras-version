@@ -326,7 +326,7 @@ void GPUParticlesCollisionSDF3D::_find_closest_distance(const Vector3 &p_pos, co
 		bool pass = true;
 		if (!p_bvh[p_bvh_cell].bounds.has_point(p_pos)) {
 			//outside, find closest point
-			Vector3 he = p_bvh[p_bvh_cell].bounds.size * 0.5;
+			Vector3 he = Vector3(p_bvh[p_bvh_cell].bounds.size) * 0.5;
 			Vector3 center = p_bvh[p_bvh_cell].bounds.position + he;
 
 			Vector3 rel = (p_pos - center).abs();
@@ -436,7 +436,7 @@ Ref<Image> GPUParticlesCollisionSDF3D::bake() {
 					}
 
 					//test against original bounds
-					if (!Geometry3D::triangle_box_overlap(aabb.get_center(), aabb.size * 0.5, face.vertex)) {
+					if (!Geometry3D::triangle_box_overlap(aabb.get_center(), Vector3(aabb.size) * 0.5, face.vertex)) {
 						continue;
 					}
 
@@ -454,7 +454,7 @@ Ref<Image> GPUParticlesCollisionSDF3D::bake() {
 					}
 
 					//test against original bounds
-					if (!Geometry3D::triangle_box_overlap(aabb.get_center(), aabb.size * 0.5, face.vertex)) {
+					if (!Geometry3D::triangle_box_overlap(aabb.get_center(), Vector3(aabb.size) * 0.5, face.vertex)) {
 						continue;
 					}
 
