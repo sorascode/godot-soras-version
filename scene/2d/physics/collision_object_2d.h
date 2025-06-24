@@ -56,6 +56,7 @@ private:
 	uint32_t callback_lock = 0;
 	bool pickable = false;
 	bool collidable = false;
+	bool pushable = false;
 
 	DisableMode disable_mode = DISABLE_MODE_REMOVE;
 
@@ -97,6 +98,7 @@ protected:
 
 	void _update_pickable();
 	void _update_collidable();
+	void _update_pushable();
 	friend class Viewport;
 	void _input_event_call(Viewport *p_viewport, const Ref<InputEvent> &p_input_event, int p_shape);
 	void _mouse_enter();
@@ -164,6 +166,9 @@ public:
 
 	void set_collidable(bool p_enabled);
 	bool is_collidable() const;
+
+	void set_pushable(bool p_enabled);
+	bool is_pushable() const;
 
 	PackedStringArray get_configuration_warnings() const override;
 

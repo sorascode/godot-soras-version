@@ -1183,7 +1183,7 @@ bool GodotSpace2D::body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_
 	return false;
 }
 
-bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter) {
+bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter, const bool p_only_pushable) {
 	if (!p_body->is_collidable()) {
 		return false;
 	}
@@ -1252,7 +1252,7 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 				if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
 					GodotBody2D *col_body = static_cast<GodotBody2D *>(col_obj);
 					if (col_body) {
-						if (!(col_body->get_collider_type() & p_collision_type_filter)) {
+						if (!(col_body->get_collider_type() & p_collision_type_filter) or (p_only_pushable and !col_body->is_pushable())) {
 							continue;
 						}
 					}

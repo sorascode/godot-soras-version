@@ -267,6 +267,7 @@ public:
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) override;
 	virtual void body_set_collidable(RID p_body, bool p_collidable) override;
+	virtual void body_set_pushable(RID p_body, bool p_pushable) override;
 
 	virtual void body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) override;
 	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) override;
@@ -274,7 +275,7 @@ public:
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override;
 	virtual bool body_collides_at(RID p_body, const Vector2i &p_delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
 	virtual bool body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other) override;
-	virtual bool body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER) override;
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false) override;
 
 	virtual bool area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) override;
 

@@ -222,7 +222,7 @@ class PhysicsServer2D : public Object {
 	virtual bool _body_test_motion(RID p_body, const Ref<PhysicsTestMotionParameters2D> &p_parameters, const Ref<PhysicsTestMotionResult2D> &p_result = Ref<PhysicsTestMotionResult2D>());
 	virtual bool _body_collides_at(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResult2D> &r_result = Ref<PhysicsCollisionResult2D>(), const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
 	virtual bool _body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other);
-	virtual bool _body_collides_at_all(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResults2D> &r_result = Ref<PhysicsCollisionResults2D>(), const bool p_smear = false, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER);
+	virtual bool _body_collides_at_all(RID p_body, const Vector2i &p_delta, const Ref<PhysicsCollisionResults2D> &r_result = Ref<PhysicsCollisionResults2D>(), const bool p_smear = false, const int16_t &p_collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false);
 
 	virtual bool _area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other);
 
@@ -504,6 +504,7 @@ public:
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) = 0;
 	virtual void body_set_collidable(RID p_body, bool p_collidable) = 0;
+	virtual void body_set_pushable(RID p_body, bool p_pushable) = 0;
 
 	virtual void body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) = 0;
 	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) = 0;
@@ -608,7 +609,7 @@ public:
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) = 0;
 	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
 	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) = 0;
-	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) = 0;
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false) = 0;
 
 	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) = 0;
 

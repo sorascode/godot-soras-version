@@ -741,13 +741,13 @@ bool PhysicsServer2D::_body_collides_at_with(RID p_body, const Vector2i &delta, 
 	return body_collides_at_with(p_body, delta, p_other);
 }
 
-bool PhysicsServer2D::_body_collides_at_all(RID p_body, const Vector2i &delta, const Ref<PhysicsCollisionResults2D> &r_result, const bool p_smear, const int16_t &collision_type_filter) {
+bool PhysicsServer2D::_body_collides_at_all(RID p_body, const Vector2i &delta, const Ref<PhysicsCollisionResults2D> &r_result, const bool p_smear, const int16_t &collision_type_filter, const bool p_only_pushable) {
 	CollisionResults *result_ptr = nullptr;
 	if (r_result.is_valid()) {
 		result_ptr = r_result->get_result_ptr();
 	}
 
-	return body_collides_at_all(p_body, delta, result_ptr, p_smear, collision_type_filter);
+	return body_collides_at_all(p_body, delta, result_ptr, p_smear, collision_type_filter, p_only_pushable);
 }
 
 bool PhysicsServer2D::_area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) {
@@ -911,7 +911,7 @@ void PhysicsServer2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("body_test_motion", "body", "parameters", "result"), &PhysicsServer2D::_body_test_motion, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("body_collides_at", "body", "delta", "result", "collision_type_filter"), &PhysicsServer2D::_body_collides_at, DEFVAL(DEFAULT_COLLIDER_FILTER));
 	ClassDB::bind_method(D_METHOD("body_collides_at_with", "body", "delta", "other"), &PhysicsServer2D::_body_collides_at_with);
-	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "delta", "result", "smear", "collision_type_filter"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(false), DEFVAL(DEFAULT_COLLIDER_FILTER));
+	ClassDB::bind_method(D_METHOD("body_collides_at_all", "body", "delta", "result", "smear", "collision_type_filter", "only_pushable"), &PhysicsServer2D::_body_collides_at_all, DEFVAL(false), DEFVAL(DEFAULT_COLLIDER_FILTER), DEFVAL(false));
 
 	ClassDB::bind_method(D_METHOD("area_collides_at_with", "area", "delta", "other"), &PhysicsServer2D::_area_collides_at_with);
 

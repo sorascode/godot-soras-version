@@ -189,7 +189,7 @@ public:
 	bool test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::MotionParameters &p_parameters, PhysicsServer2D::MotionResult *r_result);
 	bool body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResult *r_result, const int16_t p_collision_type_filter);
 	bool body_collides_at_with(GodotBody2D *p_body, const Vector2i &p_delta, const GodotBody2D *p_other, const bool p_smear = false);
-	bool body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter);
+	bool body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_delta, PhysicsServer2D::CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter, const bool p_only_pushable);
 
 	bool area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_delta, const GodotBody2D *p_other);
 

@@ -195,7 +195,7 @@ public:
 
 	virtual void area_set_monitorable(RID p_area, bool p_monitorable) override {}
 	virtual void area_set_pickable(RID p_area, bool p_pickable) override {}
-	virtual void area_set_collidable(RID p_area, bool p_collidable) override {};
+	virtual void area_set_collidable(RID p_area, bool p_collidable) override {}
 
 	virtual void area_set_monitor_callback(RID p_area, const Callable &p_callback) override {}
 	virtual void area_set_area_monitor_callback(RID p_area, const Callable &p_callback) override {}
@@ -291,7 +291,8 @@ public:
 	virtual bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2Di &p_shape_xform, const Vector2i &p_motion, Vector2i *r_results, int p_result_max, int &r_result_count) override { return false; }
 
 	virtual void body_set_pickable(RID p_body, bool p_pickable) override {}
-	virtual void body_set_collidable(RID p_body, bool p_collidable) override {};
+	virtual void body_set_collidable(RID p_body, bool p_collidable) override {}
+	virtual void body_set_pushable(RID p_body, bool p_pushable) override {}
 
 	virtual void body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) override {};
 	virtual void body_set_carry_speed(RID p_body, const Vector2 &p_speed) override {};
@@ -310,7 +311,7 @@ public:
 	virtual bool body_test_motion(RID p_body, const MotionParameters &p_parameters, MotionResult *r_result = nullptr) override { return false; }
 	virtual bool body_collides_at(RID p_body, const Vector2i &delta, CollisionResult *r_result = nullptr, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
 	virtual bool body_collides_at_with(RID p_body, const Vector2i &delta, const RID &p_other) override { return false; };
-	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override { return false; };
+	virtual bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false) override { return false; };
 
 	virtual bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override { return false; };
 

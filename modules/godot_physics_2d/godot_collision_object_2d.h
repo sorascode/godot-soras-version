@@ -53,6 +53,7 @@ private:
 	ObjectID canvas_instance_id;
 	bool pickable = true;
 	bool collidable = true;
+	bool pushable = true;
 
 	struct Shape {
 		Transform2Di xform;
@@ -180,6 +181,9 @@ public:
 
 	void set_collidable(bool p_collidable) { collidable = p_collidable; }
 	_FORCE_INLINE_ bool is_collidable() const { return collidable; }
+
+	void set_pushable(bool p_pushable) { pushable = p_pushable; }
+	_FORCE_INLINE_ bool is_pushable() const { return pushable; }
 
 	_FORCE_INLINE_ bool collides_with(GodotCollisionObject2D *p_other) const {
 		return p_other->collision_layer & collision_mask;

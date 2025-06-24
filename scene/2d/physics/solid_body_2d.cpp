@@ -50,7 +50,7 @@ bool SolidBody2D::move_h_exact(int32_t p_amount, const Callable &p_collision_cal
 void SolidBody2D::move_h_exact_solid(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
 	PhysicsServer2D::CollisionResults r_results;
 	if (is_collidable()) {
-		if (collides_at_all(Vector2i(p_amount, 0), &r_results, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR | PhysicsServer2D::COLLIDER_TYPE_SIMULATED)) {
+		if (collides_at_all(Vector2i(p_amount, 0), &r_results, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR | PhysicsServer2D::COLLIDER_TYPE_SIMULATED, true)) {
 			for (int i = 0; i < r_results.collision_count; i++) {
 				RID other = r_results.colliders[i];
 				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_h(get_rid(), p_amount, other);
@@ -103,7 +103,7 @@ bool SolidBody2D::move_v_exact(int32_t p_amount, const Callable &p_collision_cal
 void SolidBody2D::move_v_exact_solid(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
 	PhysicsServer2D::CollisionResults r_results;
 	if (is_collidable()) {
-		if (collides_at_all(Vector2i(0, p_amount), &r_results, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR | PhysicsServer2D::COLLIDER_TYPE_SIMULATED)) {
+		if (collides_at_all(Vector2i(0, p_amount), &r_results, true, PhysicsServer2D::COLLIDER_TYPE_ACTOR | PhysicsServer2D::COLLIDER_TYPE_SIMULATED, true)) {
 			for (int i = 0; i < r_results.collision_count; i++) {
 				RID other = r_results.colliders[i];
 				int local_amount = PhysicsServer2D::get_singleton()->body_push_amount_v(get_rid(), p_amount, other);

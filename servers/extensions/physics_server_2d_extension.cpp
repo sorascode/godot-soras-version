@@ -296,6 +296,7 @@ void PhysicsServer2DExtension::_bind_methods() {
 
 	GDVIRTUAL_BIND(_body_set_pickable, "body", "pickable");
 	GDVIRTUAL_BIND(_body_set_collidable, "body", "collidable");
+	GDVIRTUAL_BIND(_body_set_pushable, "body", "pushable");
 
 	GDVIRTUAL_BIND(_body_set_carry_speed_sync_callback, "body", "callable");
 	GDVIRTUAL_BIND(_body_set_carry_speed, "body", "speed");
@@ -313,7 +314,7 @@ void PhysicsServer2DExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_body_test_motion, "body", "from", "motion", "collide_separation_ray", "recovery_as_collision", "result");
 	GDVIRTUAL_BIND(_body_collides_at, "body", "delta", "result", "collision_type_filter");
 	GDVIRTUAL_BIND(_body_collides_at_with, "body", "delta", "other");
-	GDVIRTUAL_BIND(_body_collides_at_all, "body", "delta", "result", "smear", "collision_type_filter");
+	GDVIRTUAL_BIND(_body_collides_at_all, "body", "delta", "result", "smear", "collision_type_filter", "only_pushable");
 
 	GDVIRTUAL_BIND(_area_collides_at_with, "area", "delta", "other");
 

@@ -1073,6 +1073,12 @@ void GodotPhysicsServer2D::body_set_collidable(RID p_body, bool p_collidable) {
 	body->set_collidable(p_collidable);
 }
 
+void GodotPhysicsServer2D::body_set_pushable(RID p_body, bool p_pushable) {
+	GodotBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_pushable(p_pushable);
+}
+
 void GodotPhysicsServer2D::body_set_carry_speed_sync_callback(RID p_body, const Callable &p_callable) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
@@ -1123,7 +1129,7 @@ bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Vector2i &p_d
 	return body->get_space()->body_collides_at_with(body, p_delta, other);
 }
 
-bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter) {
+bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result, const bool p_smear, const int16_t p_collision_type_filter, const bool p_only_pushable) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 	ERR_FAIL_NULL_V(body->get_space(), false);
@@ -1131,7 +1137,7 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_de
 
 	_update_shapes();
 
-	return body->get_space()->body_collides_at_all(body, p_delta, r_result, p_smear, p_collision_type_filter);
+	return body->get_space()->body_collides_at_all(body, p_delta, r_result, p_smear, p_collision_type_filter, p_only_pushable);
 }
 
 bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) {

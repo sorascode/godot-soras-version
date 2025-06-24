@@ -391,6 +391,7 @@ public:
 
 	EXBIND2(body_set_pickable, RID, bool)
 	EXBIND2(body_set_collidable, RID, bool)
+	EXBIND2(body_set_pushable, RID, bool)
 
 	EXBIND2(body_set_carry_speed_sync_callback, RID, const Callable &)
 	EXBIND2(body_set_carry_speed, RID, const Vector2 &)
@@ -400,7 +401,7 @@ public:
 	GDVIRTUAL6RC_REQUIRED(bool, _body_test_motion, RID, const Transform2Di &, const Vector2i &, bool, bool, GDExtensionPtr<PhysicsServer2DExtensionMotionResult>)
 	GDVIRTUAL4RC_REQUIRED(bool, _body_collides_at, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResult>, const int16_t &)
 	GDVIRTUAL3RC_REQUIRED(bool, _body_collides_at_with, RID, const Vector2i &, const RID &)
-	GDVIRTUAL5RC_REQUIRED(bool, _body_collides_at_all, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResults>, const bool &, const int16_t &)
+	GDVIRTUAL6RC_REQUIRED(bool, _body_collides_at_all, RID, const Vector2i &, GDExtensionPtr<PhysicsServer2DExtensionCollisionResults>, const bool &, const int16_t &, const bool &)
 
 	GDVIRTUAL3RC_REQUIRED(bool, _area_collides_at_with, RID, const Vector2i &, const RID &)
 
@@ -485,9 +486,9 @@ public:
 		return ret;
 	}
 
-	bool body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at_all(RID p_body, const Vector2i &p_delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false) override {
 		bool ret = false;
-		GDVIRTUAL_CALL(_body_collides_at_all, p_body, p_delta, r_result, p_smear, p_collision_type_filter, ret);
+		GDVIRTUAL_CALL(_body_collides_at_all, p_body, p_delta, r_result, p_smear, p_collision_type_filter, p_only_pushable, ret);
 		return ret;
 	}
 

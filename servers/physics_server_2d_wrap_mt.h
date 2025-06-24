@@ -256,6 +256,7 @@ public:
 
 	FUNC2(body_set_pickable, RID, bool);
 	FUNC2(body_set_collidable, RID, bool);
+	FUNC2(body_set_pushable, RID, bool);
 
 	FUNC2(body_set_carry_speed_sync_callback, RID, const Callable &);
 	FUNC2(body_set_carry_speed, RID, const Vector2 &);
@@ -306,9 +307,9 @@ public:
 		return physics_server_2d->body_collides_at_with(p_body, delta, p_other);
 	}
 
-	bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER) override {
+	bool body_collides_at_all(RID p_body, const Vector2i &delta, CollisionResults *r_result = nullptr, const bool p_smear = false, const int16_t p_collision_type_filter = DEFAULT_COLLIDER_FILTER, const bool p_only_pushable = false) override {
 		ERR_FAIL_COND_V(!Thread::is_main_thread(), false);
-		return physics_server_2d->body_collides_at_all(p_body, delta, r_result, p_smear, p_collision_type_filter);
+		return physics_server_2d->body_collides_at_all(p_body, delta, r_result, p_smear, p_collision_type_filter, p_only_pushable);
 	}
 
 	bool area_collides_at_with(RID p_area, const Vector2i &delta, const RID &p_other) override {
