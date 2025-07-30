@@ -388,7 +388,8 @@ $RECYCLE.BIN/
 *.generated.props
 
 godot_macos_editor.app
-bin/macos_template.app
+macos_template.app
 macos.zip
 build-export-templates.sh
 build-export-templates.bat
+build-editor.sh
