@@ -2255,19 +2255,19 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 					next = from->find_prev_valid_focus();
 				}
 
-				if (p_event->is_action_pressed(SNAME("ui_up"), true, true)) {
+				if (p_event->is_action_pressed(SNAME("ui_up"))) {
 					next = from->_get_focus_neighbor(SIDE_TOP);
 				}
 
-				if (p_event->is_action_pressed(SNAME("ui_left"), true, true)) {
+				if (p_event->is_action_pressed(SNAME("ui_left"))) {
 					next = from->_get_focus_neighbor(SIDE_LEFT);
 				}
 
-				if (p_event->is_action_pressed(SNAME("ui_right"), true, true)) {
+				if (p_event->is_action_pressed(SNAME("ui_right"))) {
 					next = from->_get_focus_neighbor(SIDE_RIGHT);
 				}
 
-				if (p_event->is_action_pressed(SNAME("ui_down"), true, true)) {
+				if (p_event->is_action_pressed(SNAME("ui_down"))) {
 					next = from->_get_focus_neighbor(SIDE_BOTTOM);
 				}
 			}
