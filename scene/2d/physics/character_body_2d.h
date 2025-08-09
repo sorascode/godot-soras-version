@@ -69,11 +69,11 @@ public:
 
 	bool _is_riding_solid(const RID &p_solid);
 	bool _is_riding_one_way(const RID &p_one_way);
-	void _squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, const RID &p_collided_with, const RID &p_pusher);
+	void _squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, const RID &p_collided_with, const Vector2i &p_contact_point, const RID &p_pusher);
 
 	GDVIRTUAL1R(bool, _is_riding_solid, RID)
 	GDVIRTUAL1R(bool, _is_riding_one_way, RID)
-	GDVIRTUAL5(_squish, Vector2i, int32_t, int32_t, RID, RID)
+	GDVIRTUAL6(_squish, Vector2i, int32_t, int32_t, RID, Vector2i, RID)
 
 	CharacterBody2D();
 };

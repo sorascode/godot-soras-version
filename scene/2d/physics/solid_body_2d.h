@@ -45,9 +45,6 @@ protected:
 
 	Vector2 transfer_speed;
 
-	void set_transfer_speed(const Vector2 &p_speed);
-	Vector2 get_transfer_speed() const;
-
 public:
 	bool move_h_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
 	bool move_v_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
@@ -56,6 +53,12 @@ public:
 	bool is_one_way_collision_enabled() const;
 
 	void update_riders();
+
+	void set_transfer_speed(const Vector2 &p_speed);
+	Vector2 get_transfer_speed() const;
+
+	TypedArray<PhysicsBody2D> get_riders() const;
+	bool has_rider() const;
 
 	SolidBody2D();
 private:

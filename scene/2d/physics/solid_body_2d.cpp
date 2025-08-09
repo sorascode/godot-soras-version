@@ -177,6 +177,9 @@ void SolidBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &SolidBody2D::is_one_way_collision_enabled);
 	ClassDB::bind_method(D_METHOD("set_transfer_speed", "speed"), &SolidBody2D::set_transfer_speed);
 	ClassDB::bind_method(D_METHOD("get_transfer_speed"), &SolidBody2D::get_transfer_speed);
+	ClassDB::bind_method(D_METHOD("update_riders"), &SolidBody2D::update_riders);
+	ClassDB::bind_method(D_METHOD("get_riders"), &SolidBody2D::get_riders);
+	ClassDB::bind_method(D_METHOD("has_rider"), &SolidBody2D::has_rider);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "transfer_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_transfer_speed", "get_transfer_speed");
@@ -188,4 +191,19 @@ void SolidBody2D::set_transfer_speed(const Vector2 &p_speed) {
 
 Vector2 SolidBody2D::get_transfer_speed() const {
 	return transfer_speed;
+}
+
+TypedArray<PhysicsBody2D> SolidBody2D::get_riders() const {
+	Array ret;
+	for (const RID &body : riders) {
+		ObjectID instance_id = PhysicsServer2D::get_singleton()->body_get_object_instance_id(body);
+		Object *obj = ObjectDB::get_instance(instance_id);
+		PhysicsBody2D *physics_body = Object::cast_to<PhysicsBody2D>(obj);
+		ret.append(physics_body);
+	}
+	return ret;
+}
+
+bool SolidBody2D::has_rider() const {
+	return riders.size() > 0;
 }
