@@ -337,6 +337,7 @@ private:
 		Color color;
 	};
 	struct TerrainSet {
+		String name;
 		TerrainMode mode = TERRAIN_MODE_MATCH_CORNERS_AND_SIDES;
 		Vector<Terrain> terrains;
 	};
@@ -458,6 +459,8 @@ public:
 	void add_terrain_set(int p_index = -1);
 	void move_terrain_set(int p_from_index, int p_to_pos);
 	void remove_terrain_set(int p_index);
+	void set_terrain_set_name(int p_terrain_set, String p_name);
+	String get_terrain_set_name(int p_terrain_set) const;
 	void set_terrain_set_mode(int p_terrain_set, TerrainMode p_terrain_mode);
 	TerrainMode get_terrain_set_mode(int p_terrain_set) const;
 

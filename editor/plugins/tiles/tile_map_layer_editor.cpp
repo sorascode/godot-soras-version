@@ -3372,7 +3372,7 @@ void TileMapLayerEditorTerrainsPlugin::_update_terrains_tree() {
 			terrain_set_tree_item->set_icon(0, main_vbox_container->get_editor_theme_icon(SNAME("TerrainMatchSides")));
 			matches = String(TTR("Matches Sides Only"));
 		}
-		terrain_set_tree_item->set_text(0, vformat(TTR("Terrain Set %d (%s)"), terrain_set_index, matches));
+		terrain_set_tree_item->set_text(0, vformat(TTR("%s (%s)"), tile_set->get_terrain_set_name(terrain_set_index), matches));
 		terrain_set_tree_item->set_selectable(0, false);
 
 		for (int terrain_index = 0; terrain_index < tile_set->get_terrains_count(terrain_set_index); terrain_index++) {

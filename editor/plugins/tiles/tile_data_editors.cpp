@@ -2574,7 +2574,12 @@ void TileDataTerrainsEditor::_update_terrain_selector() {
 	Vector<String> options;
 	options.push_back(String(TTR("No terrains")) + String(":-1"));
 	for (int i = 0; i < tile_set->get_terrain_sets_count(); i++) {
-		options.push_back(vformat("Terrain Set %d", i));
+		String name = tile_set->get_terrain_set_name(i);
+		if (name.is_empty()) {
+			options.push_back(vformat("Terrain Set %d", i));
+		} else {
+			options.push_back(name);
+		}
 	}
 	terrain_set_property_editor->setup(options);
 	terrain_set_property_editor->update_property();
