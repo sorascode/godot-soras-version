@@ -1283,7 +1283,7 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 }
 
 bool GodotSpace2D::area_collides_at_with(GodotArea2D *p_area, const Vector2i &p_delta, const GodotBody2D *p_other) {
-	if (!p_other->is_collidable()) {
+	if (p_area->get_space() != p_other->get_space() || !p_other->is_collidable()) {
 		return false;
 	}
 
