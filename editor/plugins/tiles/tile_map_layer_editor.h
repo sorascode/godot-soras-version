@@ -319,6 +319,7 @@ private:
 	void _update_terrains_cache();
 	void _update_terrains_tree();
 	void _update_tiles_list();
+	void _item_collapsed(Object *p_obj);
 	void _update_theme();
 
 	// Update callback

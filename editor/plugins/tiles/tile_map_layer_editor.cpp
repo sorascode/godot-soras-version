@@ -3374,6 +3374,7 @@ void TileMapLayerEditorTerrainsPlugin::_update_terrains_tree() {
 		}
 		terrain_set_tree_item->set_text(0, vformat(TTR("%s (%s)"), tile_set->get_terrain_set_name(terrain_set_index), matches));
 		terrain_set_tree_item->set_selectable(0, false);
+		terrain_set_tree_item->set_collapsed(tile_set->get_terrain_set_collapsed(terrain_set_index));
 
 		for (int terrain_index = 0; terrain_index < tile_set->get_terrains_count(terrain_set_index); terrain_index++) {
 			// Add the item to the terrain list.
@@ -3490,6 +3491,29 @@ void TileMapLayerEditorTerrainsPlugin::_update_tiles_list() {
 	}
 }
 
+void TileMapLayerEditorTerrainsPlugin::_item_collapsed(Object *p_obj) {
+	TreeItem *ti = Object::cast_to<TreeItem>(p_obj);
+	if (!ti) {
+		return;
+	}
+
+	const TileMapLayer *edited_layer = _get_edited_layer();
+	if (!edited_layer) {
+		return;
+	}
+
+	Ref<TileSet> tile_set = edited_layer->get_tile_set();
+	if (tile_set.is_null()) {
+		return;
+	}
+
+	bool collapsed = ti->is_collapsed();
+
+	int terrain_set_index = ti->get_index();
+
+	tile_set->set_terrain_set_collapsed(terrain_set_index, collapsed);
+}
+
 void TileMapLayerEditorTerrainsPlugin::_update_theme() {
 	paint_tool_button->set_button_icon(main_vbox_container->get_editor_theme_icon(SNAME("Edit")));
 	line_tool_button->set_button_icon(main_vbox_container->get_editor_theme_icon(SNAME("Line")));
@@ -3536,6 +3560,7 @@ TileMapLayerEditorTerrainsPlugin::TileMapLayerEditorTerrainsPlugin() {
 	terrains_tree->set_hide_root(true);
 	terrains_tree->set_theme_type_variation("ItemListSecondary");
 	terrains_tree->connect(SceneStringName(item_selected), callable_mp(this, &TileMapLayerEditorTerrainsPlugin::_update_tiles_list));
+	terrains_tree->connect("item_collapsed", callable_mp(this, &TileMapLayerEditorTerrainsPlugin::_item_collapsed));
 	tilemap_tab_terrains->add_child(terrains_tree);
 
 	terrains_tile_list = memnew(ItemList);

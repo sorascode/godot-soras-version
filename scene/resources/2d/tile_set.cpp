@@ -777,6 +777,17 @@ String TileSet::get_terrain_set_name(int p_terrain_set) const {
 	return terrain_sets[p_terrain_set].name;
 }
 
+void TileSet::set_terrain_set_collapsed(int p_terrain_set, bool p_collapsed) {
+	ERR_FAIL_INDEX(p_terrain_set, terrain_sets.size());
+	terrain_sets.write[p_terrain_set].collapsed = p_collapsed;
+	emit_changed();
+}
+
+bool TileSet::get_terrain_set_collapsed(int p_terrain_set) const {
+	ERR_FAIL_INDEX_V(p_terrain_set, terrain_sets.size(), false);
+	return terrain_sets[p_terrain_set].collapsed;
+}
+
 void TileSet::set_terrain_set_mode(int p_terrain_set, TerrainMode p_terrain_mode) {
 	ERR_FAIL_INDEX(p_terrain_set, terrain_sets.size());
 	terrain_sets.write[p_terrain_set].mode = p_terrain_mode;
