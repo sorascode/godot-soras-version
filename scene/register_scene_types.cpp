@@ -161,6 +161,7 @@
 #include "scene/theme/theme_db.h"
 
 // 2D
+#include "resources/color_texture.h"
 #include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/audio_listener_2d.h"
 #include "scene/2d/audio_stream_player_2d.h"
@@ -187,8 +188,6 @@
 #include "scene/2d/physics/animatable_body_2d.h"
 #include "scene/2d/physics/area_2d.h"
 #include "scene/2d/physics/character_body_2d.h"
-#include "scene/2d/physics/solid_body_2d.h"
-#include "scene/2d/physics/simulated_body_2d.h"
 #include "scene/2d/physics/collision_shape_2d.h"
 #include "scene/2d/physics/joints/damped_spring_joint_2d.h"
 #include "scene/2d/physics/joints/groove_joint_2d.h"
@@ -200,6 +199,8 @@
 #include "scene/2d/physics/ray_cast_2d.h"
 #include "scene/2d/physics/rigid_body_2d.h"
 #include "scene/2d/physics/shape_cast_2d.h"
+#include "scene/2d/physics/simulated_body_2d.h"
+#include "scene/2d/physics/solid_body_2d.h"
 #include "scene/2d/physics/static_body_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/2d/remote_transform_2d.h"
@@ -941,6 +942,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(CurveXYZTexture);
 	GDREGISTER_CLASS(GradientTexture1D);
 	GDREGISTER_CLASS(GradientTexture2D);
+	GDREGISTER_CLASS(ColorTexture);
 	GDREGISTER_CLASS(AnimatedTexture);
 	GDREGISTER_CLASS(CameraTexture);
 	GDREGISTER_CLASS(ExternalTexture);
