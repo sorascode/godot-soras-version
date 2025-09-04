@@ -83,7 +83,7 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback,
 				if (p_callback.get_argument_count() == 6) {
 					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, p_pusher);
 				} else {
-					WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 6).");
+					WARN_PRINT("move_h collision callback does not have the expected number of arguments (expected 6).");
 				}
 			}
 			return true;

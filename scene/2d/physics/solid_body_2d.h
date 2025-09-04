@@ -49,6 +49,12 @@ public:
 	bool move_h_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
 	bool move_v_exact(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID()) override;
 
+	bool move_h_collide(real_t p_amount, const Callable &p_callback = Callable());
+	bool move_v_collide(real_t p_amount, const Callable &p_callback = Callable());
+
+	bool move_h_exact_collide(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
+	bool move_v_exact_collide(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
+
 	void set_one_way_collision(bool p_enable);
 	bool is_one_way_collision_enabled() const;
 
@@ -61,6 +67,12 @@ public:
 	bool has_rider() const;
 
 	SolidBody2D();
+
+	bool _move_h_exact_collide(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+	bool _move_v_exact_collide(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
+
+	GDVIRTUAL3R(bool, _move_h_exact_collide, int32_t, Callable, RID)
+	GDVIRTUAL3R(bool, _move_v_exact_collide, int32_t, Callable, RID)
 private:
 	void move_h_exact_solid(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
 	void move_h_exact_one_way(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());

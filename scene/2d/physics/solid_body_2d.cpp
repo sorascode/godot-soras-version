@@ -34,6 +34,113 @@ SolidBody2D::SolidBody2D() :
 		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_SOLID) {
 }
 
+bool SolidBody2D::move_h_collide(real_t p_amount, const Callable &p_callback) {
+	position_delta.x += p_amount;
+	int whole_move = Math::round_half_to_even(position_delta.x);
+	if (whole_move == 0) {
+		return false;
+	}
+	position_delta.x -= whole_move;
+	return _move_h_exact_collide(whole_move, p_callback);
+}
+
+bool SolidBody2D::move_v_collide(real_t p_amount, const Callable &p_callback) {
+	position_delta.y += p_amount;
+	int whole_move = Math::round_half_to_even(position_delta.y);
+	if (whole_move == 0) {
+		return false;
+	}
+	position_delta.y -= whole_move;
+	return _move_v_exact_collide(whole_move, p_callback);
+}
+
+bool SolidBody2D::move_h_exact_collide(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
+	Vector2i start_position = get_position();
+	int move_dir = SIGN(p_amount);
+	Vector2i move_dir_vector = Vector2i(move_dir, 0);
+	int amount_moved = 0;
+	PhysicsServer2D::CollisionResult r_result;
+	while (p_amount != 0)
+	{
+		bool colliding = collides_at(move_dir_vector, &r_result);
+		if (colliding)
+		{
+			position_delta.x = 0;
+			break;
+		}
+		amount_moved += move_dir;
+		p_amount -= move_dir;
+		translate(move_dir_vector);
+	}
+	set_position(start_position);
+	move_h_exact(amount_moved, p_callback, p_pusher);
+	if (r_result.collider_id.is_valid() && p_callback.is_valid()) {
+		Object *obj = ObjectDB::get_instance(r_result.collider_id);
+		Node2D *collider_body = cast_to<Node2D>(obj);
+
+		if (p_callback.get_argument_count() == 6) {
+			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, p_pusher);
+		} else {
+			WARN_PRINT("move_h_collide collision callback does not have the expected number of arguments (expected 6).");
+		}
+	}
+	return r_result.collider_id.is_valid();
+}
+
+bool SolidBody2D::move_v_exact_collide(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	if (p_amount == 0) {
+		return false;
+	}
+	Vector2i start_position = get_position();
+	int move_dir = SIGN(p_amount);
+	Vector2i move_dir_vector = Vector2i(0, move_dir);
+	int amount_moved = 0;
+	PhysicsServer2D::CollisionResult r_result;
+	PhysicsServer2D::CollisionResults r_results;
+	ObjectID collider_id;
+	Vector2i collision_point;
+	while (p_amount != 0)
+	{
+		bool colliding = collides_at(move_dir_vector, &r_result);
+		if (colliding)
+		{
+			position_delta.y = 0;
+			collider_id = r_result.collider_id;
+			collision_point = r_result.collision_point;
+			break;
+		}
+		if (p_amount > 0) {
+			colliding = collides_at_all_outside(move_dir_vector, &r_results, PhysicsServer2D::COLLIDER_TYPE_ONE_WAY);
+			if (colliding)
+			{
+				position_delta.y = 0;
+				collider_id = r_results.collider_ids[0];
+				collision_point = r_results.collision_points[0];
+				break;
+			}
+		}
+		amount_moved += move_dir;
+		p_amount -= move_dir;
+		translate(move_dir_vector);
+	}
+	set_position(start_position);
+	move_v_exact(amount_moved, p_callback, p_pusher);
+	if (collider_id.is_valid() && p_callback.is_valid())
+	{
+		Object *obj = ObjectDB::get_instance(collider_id);
+		Node2D *collider_body = cast_to<Node2D>(obj);
+		if (p_callback.get_argument_count() == 6) {
+			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, collision_point, p_pusher);
+		} else {
+			WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 6).");
+		}
+	}
+	return collider_id.is_valid();
+}
+
 bool SolidBody2D::move_h_exact(int32_t p_amount, const Callable &p_collision_callback, const RID &p_pusher) {
 	if (p_amount == 0) {
 		return false;
@@ -173,6 +280,10 @@ void SolidBody2D::update_riders() {
 }
 
 void SolidBody2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("move_h_collide", "amount", "collision_callback"), &SolidBody2D::move_h_collide, DEFVAL(0.0f), DEFVAL(Callable()));
+	ClassDB::bind_method(D_METHOD("move_v_collide", "amount", "collision_callback"), &SolidBody2D::move_v_collide, DEFVAL(0.0f), DEFVAL(Callable()));
+	ClassDB::bind_method(D_METHOD("move_h_exact_collide", "amount", "collision_callback", "pusher"), &SolidBody2D::_move_h_exact_collide, DEFVAL(0), DEFVAL(Callable()), DEFVAL(RID()));
+	ClassDB::bind_method(D_METHOD("move_v_exact_collide", "amount", "collision_callback", "pusher"), &SolidBody2D::_move_v_exact_collide, DEFVAL(0), DEFVAL(Callable()), DEFVAL(RID()));
 	ClassDB::bind_method(D_METHOD("set_one_way_collision", "enabled"), &SolidBody2D::set_one_way_collision);
 	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &SolidBody2D::is_one_way_collision_enabled);
 	ClassDB::bind_method(D_METHOD("set_transfer_speed", "speed"), &SolidBody2D::set_transfer_speed);
@@ -183,6 +294,9 @@ void SolidBody2D::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "transfer_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_transfer_speed", "get_transfer_speed");
+
+	GDVIRTUAL_BIND(_move_h_exact_collide, "amount", "collision_callback", "pusher");
+	GDVIRTUAL_BIND(_move_v_exact_collide, "amount", "collision_callback", "pusher");
 }
 
 void SolidBody2D::set_transfer_speed(const Vector2 &p_speed) {
@@ -206,4 +320,20 @@ TypedArray<PhysicsBody2D> SolidBody2D::get_riders() const {
 
 bool SolidBody2D::has_rider() const {
 	return riders.size() > 0;
+}
+
+bool SolidBody2D::_move_h_exact_collide(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	bool result = false;
+	if (GDVIRTUAL_CALL(_move_h_exact_collide, p_amount, p_callback, p_pusher, result)) {
+		return result;
+	}
+	return move_h_exact_collide(p_amount, p_callback, p_pusher);
+}
+
+bool SolidBody2D::_move_v_exact_collide(int32_t p_amount, const Callable &p_callback, const RID &p_pusher) {
+	bool result = false;
+	if (GDVIRTUAL_CALL(_move_v_exact_collide, p_amount, p_callback, p_pusher, result)) {
+		return result;
+	}
+	return move_v_exact_collide(p_amount, p_callback, p_pusher);
 }

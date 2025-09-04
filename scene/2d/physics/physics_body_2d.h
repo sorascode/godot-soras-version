@@ -88,7 +88,7 @@ public:
 	void remove_collision_exception_with(Node *p_node);
 
 	bool _move_h_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
-	bool _move_v_exact(int32_t p_amount, const Callable &p_callback, const RID &p_pusher = RID());
+	bool _move_v_exact(int32_t p_amount, const Callable &p_callback = Callable(), const RID &p_pusher = RID());
 
 	GDVIRTUAL3R(bool, _move_h_exact, int32_t, Callable, RID)
 	GDVIRTUAL3R(bool, _move_v_exact, int32_t, Callable, RID)
