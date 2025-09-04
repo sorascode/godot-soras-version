@@ -271,6 +271,10 @@ bool Line2D::get_antialiased() const {
 }
 
 void Line2D::_draw() {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_draw)) {
+		return;
+	}
+
 	int len = _points.size();
 	if (len <= 1 || _width == 0.f) {
 		return;
