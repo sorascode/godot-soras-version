@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#pragma once
+
 #include "core/input/input.h"
 #include "core/input/input_enums.h"
 
@@ -44,16 +46,11 @@ struct GameController {
 	RumbleContext *rumble_context API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0)) = nil;
 	NSInteger ff_effect_timestamp = 0;
 	bool force_feedback = false;
-	bool nintendo_button_layout = false;
-	Color color;
-	Input::JoyAdaptiveTriggerMode l_mode = Input::JOY_ADAPTIVE_TRIGGER_MODE_OFF;
-	Vector2 l_strength;
-	Vector2 l_position;
-	Input::JoyAdaptiveTriggerMode r_mode = Input::JOY_ADAPTIVE_TRIGGER_MODE_OFF;
-	Vector2 r_strength;
-	Vector2 r_position;
+	bool double_nintendo_joycon_layout = false;
+	bool single_nintendo_joycon_layout = false;
 
-	bool axis_changed[(int)JoyAxis::MAX];
+	uint32_t axis_changed_mask = 0;
+	static_assert(static_cast<uint32_t>(JoyAxis::MAX) < 32, "JoyAxis::MAX must be less than 32");
 	double axis_value[(int)JoyAxis::MAX];
 
 	GameController(int p_joy_id, GCController *p_controller);

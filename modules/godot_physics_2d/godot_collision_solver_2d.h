@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef GODOT_COLLISION_SOLVER_2D_H
-#define GODOT_COLLISION_SOLVER_2D_H
+#pragma once
 
 #include "godot_shape_2d.h"
 
@@ -45,5 +44,3 @@ private:
 public:
 	static bool solve(const GodotShape2D *p_shape_A, const Transform2Di &p_transform_A, const Vector2i &p_motion_A, const GodotShape2D *p_shape_B, const Transform2Di &p_transform_B, const Vector2i &p_motion_B, CallbackResult p_result_callback, void *p_userdata, Vector2 *r_sep_axis = nullptr);
 };
-
-#endif // GODOT_COLLISION_SOLVER_2D_H

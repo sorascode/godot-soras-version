@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef PHYSICS_BODY_2D_H
-#define PHYSICS_BODY_2D_H
+#pragma once
 
 #include "scene/2d/physics/collision_object_2d.h"
 #include "scene/2d/physics/kinematic_collision_2d.h"
@@ -93,5 +92,3 @@ public:
 	GDVIRTUAL3R(bool, _move_h_exact, int32_t, Callable, RID)
 	GDVIRTUAL3R(bool, _move_v_exact, int32_t, Callable, RID)
 };
-
-#endif // PHYSICS_BODY_2D_H

@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  character_body_2d.h                                                   */
+/*  simulated_body_2d.h                                                   */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef SIMULATED_BODY_2D_H
-#define SIMULATED_BODY_2D_H
+#pragma once
 
 #include "scene/2d/physics/kinematic_collision_2d.h"
 #include "scene/2d/physics/physics_body_2d.h"
@@ -56,5 +55,3 @@ public:
 
 	SimulatedBody2D();
 };
-
-#endif // SIMULATED_BODY_2D_H

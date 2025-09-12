@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef SOLID_BODY_2D_H
-#define SOLID_BODY_2D_H
+#pragma once
 
 #include "scene/2d/physics/kinematic_collision_2d.h"
 #include "scene/2d/physics/physics_body_2d.h"
@@ -79,5 +78,3 @@ private:
 	void move_v_exact_solid(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
 	void move_v_exact_one_way(int32_t p_amount, const Callable &p_collision_callback = Callable(), const RID &p_pusher = RID());
 };
-
-#endif // SOLID_BODY_2D_H

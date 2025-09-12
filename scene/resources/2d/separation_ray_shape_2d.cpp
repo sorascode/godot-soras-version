@@ -74,7 +74,7 @@ Rect2i SeparationRayShape2D::get_rect() const {
 	Rect2i rect;
 	rect.position = Vector2i();
 	rect.expand_to(Vector2i(0, length));
-	rect = rect.grow(Math_SQRT12 * 4);
+	rect = rect.grow(Math::SQRT12 * 4);
 	return rect;
 }
 
