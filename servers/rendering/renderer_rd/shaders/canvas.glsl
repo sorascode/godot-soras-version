@@ -496,32 +496,32 @@ vec4 light_shadow_compute(uint light_base, vec4 light_color, vec4 shadow_uv, flo
 	uint shadow_mode = light_array.data[light_base].flags & LIGHT_FLAGS_FILTER_MASK;
 
 	if (shadow_mode == LIGHT_FLAGS_SHADOW_NEAREST) {
-		shadow = texture_shadow(shadow_uv);
+		shadow = textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv, 0.0).x;
 	} else if (shadow_mode == LIGHT_FLAGS_SHADOW_PCF5) {
 		vec4 shadow_pixel_size = vec4(light_array.data[light_base].shadow_pixel_size, 0.0, 0.0, 0.0);
 		shadow = 0.0;
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 2.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size);
-		shadow += texture_shadow(shadow_uv);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 2.0);
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 2.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 2.0, 0.0).x;
 		shadow /= 5.0;
 	} else { //PCF13
 		vec4 shadow_pixel_size = vec4(light_array.data[light_base].shadow_pixel_size, 0.0, 0.0, 0.0);
 		shadow = 0.0;
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 6.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 5.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 4.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 3.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size * 2.0);
-		shadow += texture_shadow(shadow_uv - shadow_pixel_size);
-		shadow += texture_shadow(shadow_uv);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 2.0);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 3.0);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 4.0);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 5.0);
-		shadow += texture_shadow(shadow_uv + shadow_pixel_size * 6.0);
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 6.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 5.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 4.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 3.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size * 2.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv - shadow_pixel_size, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 2.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 3.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 4.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 5.0, 0.0).x;
+		shadow += textureProjLod(sampler2DShadow(shadow_atlas_texture, shadow_sampler), shadow_uv + shadow_pixel_size * 6.0, 0.0).x;
 		shadow /= 13.0;
 	}
 

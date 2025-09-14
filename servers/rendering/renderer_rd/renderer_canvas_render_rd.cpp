@@ -2335,9 +2335,11 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		state.lights_storage_buffer = RD::get_singleton()->storage_buffer_create(sizeof(LightUniform) * MAX_LIGHTS_PER_RENDER);
 
 		RD::SamplerState shadow_sampler_state;
-		shadow_sampler_state.mag_filter = RD::SAMPLER_FILTER_NEAREST;
-		shadow_sampler_state.min_filter = RD::SAMPLER_FILTER_NEAREST;
+		shadow_sampler_state.mag_filter = RD::SAMPLER_FILTER_LINEAR;
+		shadow_sampler_state.min_filter = RD::SAMPLER_FILTER_LINEAR;
 		shadow_sampler_state.repeat_u = RD::SAMPLER_REPEAT_MODE_REPEAT; //shadow wrap around
+		shadow_sampler_state.compare_op = RD::COMPARE_OP_GREATER;
+		shadow_sampler_state.enable_compare = true;
 		state.shadow_sampler = RD::get_singleton()->sampler_create(shadow_sampler_state);
 	}
 
