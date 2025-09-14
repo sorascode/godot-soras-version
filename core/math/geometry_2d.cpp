@@ -181,6 +181,28 @@ struct _AtlasWorkRectResult {
 	int max_h = 0;
 };
 
+Vector<Vector<Vector2i>> Geometry2D::merge_many_rectangles(const Vector<Vector<Vector2i>> &p_rectangles, const Size2i &p_tile_size, const int p_quadrant_size, const Point2i &p_quadrant_origin) {
+	int needed_squares = p_quadrant_size * p_quadrant_size;
+	int found_squares = 0;
+	Vector2i min_pos = Vector2i(INT_MAX, INT_MAX);
+	for (const Vector<Vector2i> &rectangle : p_rectangles) {
+		if (rectangle[0] == p_tile_size) {
+			if (rectangle[1].x < min_pos.x || rectangle[1].y < min_pos.y) {
+				min_pos = rectangle[1];
+			}
+			found_squares++;
+			if (found_squares >= needed_squares) {
+				break;
+			}
+		}
+	}
+
+	if (found_squares >= needed_squares) {
+		return { { p_tile_size * p_quadrant_size, min_pos - p_tile_size / 2 + (p_tile_size * p_quadrant_size) / 2 } };
+	}
+	return p_rectangles;
+}
+
 void Geometry2D::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size) {
 	// Super simple, almost brute force scanline stacking fitter.
 	// It's pretty basic for now, but it tries to make sure that the aspect ratio of the

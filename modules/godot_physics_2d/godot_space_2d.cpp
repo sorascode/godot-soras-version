@@ -640,31 +640,9 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 
 					Transform2Di col_obj_shape_xform = col_obj->get_transform() * col_obj->get_shape_transform(shape_idx);
 
-					if (body_shape->allows_one_way_collision() && col_obj->is_shape_set_as_one_way_collision(shape_idx)) {
-						cbk.valid_dir = col_obj_shape_xform.columns[1].normalized();
-
-						// TODO: check if works
-						real_t owc_margin = 1;
-						cbk.valid_depth = owc_margin; //user specified, but never less than actual margin or it won't work
-						cbk.invalid_by_dir = 0;
-
-						if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
-							const GodotBody2D *b = static_cast<const GodotBody2D *>(col_obj);
-							if (b->get_mode() == PhysicsServer2D::BODY_MODE_KINEMATIC || b->get_mode() == PhysicsServer2D::BODY_MODE_RIGID) {
-								//fix for moving platforms (kinematic and dynamic), margin is increased by how much it moved in the given direction
-								Vector2 lv = b->get_linear_velocity();
-								//compute displacement from linear velocity
-								Vector2 motion = lv * last_step;
-								real_t motion_len = motion.length();
-								motion.normalize();
-								cbk.valid_depth += motion_len * MAX(motion.dot(-cbk.valid_dir), 0.0);
-							}
-						}
-					} else {
-						cbk.valid_dir = Vector2();
-						cbk.valid_depth = 0;
-						cbk.invalid_by_dir = 0;
-					}
+					cbk.valid_dir = Vector2();
+					cbk.valid_depth = 0;
+					cbk.invalid_by_dir = 0;
 
 					int current_passed = cbk.passed; //save how many points passed collision
 					bool did_collide = false;
@@ -806,13 +784,6 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 
 				//test initial overlap
 				if (GodotCollisionSolver2D::solve(body_shape, body_shape_xform, Vector2(), against_shape, col_obj_shape_xform, Vector2(), nullptr, nullptr, nullptr)) {
-					if (body_shape->allows_one_way_collision() && col_obj->is_shape_set_as_one_way_collision(col_shape_idx)) {
-						Vector2 direction = col_obj_shape_xform.columns[1].normalized();
-						if (motion_normal.dot(direction) < 0) {
-							continue;
-						}
-					}
-
 					stuck = true;
 					break;
 				}
@@ -847,24 +818,6 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 							// for more accurate results with long motions that collide near the end.
 							fraction_coeff = 0.75;
 						}
-					}
-				}
-
-				if (body_shape->allows_one_way_collision() && col_obj->is_shape_set_as_one_way_collision(col_shape_idx)) {
-					Vector2i cd[2];
-					GodotPhysicsServer2D::CollCbkData cbk;
-					cbk.max = 1;
-					cbk.amount = 0;
-					cbk.passed = 0;
-					cbk.ptr = cd;
-					cbk.valid_dir = col_obj_shape_xform.columns[1].normalized();
-
-					cbk.valid_depth = 10e20;
-
-					Vector2 sep = motion_normal; //important optimization for this to work fast enough
-					bool collided = GodotCollisionSolver2D::solve(body_shape, body_shape_xform, p_parameters.motion * (hi + contact_max_allowed_penetration), col_obj->get_shape(col_shape_idx), col_obj_shape_xform, Vector2(), GodotPhysicsServer2D::_shape_col_cbk, &cbk, &sep);
-					if (!collided || cbk.amount == 0) {
-						continue;
 					}
 				}
 
@@ -947,29 +900,8 @@ bool GodotSpace2D::test_body_motion(GodotBody2D *p_body, const PhysicsServer2D::
 
 				Transform2Di col_obj_shape_xform = col_obj->get_transform() * col_obj->get_shape_transform(shape_idx);
 
-				if (body_shape->allows_one_way_collision() && col_obj->is_shape_set_as_one_way_collision(shape_idx)) {
-					rcd.valid_dir = col_obj_shape_xform.columns[1].normalized();
-
-					// TODO: check if works
-					real_t owc_margin = 1;
-					rcd.valid_depth = owc_margin; //user specified, but never less than actual margin or it won't work
-
-					if (col_obj->get_type() == GodotCollisionObject2D::TYPE_BODY) {
-						const GodotBody2D *b = static_cast<const GodotBody2D *>(col_obj);
-						if (b->get_mode() == PhysicsServer2D::BODY_MODE_KINEMATIC || b->get_mode() == PhysicsServer2D::BODY_MODE_RIGID) {
-							//fix for moving platforms (kinematic and dynamic), margin is increased by how much it moved in the given direction
-							Vector2 lv = b->get_linear_velocity();
-							//compute displacement from linear velocity
-							Vector2 motion = lv * last_step;
-							real_t motion_len = motion.length();
-							motion.normalize();
-							rcd.valid_depth += motion_len * MAX(motion.dot(-rcd.valid_dir), 0.0);
-						}
-					}
-				} else {
-					rcd.valid_dir = Vector2();
-					rcd.valid_depth = 0;
-				}
+				rcd.valid_dir = Vector2();
+				rcd.valid_depth = 0;
 
 				rcd.object = col_obj;
 				rcd.shape = shape_idx;
@@ -1090,7 +1022,7 @@ bool GodotSpace2D::body_collides_at(GodotBody2D *p_body, const Vector2i &p_delta
 					r_result->collider_shape = col_shape_idx;
 					r_result->collision_local_shape = i;
 					//					r_result->collision_normal = ccd.normal;
-					r_result->collision_point = col_obj->get_transform().get_origin();
+					r_result->collision_point = col_obj->get_shape_aabb(col_shape_idx).intersection(moved_aabb).get_center();
 				}
 				return true;
 			}
@@ -1268,7 +1200,7 @@ bool GodotSpace2D::body_collides_at_all(GodotBody2D *p_body, const Vector2i &p_d
 					r_result->collider_shapes[r_result->collision_count] = col_shape_idx;
 					r_result->collision_local_shapes[r_result->collision_count] = i;
 					r_result->collision_normals[r_result->collision_count] = Vector2();
-					r_result->collision_points[r_result->collision_count] = col_obj->get_transform().get_origin();
+					r_result->collision_points[r_result->collision_count] = col_obj->get_shape_aabb(col_shape_idx).intersection(moved_aabb).get_center();
 					r_result->collision_count++;
 
 					if (r_result->collision_count >= PhysicsServer2D::CollisionResults::MAX_COLLISIONS) {

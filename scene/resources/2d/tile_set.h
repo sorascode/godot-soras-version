@@ -241,27 +241,6 @@ public:
 		TERRAIN_MODE_MATCH_SIDES,
 	};
 
-	enum TileShape {
-		TILE_SHAPE_SQUARE,
-		TILE_SHAPE_ISOMETRIC,
-		TILE_SHAPE_HALF_OFFSET_SQUARE,
-		TILE_SHAPE_HEXAGON,
-	};
-
-	enum TileLayout {
-		TILE_LAYOUT_STACKED,
-		TILE_LAYOUT_STACKED_OFFSET,
-		TILE_LAYOUT_STAIRS_RIGHT,
-		TILE_LAYOUT_STAIRS_DOWN,
-		TILE_LAYOUT_DIAMOND_RIGHT,
-		TILE_LAYOUT_DIAMOND_DOWN,
-	};
-
-	enum TileOffsetAxis {
-		TILE_OFFSET_AXIS_HORIZONTAL,
-		TILE_OFFSET_AXIS_VERTICAL,
-	};
-
 	struct PackedSceneSource {
 		Ref<PackedScene> scene;
 		Vector2 offset;
@@ -311,9 +290,6 @@ protected:
 private:
 	// --- TileSet data ---
 	// Basic shape and layout.
-	TileShape tile_shape = TILE_SHAPE_SQUARE;
-	TileLayout tile_layout = TILE_LAYOUT_STACKED;
-	TileOffsetAxis tile_offset_axis = TILE_OFFSET_AXIS_HORIZONTAL;
 	Size2i tile_size = Size2i(16, 16); //Size2(64, 64);
 
 	// Rendering.
@@ -396,16 +372,6 @@ private:
 	Vector<Point2> _get_square_corner_terrain_peering_bit_polygon(Vector2i p_size, TileSet::CellNeighbor p_bit);
 	Vector<Point2> _get_square_side_terrain_peering_bit_polygon(Vector2i p_size, TileSet::CellNeighbor p_bit);
 
-	Vector<Point2> _get_isometric_terrain_polygon(Vector2i p_size);
-	Vector<Point2> _get_isometric_corner_or_side_terrain_peering_bit_polygon(Vector2i p_size, TileSet::CellNeighbor p_bit);
-	Vector<Point2> _get_isometric_corner_terrain_peering_bit_polygon(Vector2i p_size, TileSet::CellNeighbor p_bit);
-	Vector<Point2> _get_isometric_side_terrain_peering_bit_polygon(Vector2i p_size, TileSet::CellNeighbor p_bit);
-
-	Vector<Point2> _get_half_offset_terrain_polygon(Vector2i p_size, float p_overlap, TileSet::TileOffsetAxis p_offset_axis);
-	Vector<Point2> _get_half_offset_corner_or_side_terrain_peering_bit_polygon(Vector2i p_size, float p_overlap, TileSet::TileOffsetAxis p_offset_axis, TileSet::CellNeighbor p_bit);
-	Vector<Point2> _get_half_offset_corner_terrain_peering_bit_polygon(Vector2i p_size, float p_overlap, TileSet::TileOffsetAxis p_offset_axis, TileSet::CellNeighbor p_bit);
-	Vector<Point2> _get_half_offset_side_terrain_peering_bit_polygon(Vector2i p_size, float p_overlap, TileSet::TileOffsetAxis p_offset_axis, TileSet::CellNeighbor p_bit);
-
 protected:
 	static void _bind_methods();
 
@@ -413,12 +379,6 @@ public:
 	// --- Accessors for TileSet data ---
 
 	// -- Shape and layout --
-	void set_tile_shape(TileShape p_shape);
-	TileShape get_tile_shape() const;
-	void set_tile_layout(TileLayout p_layout);
-	TileLayout get_tile_layout() const;
-	void set_tile_offset_axis(TileOffsetAxis p_alignment);
-	TileOffsetAxis get_tile_offset_axis() const;
 	void set_tile_size(Size2i p_size);
 	Size2i get_tile_size() const;
 
@@ -551,8 +511,8 @@ public:
 	void draw_tile_shape(CanvasItem *p_canvas_item, Transform2D p_transform, Color p_color, bool p_filled = false, Ref<Texture2D> p_texture = Ref<Texture2D>()) const;
 
 	// Used by TileMap/TileMapLayer
-	Vector2 map_to_local(const Vector2i &p_pos) const;
-	Vector2i local_to_map(const Vector2 &p_pos) const;
+	Vector2i map_to_local(const Vector2i &p_pos) const;
+	Vector2i local_to_map(const Vector2i &p_pos) const;
 	bool is_existing_neighbor(TileSet::CellNeighbor p_cell_neighbor) const;
 	Vector2i get_neighbor_cell(const Vector2i &p_coords, TileSet::CellNeighbor p_cell_neighbor) const;
 	TypedArray<Vector2i> get_surrounding_cells(const Vector2i &p_coords) const;
@@ -566,9 +526,6 @@ public:
 
 	// Resource management
 	virtual void reset_state() override;
-
-	// Helpers.
-	static Vector2i transform_coords_layout(const Vector2i &p_coords, TileSet::TileOffsetAxis p_offset_axis, TileSet::TileLayout p_from_layout, TileSet::TileLayout p_to_layout);
 
 	TileSet();
 	~TileSet();
@@ -1037,8 +994,5 @@ public:
 
 VARIANT_ENUM_CAST(TileSet::CellNeighbor);
 VARIANT_ENUM_CAST(TileSet::TerrainMode);
-VARIANT_ENUM_CAST(TileSet::TileShape);
-VARIANT_ENUM_CAST(TileSet::TileLayout);
-VARIANT_ENUM_CAST(TileSet::TileOffsetAxis);
 
 VARIANT_ENUM_CAST(TileSetAtlasSource::TileAnimationMode);

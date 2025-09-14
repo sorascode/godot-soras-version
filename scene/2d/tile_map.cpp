@@ -900,23 +900,6 @@ PackedStringArray TileMap::get_configuration_warnings() const {
 		}
 	}
 
-	// Check if we are in isometric mode without Y-sort enabled.
-	if (tile_set.is_valid() && tile_set->get_tile_shape() == TileSet::TILE_SHAPE_ISOMETRIC) {
-		bool warn = !is_y_sort_enabled();
-		if (!warn) {
-			for (const TileMapLayer *layer : layers) {
-				if (!layer->is_y_sort_enabled()) {
-					warn = true;
-					break;
-				}
-			}
-		}
-
-		if (warn) {
-			warnings.push_back(RTR("Isometric TileSet will likely not look as intended without Y-sort enabled for the TileMap and all of its layers."));
-		}
-	}
-
 	return warnings;
 }
 

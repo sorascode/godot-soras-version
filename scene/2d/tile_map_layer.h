@@ -246,7 +246,7 @@ public:
 
 		bool one_way_collision = false;
 
-		int64_t y_origin = 0; // This is only used if one_way_collision is on, to avoid merging polygons vertically in that case.
+		int64_t y_origin = 0; // This is only used if one_way_collision is on, to avoid merging rectangles vertically in that case.
 
 		bool operator<(const PhysicsBodyKey &p_other) const {
 			if (physics_layer == p_other.physics_layer) {
@@ -293,7 +293,7 @@ public:
 
 	struct PhysicsBodyValue {
 		RID body;
-		Vector<Vector<Vector2>> polygons;
+		Vector<Vector<Vector2i>> rectangles;
 	};
 
 	struct CoordsWorldComparator {

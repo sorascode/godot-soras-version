@@ -138,9 +138,6 @@ void TileMapLayerEditorTilesPlugin::_update_transform_buttons() {
 	if (has_scene_tile) {
 		_set_transform_buttons_state({}, { transform_button_rotate_left, transform_button_rotate_right, transform_button_flip_h, transform_button_flip_v },
 				TTR("Can't transform scene tiles."));
-	} else if (tile_set->get_tile_shape() != TileSet::TILE_SHAPE_SQUARE && selection_pattern->get_size() != Vector2i(1, 1)) {
-		_set_transform_buttons_state({ transform_button_flip_h, transform_button_flip_v }, { transform_button_rotate_left, transform_button_rotate_right },
-				TTR("Can't rotate patterns when using non-square tile grid."));
 	} else {
 		_set_transform_buttons_state({ transform_button_rotate_left, transform_button_rotate_right, transform_button_flip_h, transform_button_flip_v }, {}, "");
 	}
@@ -4022,71 +4019,7 @@ Vector<Vector2i> TileMapLayerEditor::get_line(const TileMapLayer *p_tile_map_lay
 	Ref<TileSet> tile_set = p_tile_map_layer->get_tile_set();
 	ERR_FAIL_COND_V(tile_set.is_null(), Vector<Vector2i>());
 
-	if (tile_set->get_tile_shape() == TileSet::TILE_SHAPE_SQUARE) {
-		return Geometry2D::bresenham_line(p_from_cell, p_to_cell);
-	} else {
-		// Adapt the bresenham line algorithm to half-offset shapes.
-		// See this blog post: http://zvold.blogspot.com/2010/01/bresenhams-line-drawing-algorithm-on_26.html
-		Vector<Point2i> points;
-
-		bool transposed = tile_set->get_tile_offset_axis() == TileSet::TILE_OFFSET_AXIS_VERTICAL;
-		p_from_cell = TileSet::transform_coords_layout(p_from_cell, tile_set->get_tile_offset_axis(), tile_set->get_tile_layout(), TileSet::TILE_LAYOUT_STACKED);
-		p_to_cell = TileSet::transform_coords_layout(p_to_cell, tile_set->get_tile_offset_axis(), tile_set->get_tile_layout(), TileSet::TILE_LAYOUT_STACKED);
-		if (transposed) {
-			SWAP(p_from_cell.x, p_from_cell.y);
-			SWAP(p_to_cell.x, p_to_cell.y);
-		}
-
-		Vector2i delta = p_to_cell - p_from_cell;
-		delta = Vector2i(2 * delta.x + Math::abs(p_to_cell.y % 2) - Math::abs(p_from_cell.y % 2), delta.y);
-		Vector2i sign = delta.sign();
-
-		Vector2i current = p_from_cell;
-		points.push_back(TileSet::transform_coords_layout(transposed ? Vector2i(current.y, current.x) : current, tile_set->get_tile_offset_axis(), TileSet::TILE_LAYOUT_STACKED, tile_set->get_tile_layout()));
-
-		int err = 0;
-		if (Math::abs(delta.y) < Math::abs(delta.x)) {
-			Vector2i err_step = 3 * delta.abs();
-			while (current != p_to_cell) {
-				err += err_step.y;
-				if (err > Math::abs(delta.x)) {
-					if (sign.x == 0) {
-						current += Vector2(sign.y, 0);
-					} else {
-						current += Vector2(bool(current.y % 2) != (sign.x < 0) ? sign.x : 0, sign.y);
-					}
-					err -= err_step.x;
-				} else {
-					current += Vector2i(sign.x, 0);
-					err += err_step.y;
-				}
-				points.push_back(TileSet::transform_coords_layout(transposed ? Vector2i(current.y, current.x) : current, tile_set->get_tile_offset_axis(), TileSet::TILE_LAYOUT_STACKED, tile_set->get_tile_layout()));
-			}
-		} else {
-			Vector2i err_step = delta.abs();
-			while (current != p_to_cell) {
-				err += err_step.x;
-				if (err > 0) {
-					if (sign.x == 0) {
-						current += Vector2(0, sign.y);
-					} else {
-						current += Vector2(bool(current.y % 2) != (sign.x < 0) ? sign.x : 0, sign.y);
-					}
-					err -= err_step.y;
-				} else {
-					if (sign.x == 0) {
-						current += Vector2(0, sign.y);
-					} else {
-						current += Vector2(bool(current.y % 2) ^ (sign.x > 0) ? -sign.x : 0, sign.y);
-					}
-					err += err_step.y;
-				}
-				points.push_back(TileSet::transform_coords_layout(transposed ? Vector2i(current.y, current.x) : current, tile_set->get_tile_offset_axis(), TileSet::TILE_LAYOUT_STACKED, tile_set->get_tile_layout()));
-			}
-		}
-
-		return points;
-	}
+	return Geometry2D::bresenham_line(p_from_cell, p_to_cell);
 }
 
 void TileMapLayerEditor::_tile_map_layer_changed() {
