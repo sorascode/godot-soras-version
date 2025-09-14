@@ -881,7 +881,7 @@ real_t Projection::get_fov() const {
 	// - the matrix is a projection across z-axis (i.e. is invertible and columns[0][1], [0][3], [1][0] and [1][3] == 0)
 	// - the projection plane is rectangular (i.e. columns[0][2] and [1][2] == 0 if columns[2][3] != 0)
 	if (columns[2][0] == 0) {
-		return Math::rad_to_deg(2 * Math::atan2(1, columns[0][0]));
+		return Math::rad_to_deg(2 * Math::atan2(real_t(1), columns[0][0]));
 	} else {
 		// The frustum is asymmetrical so we need to calculate the left and right angles separately.
 		real_t right = Math::atan2(columns[2][0] + 1, columns[0][0]);

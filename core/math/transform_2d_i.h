@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TRANSFORM_2D_I_H
-#define TRANSFORM_2D_I_H
+#pragma once
 
 #include "core/math/math_funcs.h"
 #include "core/math/rect2i.h"
@@ -51,7 +50,11 @@ struct [[nodiscard]] Transform2Di {
 	// Warning #2: 2D be aware that unlike 3D code, 2D code uses a left-handed coordinate system: Y-axis points down,
 	// and angle is measure from +X to +Y in a clockwise-fashion.
 
-	Vector2i columns[3];
+	Vector2i columns[3] = {
+		{ 1, 0 },
+		{ 0, 1 },
+		{ 0, 0 },
+	};
 
 	_FORCE_INLINE_ int32_t tdotx(const Vector2i &p_v) const { return columns[0][0] * p_v.x + columns[1][0] * p_v.y; }
 	_FORCE_INLINE_ int32_t tdoty(const Vector2i &p_v) const { return columns[0][1] * p_v.x + columns[1][1] * p_v.y; }
@@ -222,5 +225,3 @@ Vector<Vector2i> Transform2Di::xform_inv(const Vector<Vector2i> &p_array) const 
 	}
 	return array;
 }
-
-#endif // TRANSFORM_2D_I_H

@@ -120,6 +120,54 @@ Vector<Vector<Vector2>> Geometry2D::decompose_polygon_in_convex(const Vector<Poi
 	return Geometry2D::decompose_many_polygons_in_convex({ p_polygon }, {});
 }
 
+Vector<Vector<Vector2i>> Geometry2D::decompose_many_polygons_in_convex(const Vector<Vector<Point2i>> &p_polygons, const Vector<Vector<Point2i>> &p_holes) {
+	Vector<Vector<Vector2i>> decomp;
+	List<TPPLPoly> in_poly, out_poly;
+
+	for (const Vector<Vector2i> &polygon : p_polygons) {
+		TPPLPoly inp;
+		inp.Init(polygon.size());
+		for (int i = 0; i < polygon.size(); i++) {
+			inp.GetPoint(i) = polygon[i];
+		}
+		inp.SetOrientation(TPPL_ORIENTATION_CCW);
+		in_poly.push_back(inp);
+	}
+	for (const Vector<Vector2i> &polygon : p_holes) {
+		TPPLPoly inp;
+		inp.Init(polygon.size());
+		for (int i = 0; i < polygon.size(); i++) {
+			inp.GetPoint(i) = polygon[i];
+		}
+		inp.SetOrientation(TPPL_ORIENTATION_CW);
+		inp.SetHole(true);
+		in_poly.push_back(inp);
+	}
+	TPPLPartition tpart;
+	if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
+		ERR_PRINT("Convex decomposing failed!");
+		return decomp;
+	}
+
+	decomp.resize(out_poly.size());
+	int idx = 0;
+	for (TPPLPoly &tp : out_poly) {
+		decomp.write[idx].resize(tp.GetNumPoints());
+
+		for (int64_t i = 0; i < tp.GetNumPoints(); i++) {
+			decomp.write[idx].write[i] = tp.GetPoint(i);
+		}
+
+		idx++;
+	}
+
+	return decomp;
+}
+
+Vector<Vector<Vector2i>> Geometry2D::decompose_polygon_in_convex(const Vector<Point2i> &p_polygon) {
+	return Geometry2D::decompose_many_polygons_in_convex({ p_polygon }, {});
+}
+
 struct _AtlasWorkRect {
 	Size2i s;
 	Point2i p;

@@ -47,7 +47,7 @@ bool RectangleShape2D::_set(const StringName &p_name, const Variant &p_value) {
 		return true;
 	} else if (p_name == "offset") { // Compatibility with Godot 3.x.
 		// Convert to `size`, twice as big.
-		set_offset((Size2i)p_value);
+		set_offset((Point2i)p_value);
 		return true;
 	}
 	return false;
@@ -84,7 +84,7 @@ void RectangleShape2D::set_offset(const Size2i &p_offset) {
 	_update_shape();
 }
 
-Size2i RectangleShape2D::get_offset() const {
+Point2i RectangleShape2D::get_offset() const {
 	return offset;
 }
 
@@ -127,6 +127,6 @@ void RectangleShape2D::_bind_methods() {
 RectangleShape2D::RectangleShape2D() :
 		Shape2D(PhysicsServer2D::get_singleton()->rectangle_shape_create()) {
 	size = Size2i(20, 20);
-	offset = Size2i(0, 0);
+	offset = Point2i(0, 0);
 	_update_shape();
 }

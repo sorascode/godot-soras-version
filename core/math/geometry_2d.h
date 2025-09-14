@@ -663,8 +663,8 @@ public:
 
 	static void merge_many_polygons(const Vector<Vector<Point2>> &p_polygons, Vector<Vector<Vector2>> &r_out_polygons, Vector<Vector<Vector2>> &r_out_holes);
 	static Vector<Vector<Vector2>> decompose_many_polygons_in_convex(const Vector<Vector<Point2>> &p_polygons, const Vector<Vector<Point2>> &p_holes);
+	static Vector<Vector<Vector2i>> decompose_many_polygons_in_convex(const Vector<Vector<Point2i>> &p_polygons, const Vector<Vector<Point2i>> &p_holes);
 
-	static Vector<Vector<Vector2>> decompose_polygon_in_convex(const Vector<Point2> &p_polygon);
 	static Vector<Vector<Vector2>> decompose_polygon_in_convex(const Vector<Point2> &p_polygon);
 	static Vector<Vector<Vector2i>> decompose_polygon_in_convex(const Vector<Point2i> &p_polygon);
 

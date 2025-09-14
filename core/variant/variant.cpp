@@ -3286,6 +3286,9 @@ uint32_t Variant::recursive_hash(int recursion_count) const {
 #define hash_compare_vector2(p_lhs, p_rhs) \
 	(p_lhs).is_same(p_rhs)
 
+#define hash_compare_vector2i(p_lhs, p_rhs) \
+	(p_lhs).is_equal(p_rhs)
+
 #define hash_compare_vector3(p_lhs, p_rhs) \
 	(p_lhs).is_same(p_rhs)
 
@@ -3413,7 +3416,7 @@ bool Variant::hash_compare(const Variant &p_variant, int recursion_count, bool s
 			const ::AABB *l = _data._aabb;
 			const ::AABB *r = p_variant._data._aabb;
 
-			return l->is_same(*r);
+			return l->is_equal(*r);
 		} break;
 
 		case QUATERNION: {
@@ -3483,6 +3486,10 @@ bool Variant::hash_compare(const Variant &p_variant, int recursion_count, bool s
 
 		case PACKED_VECTOR2_ARRAY: {
 			hash_compare_packed_array(_data.packed_array, p_variant._data.packed_array, Vector2, hash_compare_vector2);
+		} break;
+
+		case PACKED_VECTOR2I_ARRAY: {
+			hash_compare_packed_array(_data.packed_array, p_variant._data.packed_array, Vector2i, hash_compare_vector2i);
 		} break;
 
 		case PACKED_VECTOR3_ARRAY: {

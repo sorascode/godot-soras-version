@@ -187,6 +187,9 @@ static void _remap_arrays(Array &r_arrays, const Vector<uint32_t> &p_remap, uint
 			case Variant::PACKED_VECTOR2_ARRAY:
 				r_arrays[i] = _remap_array<Vector2>(r_arrays[i], p_remap, p_vertex_count);
 				break;
+			case Variant::PACKED_VECTOR2I_ARRAY:
+				r_arrays[i] = _remap_array<Vector2i>(r_arrays[i], p_remap, p_vertex_count);
+				break;
 			case Variant::PACKED_FLOAT32_ARRAY:
 				r_arrays[i] = _remap_array<float>(r_arrays[i], p_remap, p_vertex_count);
 				break;

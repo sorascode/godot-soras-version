@@ -721,15 +721,7 @@ Variant JSON::_from_native(const Variant &p_variant, bool p_full_objects, int p_
 		} break;
 		case Variant::TRANSFORM2DI: {
 			const Transform2Di t = p_variant;
-
-			Array args;
-			args.push_back(t[0].x);
-			args.push_back(t[0].y);
-			args.push_back(t[1].x);
-			args.push_back(t[1].y);
-			args.push_back(t[2].x);
-			args.push_back(t[2].y);
-
+			Array args = { t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y };
 			RETURN_ARGS;
 		} break;
 		case Variant::VECTOR4: {

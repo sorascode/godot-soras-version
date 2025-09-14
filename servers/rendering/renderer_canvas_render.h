@@ -166,8 +166,10 @@ public:
 		PolygonID polygon_id;
 		Rect2i rect_cache;
 
-		_FORCE_INLINE_ void create(const Vector<int> &p_indices, const Vector<Point2i> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), const Vector<int> &p_bones = Vector<int>(), const Vector<float> &p_weights = Vector<float>()) {
+		_FORCE_INLINE_ void create(const Vector<int> &p_indices, const Vector<Point2i> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), const Vector<int> &p_bones = Vector<int>(), const Vector<float> &p_weights = Vector<float>(), int p_count = -1) {
 			ERR_FAIL_COND(polygon_id != 0);
+			int count = p_count < 0 ? p_indices.size() : p_count * 3;
+			ERR_FAIL_COND(count > p_indices.size());
 			{
 				uint32_t pc = p_points.size();
 				const Vector2i *v2 = p_points.ptr();
@@ -176,7 +178,7 @@ public:
 					rect_cache.expand_to(v2[i]);
 				}
 			}
-			polygon_id = singleton->request_polygon(p_indices, p_points, p_colors, p_uvs, p_bones, p_weights);
+			polygon_id = singleton->request_polygon(p_indices, p_points, p_colors, p_uvs, p_bones, p_weights, count);
 		}
 
 		_FORCE_INLINE_ PolygonI() { polygon_id = 0; }

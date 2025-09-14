@@ -2799,7 +2799,7 @@ static void _register_variant_builtin_methods_array() {
 	bind_method(PackedVector2iArray, remove_at, sarray("index"), varray());
 	bind_method(PackedVector2iArray, insert, sarray("at_index", "value"), varray());
 	bind_method(PackedVector2iArray, fill, sarray("value"), varray());
-	bind_methodv(PackedVector2iArray, resize, &PackedVector2iArray::resize_zeroed, sarray("new_size"), varray());
+	bind_methodv(PackedVector2iArray, resize, &PackedVector2iArray::resize_initialized, sarray("new_size"), varray());
 	bind_method(PackedVector2iArray, clear, sarray(), varray());
 	bind_method(PackedVector2iArray, has, sarray("value"), varray());
 	bind_method(PackedVector2iArray, reverse, sarray(), varray());

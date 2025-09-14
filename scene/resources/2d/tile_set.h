@@ -36,14 +36,13 @@
 #include "core/templates/rb_set.h"
 #include "scene/2d/light_occluder_2d.h"
 #include "scene/main/canvas_item.h"
-#include "scene/resources/2d/rectangle_shape_2d.h"
 #include "scene/resources/2d/navigation_polygon.h"
 #include "scene/resources/image_texture.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/physics_material.h"
 
 #ifndef PHYSICS_2D_DISABLED
-#include "scene/resources/2d/convex_polygon_shape_2d.h"
+#include "scene/resources/2d/rectangle_shape_2d.h"
 #endif // PHYSICS_2D_DISABLED
 
 #ifndef NAVIGATION_2D_DISABLED
@@ -985,7 +984,6 @@ public:
 	void set_occluder_polygon(int p_layer_id, int p_polygon_index, const Ref<OccluderPolygon2D> &p_occluder_polygon);
 	Ref<OccluderPolygon2D> get_occluder_polygon(int p_layer_id, int p_polygon_index, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false) const;
 
-#ifndef PHYSICS_2D_DISABLED
 #ifndef PHYSICS_2D_DISABLED
 	// Physics
 	void set_constant_linear_velocity(int p_layer_id, const Vector2 &p_velocity);

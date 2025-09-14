@@ -246,6 +246,7 @@ EditorAbout::EditorAbout() {
 		// The section title will be updated in NOTIFICATION_TRANSLATION_CHANGED.
 		_project_manager_label = _create_section(vb, "", AUTHORS_PROJECT_MANAGERS, FLAG_EASTER_EGG);
 		_project_manager_label->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
+		_create_section(vb, TTRC("Fork Author"), AUTHORS_FORK_AUTHOR);
 		_create_section(vb, TTRC("Developers"), AUTHORS_DEVELOPERS);
 	}
 

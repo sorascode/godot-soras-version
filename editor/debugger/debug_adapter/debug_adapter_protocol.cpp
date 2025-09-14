@@ -282,17 +282,14 @@ int DebugAdapterProtocol::parse_variant(const Variant &p_var) {
 			x.type = type_vec2i;
 			y.type = type_vec2i;
 			origin.type = type_vec2i;
-			x.value = transform.columns[0];
-			y.value = transform.columns[1];
-			origin.value = transform.columns[2];
+			x.value = String(transform.columns[0]);
+			y.value = String(transform.columns[1]);
+			origin.value = String(transform.columns[2]);
 			x.variablesReference = parse_variant(transform.columns[0]);
 			y.variablesReference = parse_variant(transform.columns[1]);
 			origin.variablesReference = parse_variant(transform.columns[2]);
 
-			Array arr;
-			arr.push_back(x.to_json());
-			arr.push_back(y.to_json());
-			arr.push_back(origin.to_json());
+			Array arr = { x.to_json(), y.to_json(), origin.to_json() };
 			variable_list.insert(id, arr);
 			return id;
 		}
@@ -600,14 +597,13 @@ int DebugAdapterProtocol::parse_variant(const Variant &p_var) {
 			size.type = Variant::get_type_name(Variant::INT);
 			size.value = itos(array.size());
 
-			Array arr;
-			arr.push_back(size.to_json());
+			Array arr = { size.to_json() };
 
 			for (int i = 0; i < array.size(); i++) {
 				DAP::Variable var;
 				var.name = itos(i);
 				var.type = Variant::get_type_name(Variant::VECTOR2I);
-				var.value = array[i];
+				var.value = String(array[i]);
 				var.variablesReference = parse_variant(array[i]);
 				arr.push_back(var.to_json());
 			}

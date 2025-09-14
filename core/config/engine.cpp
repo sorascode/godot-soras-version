@@ -168,6 +168,7 @@ Dictionary Engine::get_author_info() const {
 
 	dict["lead_developers"] = array_from_info(AUTHORS_LEAD_DEVELOPERS);
 	dict["project_managers"] = array_from_info(AUTHORS_PROJECT_MANAGERS);
+	dict["fork_author"] = array_from_info(AUTHORS_FORK_AUTHOR);
 	dict["founders"] = array_from_info(AUTHORS_FOUNDERS);
 	dict["developers"] = array_from_info(AUTHORS_DEVELOPERS);
 

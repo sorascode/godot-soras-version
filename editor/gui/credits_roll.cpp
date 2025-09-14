@@ -171,6 +171,12 @@ void CreditsRoll::roll_credits() {
 
 		_create_nothing();
 
+		project_manager = _create_label(TTR("Fork Author"), LabelSize::HEADER);
+		project_manager->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
+		_create_label(_build_string(AUTHORS_FORK_AUTHOR));
+
+		_create_nothing();
+
 		_create_label(TTRC("Developers"), LabelSize::HEADER);
 		_create_label(_build_string(AUTHORS_DEVELOPERS));
 

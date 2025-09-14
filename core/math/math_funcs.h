@@ -123,10 +123,10 @@ _ALWAYS_INLINE_ double atan2(double p_y, double p_x) {
 }
 _ALWAYS_INLINE_ float atan2(float p_y, float p_x) {
 	return std::atan2(p_y, p_x);
-	}
-	_ALWAYS_INLINE_ float atan2(int p_y, int p_x) {
-		return std::atan2(p_y, p_x);
-	}
+}
+_ALWAYS_INLINE_ float atan2(int p_y, int p_x) {
+	return std::atan2(p_y, p_x);
+}
 
 _ALWAYS_INLINE_ double asinh(double p_x) {
 	return std::asinh(p_x);

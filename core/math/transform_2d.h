@@ -156,6 +156,7 @@ constexpr bool Transform2D::operator==(const Transform2D &p_transform) const {
 		if (columns[i] != p_transform.columns[i]) {
 			return false;
 		}
+	}
 
 	return true;
 }

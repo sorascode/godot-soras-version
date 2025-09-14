@@ -53,9 +53,9 @@ struct [[nodiscard]] AABB {
 		return size.x > 0.0f || size.y > 0.0f || size.z > 0.0f;
 	}
 
-	const Vector3i &get_position() const { return position; }
+	Vector3i get_position() const { return position; }
 	void set_position(const Vector3i &p_pos) { position = p_pos; }
-	const Vector3i &get_size() const { return size; }
+	Vector3i get_size() const { return size; }
 	void set_size(const Vector3i &p_size) { size = p_size; }
 
 	constexpr bool operator==(const AABB &p_rval) const {

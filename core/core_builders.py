@@ -97,6 +97,7 @@ def make_authors_header(target, source, env):
         "Project Founders": "AUTHORS_FOUNDERS",
         "Lead Developer": "AUTHORS_LEAD_DEVELOPERS",
         "Project Manager": "AUTHORS_PROJECT_MANAGERS",
+        "Fork Author": "AUTHORS_FORK_AUTHOR",
         "Developers": "AUTHORS_DEVELOPERS",
     }
     buffer = methods.get_buffer(str(source[0]))

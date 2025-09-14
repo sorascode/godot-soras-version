@@ -36,7 +36,7 @@ class RectangleShape2D : public Shape2D {
 	GDCLASS(RectangleShape2D, Shape2D);
 
 	Size2i size;
-	Size2i offset;
+	Point2i offset;
 	void _update_shape();
 
 protected:
@@ -50,8 +50,8 @@ public:
 	void set_size(const Size2i &p_size);
 	Size2i get_size() const;
 
-	void set_offset(const Size2i &p_offset);
-	Size2i get_offset() const;
+	void set_offset(const Point2i &p_offset);
+	Point2i get_offset() const;
 
 	virtual void draw(const RID &p_to_rid, const Color &p_color) override;
 	virtual Rect2i get_rect() const override;

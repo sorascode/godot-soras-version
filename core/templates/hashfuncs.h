@@ -495,7 +495,7 @@ struct HashMapComparatorDefault<Rect2> {
 template <>
 struct HashMapComparatorDefault<AABB> {
 	static bool compare(const AABB &p_lhs, const AABB &p_rhs) {
-		return p_lhs.is_same(p_rhs);
+		return p_lhs.is_equal(p_rhs);
 	}
 };
 

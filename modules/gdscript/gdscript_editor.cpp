@@ -1789,6 +1789,7 @@ static HashMap<String, Dictionary> make_structure_samples() {
 		d.set("lead_developers", arr);
 		d.set("founders", arr);
 		d.set("project_managers", arr);
+		d.set("fork_author", arr);
 		d.set("developers", arr);
 		res["Engine::get_author_info"] = d;
 	}

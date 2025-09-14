@@ -242,6 +242,7 @@ struct GetTypeInfo<TypedDictionary<K, V>> {
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Vector3, Variant::VECTOR3)                         \
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Vector3i, Variant::VECTOR3I)                       \
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Transform2D, Variant::TRANSFORM2D)                 \
+	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Transform2Di, Variant::TRANSFORM2DI)               \
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Plane, Variant::PLANE)                             \
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, Quaternion, Variant::QUATERNION)                   \
 	MAKE_TYPED_DICTIONARY_EXPANDED(m_type, m_variant_type, AABB, Variant::AABB)                               \
@@ -292,6 +293,7 @@ MAKE_TYPED_DICTIONARY(Rect2i, Variant::RECT2I)
 MAKE_TYPED_DICTIONARY(Vector3, Variant::VECTOR3)
 MAKE_TYPED_DICTIONARY(Vector3i, Variant::VECTOR3I)
 MAKE_TYPED_DICTIONARY(Transform2D, Variant::TRANSFORM2D)
+MAKE_TYPED_DICTIONARY(Transform2Di, Variant::TRANSFORM2DI)
 MAKE_TYPED_DICTIONARY(Plane, Variant::PLANE)
 MAKE_TYPED_DICTIONARY(Quaternion, Variant::QUATERNION)
 MAKE_TYPED_DICTIONARY(AABB, Variant::AABB)

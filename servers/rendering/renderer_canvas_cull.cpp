@@ -2003,11 +2003,6 @@ void RendererCanvasCull::canvas_item_add_polygon(RID p_item, const Vector<Point2
 }
 
 void RendererCanvasCull::canvas_item_add_polygon_i(RID p_item, const Vector<Point2i> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture) {
-	Vector<Vector2> points;
-	for (int i = 0; i < p_points.size(); ++i) {
-		points.push_back(p_points[i]);
-	}
-
 	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
 	ERR_FAIL_NULL(canvas_item);
 #ifdef DEBUG_ENABLED

@@ -2119,7 +2119,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 		} break;
 		case Variant::AABB: {
 			AABB aabb = p_variant;
-			p_store_string_func(p_store_string_ud, "AABB(" + rtos_fix(aabb.position.x, p_compat) + ", " + rtos_fix(aabb.position.y, p_compat) + ", " + rtos_fix(aabb.position.z, p_compat) + ", " + rtos_fix(aabb.size.x, p_compat) + ", " + rtos_fix(aabb.size.y, p_compat) + ", " + rtos_fix(aabb.size.z, p_compat) + ")");
+			p_store_string_func(p_store_string_ud, "AABB(" + itos(aabb.position.x) + ", " + itos(aabb.position.y) + ", " + itos(aabb.position.z) + ", " + itos(aabb.size.x) + ", " + itos(aabb.size.y) + ", " + itos(aabb.size.z) + ")");
 		} break;
 		case Variant::QUATERNION: {
 			Quaternion quaternion = p_variant;
@@ -2576,7 +2576,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 				if (i > 0) {
 					p_store_string_func(p_store_string_ud, ", ");
 				}
-				p_store_string_func(p_store_string_ud, rtos_fix(ptr[i].x) + ", " + rtos_fix(ptr[i].y));
+				p_store_string_func(p_store_string_ud, itos(ptr[i].x) + ", " + itos(ptr[i].y));
 			}
 
 			p_store_string_func(p_store_string_ud, ")");

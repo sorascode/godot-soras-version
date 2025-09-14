@@ -907,9 +907,7 @@ void MaterialStorage::MaterialData::update_textures(const HashMap<StringName, Va
 					}
 
 					RID override_rid = v->override;
-					if (p_use_overrides and v->override.get_type() != Variant::NIL) {
-						textures.push_back(v->override);
-					} else if (override_rid.is_valid()) {
+					if (p_use_overrides and override_rid.is_valid()) {
 						textures.push_back(override_rid);
 					} else {
 						RID value_rid = v->value;

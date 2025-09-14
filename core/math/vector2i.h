@@ -96,7 +96,7 @@ struct [[nodiscard]] Vector2i {
 	int32_t dot(const Vector2i &p_other) const;
 	int32_t cross(const Vector2i &p_other) const;
 
-	Vector2i plane_project(real_t p_d, const Vector2i &p_vec) const;
+	_FORCE_INLINE_ Vector2i plane_project(real_t p_d, const Vector2i &p_vec) const;
 
 	_FORCE_INLINE_ Vector2i lerp(const Vector2i &p_to, real_t p_weight) const;
 
@@ -264,7 +264,7 @@ constexpr Vector2i operator*(double p_scalar, const Vector2i &p_vector) {
 	return p_vector * p_scalar;
 }
 
-constexpr Vector2i Vector2i::plane_project(real_t p_d, const Vector2i &p_vec) const {
+Vector2i Vector2i::plane_project(real_t p_d, const Vector2i &p_vec) const {
 	return p_vec - *this * (dot(p_vec) - p_d);
 }
 

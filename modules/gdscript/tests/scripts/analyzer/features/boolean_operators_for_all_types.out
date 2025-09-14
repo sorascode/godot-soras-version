@@ -215,6 +215,12 @@ false
 true
 true
 true
+TYPE_PACKED_VECTOR2I_ARRAY
+false
+false
+true
+true
+true
 TYPE_PACKED_VECTOR3_ARRAY
 false
 false

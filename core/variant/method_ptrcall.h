@@ -189,6 +189,8 @@ struct PtrToArg<Vector4i> : Internal::PtrToArgByReference<Vector4i> {};
 template <>
 struct PtrToArg<Transform2D> : Internal::PtrToArgDirect<Transform2D> {};
 template <>
+struct PtrToArg<Transform2Di> : Internal::PtrToArgDirect<Transform2Di> {};
+template <>
 struct PtrToArg<Projection> : Internal::PtrToArgDirect<Projection> {};
 template <>
 struct PtrToArg<Plane> : Internal::PtrToArgByReference<Plane> {};
@@ -231,6 +233,8 @@ template <>
 struct PtrToArg<PackedStringArray> : Internal::PtrToArgDirect<PackedStringArray> {};
 template <>
 struct PtrToArg<PackedVector2Array> : Internal::PtrToArgDirect<PackedVector2Array> {};
+template <>
+struct PtrToArg<PackedVector2iArray> : Internal::PtrToArgDirect<PackedVector2iArray> {};
 template <>
 struct PtrToArg<PackedVector3Array> : Internal::PtrToArgDirect<PackedVector3Array> {};
 template <>

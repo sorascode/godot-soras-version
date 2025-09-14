@@ -28,13 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-<<<<<<<< HEAD:modules/jolt_physics/misc/jolt_math_funcs.cpp
 /*
 Adapted to Godot from the Jolt Physics library.
 */
-========
-#pragma once
->>>>>>>> root/master:scene/2d/physics/collision_polygon_2d.h
 
 /*
 Copyright 2021 Jorrit Rouwe
@@ -68,38 +64,7 @@ void JoltMath::decompose(Basis &p_basis, Vector3 &r_scale) {
 
 	r_scale = SIGN(det) * Vector3(Math::sqrt(x_dot_x), Math::sqrt(y_dot_y), Math::sqrt(z_dot_z));
 
-<<<<<<<< HEAD:modules/jolt_physics/misc/jolt_math_funcs.cpp
 	p_basis.set_column(Vector3::AXIS_X, x / r_scale.x);
 	p_basis.set_column(Vector3::AXIS_Y, y / r_scale.y);
 	p_basis.set_column(Vector3::AXIS_Z, z / r_scale.z);
 }
-========
-public:
-#ifdef DEBUG_ENABLED
-	virtual Rect2 _edit_get_rect() const override;
-	virtual bool _edit_use_rect() const override;
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
-#endif
-
-	void set_build_mode(BuildMode p_mode);
-	BuildMode get_build_mode() const;
-
-	void set_polygon(const Vector<Point2> &p_polygon);
-	Vector<Point2> get_polygon() const;
-
-	PackedStringArray get_configuration_warnings() const override;
-
-	void set_disabled(bool p_disabled);
-	bool is_disabled() const;
-
-	void set_one_way_collision(bool p_enable);
-	bool is_one_way_collision_enabled() const;
-
-	void set_one_way_collision_margin(real_t p_margin);
-	real_t get_one_way_collision_margin() const;
-
-	CollisionPolygon2D();
-};
-
-VARIANT_ENUM_CAST(CollisionPolygon2D::BuildMode);
->>>>>>>> root/master:scene/2d/physics/collision_polygon_2d.h
