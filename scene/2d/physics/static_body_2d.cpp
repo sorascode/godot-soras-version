@@ -85,6 +85,7 @@ void StaticBody2D::_reload_physics_characteristics() {
 	}
 }
 
+#ifndef NAVIGATION_2D_DISABLED
 void StaticBody2D::navmesh_parse_init() {
 	ERR_FAIL_NULL(NavigationServer2D::get_singleton());
 	if (!_navmesh_source_geometry_parser.is_valid()) {
@@ -148,6 +149,7 @@ void StaticBody2D::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p
 		}
 	}
 }
+#endif // NAVIGATION_2D_DISABLED
 
 void StaticBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_constant_linear_velocity", "vel"), &StaticBody2D::set_constant_linear_velocity);
