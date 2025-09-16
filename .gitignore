@@ -395,5 +395,7 @@ godot_macos_editor.app
 macos_template.app
 macos.zip
 build-export-templates.sh
+build-export-templates-optimised.sh
 build-export-templates.bat
+build-export-templates-optimised.bat
 build-editor.sh
