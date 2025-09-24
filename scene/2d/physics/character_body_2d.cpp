@@ -80,10 +80,10 @@ bool CharacterBody2D::move_h_exact(int32_t p_amount, const Callable &p_callback,
 				Object *obj = ObjectDB::get_instance(r_result.collider_id);
 				Node2D *collider_body = cast_to<Node2D>(obj);
 
-				if (p_callback.get_argument_count() == 6) {
-					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, p_pusher);
+				if (p_callback.get_argument_count() == 7) {
+					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, r_result.collider, p_pusher);
 				} else {
-					WARN_PRINT("move_h collision callback does not have the expected number of arguments (expected 6).");
+					WARN_PRINT("move_h collision callback does not have the expected number of arguments (expected 7).");
 				}
 			}
 			return true;
@@ -114,10 +114,10 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 			{
 				Object *obj = ObjectDB::get_instance(r_result.collider_id);
 				Node2D *collider_body = cast_to<Node2D>(obj);
-				if (p_callback.get_argument_count() == 6) {
-					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, p_pusher);
+				if (p_callback.get_argument_count() == 7) {
+					p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, r_result.collider, p_pusher);
 				} else {
-					WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 6).");
+					WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 7).");
 				}
 			}
 			return true;
@@ -131,10 +131,10 @@ bool CharacterBody2D::move_v_exact(int32_t p_amount, const Callable &p_callback,
 				{
 					Object *obj = ObjectDB::get_instance(r_results.collider_ids[0]);
 					Node2D *collider_body = cast_to<Node2D>(obj);
-					if (p_callback.get_argument_count() == 6) {
-						p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_results.collision_points[0], p_pusher);
+					if (p_callback.get_argument_count() == 7) {
+						p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_results.collision_points[0], r_results.colliders[0], p_pusher);
 					} else {
-						WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 6).");
+						WARN_PRINT("move_v collision callback does not have the expected number of arguments (expected 7).");
 					}
 				}
 				return true;
