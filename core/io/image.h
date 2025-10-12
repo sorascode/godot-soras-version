@@ -440,6 +440,7 @@ public:
 	int64_t get_data_size() const;
 
 	void adjust_bcs(float p_brightness, float p_contrast, float p_saturation);
+	void multiply(Color p_color);
 
 	void set_as_black();
 

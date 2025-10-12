@@ -3409,6 +3409,22 @@ void Image::adjust_bcs(float p_brightness, float p_contrast, float p_saturation)
 	}
 }
 
+void Image::multiply(Color p_color) {
+	ERR_FAIL_COND_MSG(is_compressed(), "Cannot multiply in compressed image formats.");
+
+	uint8_t *w = data.ptrw();
+	uint32_t pixel_size = get_format_pixel_size(format);
+	uint32_t pixel_count = data.size() / pixel_size;
+
+	for (uint32_t i = 0; i < pixel_count; i++) {
+		Color c = _get_color_at_ofs(w, i);
+		c.r *= p_color.r;
+		c.g *= p_color.g;
+		c.b *= p_color.b;
+		_set_color_at_ofs(w, i, c);
+	}
+}
+
 Image::UsedChannels Image::detect_used_channels(CompressSource p_source) const {
 	ERR_FAIL_COND_V(data.is_empty(), USED_CHANNELS_RGBA);
 	ERR_FAIL_COND_V(is_compressed(), USED_CHANNELS_RGBA);
@@ -3601,6 +3617,7 @@ void Image::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_pixel", "x", "y", "color"), &Image::set_pixel);
 
 	ClassDB::bind_method(D_METHOD("adjust_bcs", "brightness", "contrast", "saturation"), &Image::adjust_bcs);
+	ClassDB::bind_method(D_METHOD("multiply", "color"), &Image::multiply);
 
 	ClassDB::bind_method(D_METHOD("load_png_from_buffer", "buffer"), &Image::load_png_from_buffer);
 	ClassDB::bind_method(D_METHOD("load_jpg_from_buffer", "buffer"), &Image::load_jpg_from_buffer);
