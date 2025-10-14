@@ -646,7 +646,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 		if (err == OK && !p_ignore_override) {
 			// Load override from location of the main pack
 			// Optional, we don't mind if it fails
-			_load_settings_text(p_main_pack.get_base_dir().path_join("override.cfg"));
+			_load_settings_text("user://override.cfg");
 		}
 		return err;
 	}
@@ -696,8 +696,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 			if (err == OK && !p_ignore_override) {
 				// Load overrides from the PCK and the executable location.
 				// Optional, we don't mind if either fails.
-				_load_settings_text("res://override.cfg");
-				_load_settings_text(exec_path.get_base_dir().path_join("override.cfg"));
+				_load_settings_text("user://override.cfg");
 			}
 			return err;
 		}
@@ -715,7 +714,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 		Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
 		if (err == OK && !p_ignore_override) {
 			// Optional, we don't mind if it fails.
-			_load_settings_text("res://override.cfg");
+			_load_settings_text("user://override.cfg");
 		}
 		return err;
 	}
@@ -736,7 +735,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 		err = _load_settings_text_or_binary(resource_path.path_join("project.godot"), resource_path.path_join("project.binary"));
 		if (err == OK && !p_ignore_override) {
 			// Optional, we don't mind if it fails.
-			_load_settings_text(resource_path.path_join("override.cfg"));
+			_load_settings_text("user://override.cfg");
 			return err;
 		}
 	}
@@ -760,7 +759,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 		err = _load_settings_text_or_binary(current_dir.path_join("project.godot"), current_dir.path_join("project.binary"));
 		if (err == OK && !p_ignore_override) {
 			// Optional, we don't mind if it fails.
-			_load_settings_text(current_dir.path_join("override.cfg"));
+			_load_settings_text("user://override.cfg");
 			found = true;
 			break;
 		}
