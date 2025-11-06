@@ -4481,6 +4481,10 @@ void TileData::notify_tile_data_properties_should_change() {
 			terrain_peering_bits[bit_index] = -1;
 		}
 	}
+	if (tile_set && terrain_set >= 0 && terrain >= tile_set->get_terrains_count(terrain_set)) {
+		WARN_PRINT(vformat("terrain value %d is out of bounds for terrain set %d.", terrain, terrain_set));
+		set_terrain(-1);
+	}
 #ifndef NAVIGATION_2D_DISABLED
 	navigation.resize(tile_set->get_navigation_layers_count());
 #endif // NAVIGATION_2D_DISABLED
