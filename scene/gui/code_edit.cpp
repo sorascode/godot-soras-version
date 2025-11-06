@@ -1594,6 +1594,12 @@ void CodeEdit::_fold_gutter_draw_callback(int p_line, int p_gutter, Rect2 p_regi
 		}
 		return;
 	}
+	if (is_line_code_region_end(p_line)) {
+		Color region_icon_color = theme_cache.folded_code_region_color;
+		region_icon_color.a = MAX(region_icon_color.a, 0.4f);
+		theme_cache.can_fold_code_region_end_icon->draw_rect(get_canvas_item(), p_region, false, region_icon_color);
+		return;
+	}
 	if (can_fold) {
 		theme_cache.can_fold_icon->draw_rect(get_canvas_item(), p_region, false, theme_cache.code_folding_color);
 		return;
@@ -1627,6 +1633,19 @@ bool CodeEdit::can_fold_line(int p_line) const {
 
 	// Check for code region.
 	if (is_line_code_region_end(p_line)) {
+		int region_level = 0;
+		// Check if there is a valid start region tag.
+		for (int previous_line = p_line - 1; previous_line >= 0; previous_line--) {
+			if (is_line_code_region_start(previous_line)) {
+				region_level -= 1;
+				if (region_level == -1) {
+					return true;
+				}
+			}
+			if (is_line_code_region_end(previous_line)) {
+				region_level += 1;
+			}
+		}
 		return false;
 	}
 	if (is_line_code_region_start(p_line)) {
@@ -1695,6 +1714,23 @@ bool CodeEdit::_fold_line(int p_line) {
 	int end_line = line_count;
 
 	// Fold code region.
+	if (is_line_code_region_end(p_line)) {
+		int region_level = 0;
+		for (int startregion_line = p_line - 1; startregion_line >= 0; startregion_line--) {
+			if (is_line_code_region_end(startregion_line)) {
+				region_level += 1;
+			}
+			if (is_line_code_region_start(startregion_line)) {
+				region_level -= 1;
+				if (region_level == -1) {
+					end_line = p_line;
+					p_line = startregion_line;
+					break;
+				}
+			}
+		}
+		set_line_background_color(p_line, theme_cache.folded_code_region_color);
+	}
 	if (is_line_code_region_start(p_line)) {
 		int region_level = 0;
 		for (int endregion_line = p_line + 1; endregion_line < get_line_count(); endregion_line++) {
@@ -2971,6 +3007,7 @@ void CodeEdit::_bind_methods() {
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, CodeEdit, can_fold_icon, "can_fold");
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, CodeEdit, folded_icon, "folded");
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, CodeEdit, can_fold_code_region_icon, "can_fold_code_region");
+	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, CodeEdit, can_fold_code_region_end_icon, "can_fold_code_region_end");
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_ICON, CodeEdit, folded_code_region_icon, "folded_code_region");
 	BIND_THEME_ITEM(Theme::DATA_TYPE_ICON, CodeEdit, folded_eol_icon);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_ICON, CodeEdit, completion_color_bg);

@@ -253,6 +253,7 @@ private:
 		Ref<Texture2D> can_fold_icon;
 		Ref<Texture2D> folded_icon;
 		Ref<Texture2D> can_fold_code_region_icon;
+		Ref<Texture2D> can_fold_code_region_end_icon;
 		Ref<Texture2D> folded_code_region_icon;
 		Ref<Texture2D> folded_eol_icon;
 		Ref<Texture2D> completion_color_bg;

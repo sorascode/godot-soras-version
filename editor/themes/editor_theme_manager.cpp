@@ -2767,14 +2767,15 @@ void EditorThemeManager::_populate_text_editor_styles(const Ref<EditorTheme> &p_
 	p_theme->set_font_size(SceneStringName(font_size), "CodeEdit", p_theme->get_font_size(SNAME("source_size"), EditorStringName(EditorFonts)));
 
 	/* clang-format off */
-	p_theme->set_icon("tab",                  "CodeEdit", p_theme->get_icon(SNAME("GuiTab"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("space",                "CodeEdit", p_theme->get_icon(SNAME("GuiSpace"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("folded",               "CodeEdit", p_theme->get_icon(SNAME("CodeFoldedRightArrow"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("can_fold",             "CodeEdit", p_theme->get_icon(SNAME("CodeFoldDownArrow"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("folded_code_region",   "CodeEdit", p_theme->get_icon(SNAME("CodeRegionFoldedRightArrow"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("can_fold_code_region", "CodeEdit", p_theme->get_icon(SNAME("CodeRegionFoldDownArrow"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("executing_line",       "CodeEdit", p_theme->get_icon(SNAME("TextEditorPlay"), EditorStringName(EditorIcons)));
-	p_theme->set_icon("breakpoint",           "CodeEdit", p_theme->get_icon(SNAME("Breakpoint"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("tab",                      "CodeEdit", p_theme->get_icon(SNAME("GuiTab"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("space",                    "CodeEdit", p_theme->get_icon(SNAME("GuiSpace"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("folded",                   "CodeEdit", p_theme->get_icon(SNAME("CodeFoldedRightArrow"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("can_fold",                 "CodeEdit", p_theme->get_icon(SNAME("CodeFoldDownArrow"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("folded_code_region",       "CodeEdit", p_theme->get_icon(SNAME("CodeRegionFoldedRightArrow"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("can_fold_code_region",     "CodeEdit", p_theme->get_icon(SNAME("CodeRegionFoldDownArrow"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("can_fold_code_region_end", "CodeEdit", p_theme->get_icon(SNAME("CodeRegionFoldUpArrow"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("executing_line",           "CodeEdit", p_theme->get_icon(SNAME("TextEditorPlay"), EditorStringName(EditorIcons)));
+	p_theme->set_icon("breakpoint",               "CodeEdit", p_theme->get_icon(SNAME("Breakpoint"), EditorStringName(EditorIcons)));
 	/* clang-format on */
 
 	p_theme->set_constant("line_spacing", "CodeEdit", EDITOR_GET("text_editor/appearance/whitespace/line_spacing"));

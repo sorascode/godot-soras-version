@@ -219,6 +219,7 @@ void EditorColorMap::create() {
 	add_conversion_exception("CodeFoldDownArrow");
 	add_conversion_exception("CodeRegionFoldedRightArrow");
 	add_conversion_exception("CodeRegionFoldDownArrow");
+	add_conversion_exception("CodeRegionFoldUpArrow");
 	add_conversion_exception("TextEditorPlay");
 	add_conversion_exception("Breakpoint");
 }
