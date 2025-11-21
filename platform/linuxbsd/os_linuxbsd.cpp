@@ -969,8 +969,6 @@ String OS_LinuxBSD::get_system_dir(SystemDir p_dir, bool p_shared_storage) const
 }
 
 void OS_LinuxBSD::run() {
-	GodotProfileFrameMark;
-	GodotProfileZone("OS_LinuxBSD::run");
 	if (!main_loop) {
 		return;
 	}
@@ -983,6 +981,8 @@ void OS_LinuxBSD::run() {
 	//uint64_t frame=0;
 
 	while (true) {
+		GodotProfileFrameMark;
+		GodotProfileZone("OS_LinuxBSD::run");
 		DisplayServer::get_singleton()->process_events(); // get rid of pending events
 #ifdef SDL_ENABLED
 		if (joypad_sdl) {
