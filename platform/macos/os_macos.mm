@@ -1054,7 +1054,7 @@ OS_MacOS::OS_MacOS(const char *p_execpath, int p_argc, char **p_argv) {
 // MARK: - OS_MacOS_NSApp
 
 void OS_MacOS_NSApp::run() {
-	[NSApp run];
+	[NSApp run]; // Note: this call will never return. Use `OS_MacOS_NSApp::cleanup()` for cleanup.
 }
 
 static bool sig_received = false;
@@ -1132,8 +1132,7 @@ void OS_MacOS_NSApp::start_main() {
 }
 
 void OS_MacOS_NSApp::terminate() {
-	godot_cleanup_profiler();
-
+	// Note: This method only sends app termination request. Use `OS_MacOS_NSApp::cleanup()` for cleanup.
 	if (pre_wait_observer) {
 		CFRunLoopRemoveObserver(CFRunLoopGetCurrent(), pre_wait_observer, kCFRunLoopCommonModes);
 		CFRelease(pre_wait_observer);
@@ -1153,6 +1152,7 @@ void OS_MacOS_NSApp::cleanup() {
 			Main::cleanup();
 		}
 	}
+	godot_cleanup_profiler();
 }
 
 OS_MacOS_NSApp::OS_MacOS_NSApp(const char *p_execpath, int p_argc, char **p_argv) :
