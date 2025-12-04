@@ -91,6 +91,7 @@ public:
 	bool run_test = false;                                         \
 	int return_code = Main::test_entrypoint(argc, argv, run_test); \
 	if (run_test) {                                                \
+		godot_cleanup_profiler();                                  \
 		return return_code;                                        \
 	}
 
@@ -98,5 +99,6 @@ public:
 	bool run_test = false;                                         \
 	int return_code = Main::test_entrypoint(argc, argv, run_test); \
 	if (run_test) {                                                \
+		godot_cleanup_profiler();                                  \
 		return return_code;                                        \
 	}
