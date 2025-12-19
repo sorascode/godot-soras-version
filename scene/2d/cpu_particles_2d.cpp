@@ -276,6 +276,73 @@ void CPUParticles2D::_refresh_interpolation_state() {
 	set_physics_process_internal(_interpolation_data.interpolated_follow);
 }
 
+double CPUParticles2D::_dot(double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z) {
+	return p1_x * p2_x + p1_y * p2_y + p1_z * p2_z;
+}
+
+Vector3 CPUParticles2D::_grad(double p_x, double p_y, double p_z) {
+	p_x = Math::fract(_dot(p_x, p_y, p_z, 0.143081, 0.001724, 0.262771));
+	p_y = Math::fract(_dot(p_x, p_y, p_z, 0.645401, -0.047791, 0.595016));
+	p_z = Math::fract(_dot(p_x, p_y, p_z, -0.013596, -0.848588, 0.17044));
+	return Vector3(Math::fract(p_x * p_x * 2365.952041) * 2.0 - 1.0, Math::fract(p_y * p_y * 2365.952041) * 2.0 - 1.0, Math::fract(p_z * p_z * 2365.952041) * 2.0 - 1.0);
+}
+
+float CPUParticles2D::_noise(double p_x, double p_y, double p_z) {
+	// Domain rotation to improve the look of XY slices + animation patterns.
+	auto value = _dot(p_x, p_y, p_z, -0.1666667, -0.1666667, -0.5);
+	p_x = p_x + value;
+	p_x = p_y + value;
+	p_z = _dot(p_x, p_y, p_z, 0.5, 0.5, 0.5);
+	double base_x = Math::floor(p_x);
+	double base_y = Math::floor(p_y);
+	double base_z = Math::floor(p_z);
+	Vector3 delta = Vector3(p_x - base_x, p_y - base_y, p_z - base_z);
+	Vector3 grad_000 = _grad(base_x + 0.0, base_y + 0.0, base_z + 0.0), grad_100 = _grad(base_x + 1.0, base_y + 0.0, base_z + 0.0);
+	Vector3 grad_010 = _grad(base_x + 0.0, base_y + 1.0, base_z + 0.0), grad_110 = _grad(base_x + 1.0, base_y + 1.0, base_z + 0.0);
+	Vector3 grad_001 = _grad(base_x + 0.0, base_y + 0.0, base_z + 1.0), grad_101 = _grad(base_x + 1.0, base_y + 0.0, base_z + 1.0);
+	Vector3 grad_011 = _grad(base_x + 0.0, base_y + 1.0, base_z + 1.0), grad_111 = _grad(base_x + 1.0, base_y + 1.0, base_z + 1.0);
+	Vector4 result_0123 = Vector4(
+			(delta - Vector3(0.0, 0.0, 0.0)).dot(grad_000), (delta - Vector3(1.0, 0.0, 0.0)).dot(grad_100),
+			(delta - Vector3(0.0, 1.0, 0.0)).dot(grad_010), (delta - Vector3(1.0, 1.0, 0.0)).dot(grad_110));
+	Vector4 result_4567 = Vector4(
+			(delta - Vector3(0.0, 0.0, 1.0)).dot(grad_001), (delta - Vector3(1.0, 0.0, 1.0)).dot(grad_101),
+			(delta - Vector3(0.0, 1.0, 1.0)).dot(grad_011), (delta - Vector3(1.0, 1.0, 1.0)).dot(grad_111));
+	Vector3 fade = delta * delta * delta * (Vector3(10.0, 10.0, 10.0) + delta * (Vector3(-15.0, -15.0, -15.0) + delta * 6.0));
+	Vector4 result_Z = result_0123.lerp(result_4567, fade.z);
+	Vector2 result_Y = Vector2(result_Z.x, result_Z.y).lerp(Vector2(result_Z.z, result_Z.w), fade.y);
+	return Math::lerp(result_Y.x, result_Y.y, fade.x);
+}
+
+Vector2 CPUParticles2D::_noise_2x(double p_x, double p_y, double p_z) {
+	float s = _noise(p_x, p_y, p_z);
+	float s1 = _noise(p_x, p_y, p_z + 1.7320508 * 2048.333333);
+	return Vector2(s, s1);
+}
+
+Vector2 CPUParticles2D::_curl_2d(double p_x, double p_y, double p_z, double c) {
+	double epsilon = 0.001 + c;
+	Vector2 x0 = _noise_2x(p_x - epsilon, p_y, p_z);
+	Vector2 x1 = _noise_2x(p_x + epsilon, p_y, p_z);
+	Vector2 y0 = _noise_2x(p_x, p_y - epsilon, p_z);
+	Vector2 y1 = _noise_2x(p_x, p_y + epsilon, p_z);
+	float x = (x1.y - x0.y) - (y1.x - y0.x);
+	float y = (y1.x - y0.x) - (x1.y - x0.y);
+	return Vector2(x, y).normalized();
+}
+
+Vector2 CPUParticles2D::_get_noise_direction(Vector2 pos) {
+	double adj_contrast = MAX((turbulence_noise_strength - 1.0), 0.0) * 70.0;
+	double time = OS::get_singleton()->get_unix_time();
+	double noise_time_x = time * turbulence_noise_speed.x;
+	double noise_time_y = time * turbulence_noise_speed.y;
+	double noise_time_z = time * turbulence_noise_speed_random;
+	double noise_pos_x = pos.x * transformed_turbulence_noise_scale;
+	double noise_pos_y = pos.y * transformed_turbulence_noise_scale;
+	Vector2 noise_direction = _curl_2d(noise_time_x + noise_pos_x, noise_time_y + noise_pos_y, noise_time_z, adj_contrast);
+	noise_direction = (0.9 * noise_direction).lerp(noise_direction, turbulence_noise_strength - 9.0);
+	return noise_direction;
+}
+
 Ref<Texture2D> CPUParticles2D::get_texture() const {
 	return texture;
 }
@@ -331,6 +398,28 @@ void CPUParticles2D::restart(bool p_keep_seed) {
 
 	emitting = true;
 	_set_emitting();
+}
+
+int CPUParticles2D::get_particles_count() const {
+	return particles.size();
+}
+
+bool CPUParticles2D::is_particle_active(int p_index) {
+	ERR_FAIL_INDEX_V(p_index, particles.size(), false);
+
+	return particles[p_index].active;
+}
+
+Vector2 CPUParticles2D::get_particle_position(int p_index) {
+	ERR_FAIL_INDEX_V(p_index, particles.size(), Vector2());
+
+	return particles[p_index].transform.get_origin();
+}
+
+Color CPUParticles2D::get_particle_color(int p_index) {
+	ERR_FAIL_INDEX_V(p_index, particles.size(), Color());
+
+	return particles[p_index].color;
 }
 
 void CPUParticles2D::set_direction(Vector2 p_direction) {
@@ -429,6 +518,11 @@ void CPUParticles2D::set_param_curve(Parameter p_param, const Ref<Curve> &p_curv
 			_adjust_curve_range(p_curve, 0, 200);
 		} break;
 		case PARAM_ANIM_OFFSET: {
+		} break;
+		case PARAM_TURB_INIT_DISPLACEMENT: {
+		} break;
+		case PARAM_TURB_VEL_INFLUENCE: {
+			_adjust_curve_range(p_curve, 0, 1);
 		} break;
 		default: {
 		}
@@ -554,6 +648,51 @@ void CPUParticles2D::set_gravity(const Vector2 &p_gravity) {
 
 Vector2 CPUParticles2D::get_gravity() const {
 	return gravity;
+}
+
+void CPUParticles2D::set_turbulence_enabled(const bool p_enabled) {
+	turbulence_enabled = p_enabled;
+}
+
+bool CPUParticles2D::get_turbulence_enabled() const {
+	return turbulence_enabled;
+}
+
+void CPUParticles2D::set_turbulence_noise_strength(float p_turbulence_noise_strength) {
+	turbulence_noise_strength = p_turbulence_noise_strength;
+}
+
+float CPUParticles2D::get_turbulence_noise_strength() const {
+	return turbulence_noise_strength;
+}
+
+void CPUParticles2D::set_turbulence_noise_scale(float p_turbulence_noise_scale) {
+	turbulence_noise_scale = p_turbulence_noise_scale;
+	const float noise_frequency_when_slider_is_zero = 4.0;
+	const float max_slider_value = 10.0;
+	const float curve_exponent = 0.25;
+	const float curve_rescale = noise_frequency_when_slider_is_zero / std::pow(max_slider_value, curve_exponent);
+	transformed_turbulence_noise_scale = std::pow(p_turbulence_noise_scale, curve_exponent) * curve_rescale - noise_frequency_when_slider_is_zero;
+}
+
+float CPUParticles2D::get_turbulence_noise_scale() const {
+	return turbulence_noise_scale;
+}
+
+void CPUParticles2D::set_turbulence_noise_speed_random(float p_turbulence_noise_speed_random) {
+	turbulence_noise_speed_random = p_turbulence_noise_speed_random;
+}
+
+float CPUParticles2D::get_turbulence_noise_speed_random() const {
+	return turbulence_noise_speed_random;
+}
+
+void CPUParticles2D::set_turbulence_noise_speed(const Vector2 &p_turbulence_noise_speed) {
+	turbulence_noise_speed = p_turbulence_noise_speed;
+}
+
+Vector2 CPUParticles2D::get_turbulence_noise_speed() const {
+	return turbulence_noise_speed;
 }
 
 void CPUParticles2D::set_scale_curve_x(Ref<Curve> p_scale_curve) {
@@ -863,6 +1002,7 @@ void CPUParticles2D::_particles_process(double p_delta) {
 			p.scale_rand = rng->randf();
 			p.hue_rot_rand = rng->randf();
 			p.anim_offset_rand = rng->randf();
+			p.turbulence_rand = rng->randf();
 
 			if (color_initial_ramp.is_valid()) {
 				p.start_color_rand = color_initial_ramp->get_color_at_offset(rng->randf());
@@ -884,6 +1024,7 @@ void CPUParticles2D::_particles_process(double p_delta) {
 			p.transform = Transform2D();
 			p.time = 0;
 			p.lifetime = lifetime * p.custom[3];
+			p.turb_influence = Math::lerp(parameters_min[PARAM_TURB_VEL_INFLUENCE], parameters_max[PARAM_TURB_VEL_INFLUENCE], p.turbulence_rand);
 			p.base_color = Color(1, 1, 1, 1);
 
 			switch (emission_shape) {
@@ -929,6 +1070,12 @@ void CPUParticles2D::_particles_process(double p_delta) {
 				case EMISSION_SHAPE_MAX: { // Max value for validity check.
 					break;
 				}
+			}
+
+			if (turbulence_enabled) {
+				float initial_turbulence_displacement = Math::lerp(parameters_min[PARAM_TURB_INIT_DISPLACEMENT], parameters_max[PARAM_TURB_INIT_DISPLACEMENT], rng->randf());
+				Vector2 noise_direction = _get_noise_direction(p.transform.get_origin());
+				p.transform.set_origin(p.transform.get_origin() + noise_direction * initial_turbulence_displacement);
 			}
 
 			if (!local_coords) {
@@ -1034,6 +1181,19 @@ void CPUParticles2D::_particles_process(double p_delta) {
 					p.velocity = p.velocity.normalized() * v;
 				}
 			}
+
+			if (turbulence_enabled) {
+				real_t tex_turb_vel_influence = 1.0;
+				if (curve_parameters[PARAM_TURB_VEL_INFLUENCE].is_valid()) {
+					tex_turb_vel_influence = curve_parameters[PARAM_TURB_VEL_INFLUENCE]->sample(tv);
+				}
+				Vector2 noise_direction = _get_noise_direction(p.transform.get_origin());
+
+				float vel_mag = p.velocity.length();
+				float vel_infl = CLAMP(p.turb_influence * tex_turb_vel_influence, 0.0, 1.0) * (p_delta <= 0.0 ? 0.0 : 1.0);
+				p.velocity = p.velocity.lerp(noise_direction.normalized() * vel_mag * (1.0 + (1.0 - vel_infl) * 0.2), vel_infl);
+			}
+
 			real_t base_angle = (tex_angle)*Math::lerp(parameters_min[PARAM_ANGLE], parameters_max[PARAM_ANGLE], p.angle_rand);
 			base_angle += p.custom[1] * lifetime * tex_angular_velocity * Math::lerp(parameters_min[PARAM_ANGULAR_VELOCITY], parameters_max[PARAM_ANGULAR_VELOCITY], rand_from_seed(_seed));
 			p.rotation = Math::deg_to_rad(base_angle); //angle
@@ -1167,11 +1327,11 @@ void CPUParticles2D::_update_particle_data_buffer() {
 			ptr[0] = t.columns[0][0];
 			ptr[1] = t.columns[1][0];
 			ptr[2] = 0;
-			ptr[3] = t.columns[2][0];
+			ptr[3] = Math::round_half_to_even(t.columns[2][0]);
 			ptr[4] = t.columns[0][1];
 			ptr[5] = t.columns[1][1];
 			ptr[6] = 0;
-			ptr[7] = t.columns[2][1];
+			ptr[7] = Math::round_half_to_even(t.columns[2][1]);
 
 		} else {
 			memset(ptr, 0, sizeof(float) * 8);
@@ -1455,6 +1615,11 @@ void CPUParticles2D::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("restart", "keep_seed"), &CPUParticles2D::restart, DEFVAL(false));
 
+	ClassDB::bind_method(D_METHOD("get_particles_count"), &CPUParticles2D::get_particles_count);
+	ClassDB::bind_method(D_METHOD("is_particle_active", "index"), &CPUParticles2D::is_particle_active);
+	ClassDB::bind_method(D_METHOD("get_particle_position", "index"), &CPUParticles2D::get_particle_position);
+	ClassDB::bind_method(D_METHOD("get_particle_color", "index"), &CPUParticles2D::get_particle_color);
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "emitting", PROPERTY_HINT_ONESHOT), "set_emitting", "is_emitting");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_RANGE, "1,1000000,1,exp"), "set_amount", "get_amount"); // FIXME: Evaluate support for `exp` in integer properties, or remove this.
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_texture", "get_texture");
@@ -1530,6 +1695,21 @@ void CPUParticles2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_gravity"), &CPUParticles2D::get_gravity);
 	ClassDB::bind_method(D_METHOD("set_gravity", "accel_vec"), &CPUParticles2D::set_gravity);
 
+	ClassDB::bind_method(D_METHOD("get_turbulence_enabled"), &CPUParticles2D::get_turbulence_enabled);
+	ClassDB::bind_method(D_METHOD("set_turbulence_enabled", "enabled"), &CPUParticles2D::set_turbulence_enabled);
+
+	ClassDB::bind_method(D_METHOD("get_turbulence_noise_strength"), &CPUParticles2D::get_turbulence_noise_strength);
+	ClassDB::bind_method(D_METHOD("set_turbulence_noise_strength", "turbulence_noise_strength"), &CPUParticles2D::set_turbulence_noise_strength);
+
+	ClassDB::bind_method(D_METHOD("get_turbulence_noise_scale"), &CPUParticles2D::get_turbulence_noise_scale);
+	ClassDB::bind_method(D_METHOD("set_turbulence_noise_scale", "turbulence_noise_scale"), &CPUParticles2D::set_turbulence_noise_scale);
+
+	ClassDB::bind_method(D_METHOD("get_turbulence_noise_speed_random"), &CPUParticles2D::get_turbulence_noise_speed_random);
+	ClassDB::bind_method(D_METHOD("set_turbulence_noise_speed_random", "turbulence_noise_speed_random"), &CPUParticles2D::set_turbulence_noise_speed_random);
+
+	ClassDB::bind_method(D_METHOD("get_turbulence_noise_speed"), &CPUParticles2D::get_turbulence_noise_speed);
+	ClassDB::bind_method(D_METHOD("set_turbulence_noise_speed", "turbulence_noise_speed"), &CPUParticles2D::set_turbulence_noise_speed);
+
 	ClassDB::bind_method(D_METHOD("get_split_scale"), &CPUParticles2D::get_split_scale);
 	ClassDB::bind_method(D_METHOD("set_split_scale", "split_scale"), &CPUParticles2D::set_split_scale);
 
@@ -1584,6 +1764,17 @@ void CPUParticles2D::_bind_methods() {
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "damping_min", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_param_min", "get_param_min", PARAM_DAMPING);
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "damping_max", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_param_max", "get_param_max", PARAM_DAMPING);
 	ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "damping_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_param_curve", "get_param_curve", PARAM_DAMPING);
+	ADD_GROUP("Turbulence", "turbulence_");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "turbulence", PROPERTY_HINT_GROUP_ENABLE), "set_turbulence_enabled", "get_turbulence_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "turbulence_noise_strength", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_turbulence_noise_strength", "get_turbulence_noise_strength");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "turbulence_noise_scale", PROPERTY_HINT_RANGE, "0,10,0.001,or_greater"), "set_turbulence_noise_scale", "get_turbulence_noise_scale");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "turbulence_noise_speed"), "set_turbulence_noise_speed", "get_turbulence_noise_speed");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "turbulence_noise_speed_random", PROPERTY_HINT_RANGE, "0,4,0.01"), "set_turbulence_noise_speed_random", "get_turbulence_noise_speed_random");
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "turbulence_influence_min", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_param_min", "get_param_min", PARAM_TURB_VEL_INFLUENCE);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "turbulence_influence_max", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_param_max", "get_param_max", PARAM_TURB_VEL_INFLUENCE);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "turbulence_initial_displacement_min", PROPERTY_HINT_RANGE, "-100,100,0.1"), "set_param_min", "get_param_min", PARAM_TURB_INIT_DISPLACEMENT);
+	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "turbulence_initial_displacement_max", PROPERTY_HINT_RANGE, "-100,100,0.1"), "set_param_max", "get_param_max", PARAM_TURB_INIT_DISPLACEMENT);
+	ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "turbulence_influence_over_life", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_param_curve", "get_param_curve", PARAM_TURB_VEL_INFLUENCE);
 	ADD_GROUP("Angle", "");
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "angle_min", PROPERTY_HINT_RANGE, "-720,720,0.1,or_less,or_greater,degrees"), "set_param_min", "get_param_min", PARAM_ANGLE);
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "angle_max", PROPERTY_HINT_RANGE, "-720,720,0.1,or_less,or_greater,degrees"), "set_param_max", "get_param_max", PARAM_ANGLE);
@@ -1625,6 +1816,8 @@ void CPUParticles2D::_bind_methods() {
 	BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION);
 	BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED);
 	BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET);
+	BIND_ENUM_CONSTANT(PARAM_TURB_VEL_INFLUENCE);
+	BIND_ENUM_CONSTANT(PARAM_TURB_INIT_DISPLACEMENT);
 	BIND_ENUM_CONSTANT(PARAM_MAX);
 
 	BIND_ENUM_CONSTANT(PARTICLE_FLAG_ALIGN_Y_TO_VELOCITY);
@@ -1665,6 +1858,8 @@ CPUParticles2D::CPUParticles2D() {
 	set_param_min(PARAM_HUE_VARIATION, 0);
 	set_param_min(PARAM_ANIM_SPEED, 0);
 	set_param_min(PARAM_ANIM_OFFSET, 0);
+	set_param_min(PARAM_TURB_VEL_INFLUENCE, 0.1);
+	set_param_min(PARAM_TURB_INIT_DISPLACEMENT, 0);
 
 	set_param_max(PARAM_INITIAL_LINEAR_VELOCITY, 0);
 	set_param_max(PARAM_ANGULAR_VELOCITY, 0);
@@ -1678,6 +1873,10 @@ CPUParticles2D::CPUParticles2D() {
 	set_param_max(PARAM_HUE_VARIATION, 0);
 	set_param_max(PARAM_ANIM_SPEED, 0);
 	set_param_max(PARAM_ANIM_OFFSET, 0);
+	set_param_max(PARAM_TURB_VEL_INFLUENCE, 0.1);
+	set_param_max(PARAM_TURB_INIT_DISPLACEMENT, 0);
+
+	set_turbulence_noise_scale(turbulence_noise_scale);
 
 	for (int i = 0; i < PARTICLE_FLAG_MAX; i++) {
 		particle_flags[i] = false;

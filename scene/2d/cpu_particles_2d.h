@@ -57,6 +57,8 @@ public:
 		PARAM_HUE_VARIATION,
 		PARAM_ANIM_SPEED,
 		PARAM_ANIM_OFFSET,
+		PARAM_TURB_VEL_INFLUENCE,
+		PARAM_TURB_INIT_DISPLACEMENT,
 		PARAM_MAX
 	};
 
@@ -92,9 +94,11 @@ private:
 		real_t scale_rand = 0.0;
 		real_t hue_rot_rand = 0.0;
 		real_t anim_offset_rand = 0.0;
+		real_t turbulence_rand = 0.0;
 		Color start_color_rand;
 		double time = 0.0;
 		double lifetime = 0.0;
+		double turb_influence = 0.0;
 		Color base_color;
 
 		uint32_t seed = 0;
@@ -186,6 +190,13 @@ private:
 
 	Ref<RandomNumberGenerator> rng;
 
+	bool turbulence_enabled = false;
+	Vector2 turbulence_noise_speed;
+	float turbulence_noise_strength = 1.0f;
+	float turbulence_noise_scale = 9.0f;
+	float transformed_turbulence_noise_scale;
+	float turbulence_noise_speed_random = 0.2f;
+
 	void _update_internal();
 	void _particles_process(double p_delta);
 	void _update_particle_data_buffer();
@@ -211,6 +222,13 @@ private:
 	void _texture_changed();
 
 	void _refresh_interpolation_state();
+
+	double _dot(double p1_x, double p1_y, double p1_z, double p2_x, double p2_y, double p2_z);
+	Vector3 _grad(double p_x, double p_y, double p_z);
+	float _noise(double p_x, double p_y, double p_z);
+	Vector2 _noise_2x(double p_x, double p_y, double p_z);
+	Vector2 _curl_2d(double p_x, double p_y, double p_z, double c);
+	Vector2 _get_noise_direction(Vector2 pos);
 
 protected:
 	static void _bind_methods();
@@ -323,9 +341,26 @@ public:
 	void set_gravity(const Vector2 &p_gravity);
 	Vector2 get_gravity() const;
 
+	void set_turbulence_enabled(bool p_enabled);
+	void set_turbulence_noise_strength(float p_turbulence_noise_strength);
+	void set_turbulence_noise_scale(float p_turbulence_noise_scale);
+	void set_turbulence_noise_speed_random(float p_turbulence_noise_speed_random);
+	void set_turbulence_noise_speed(const Vector2 &p_turbulence_noise_speed);
+
+	bool get_turbulence_enabled() const;
+	float get_turbulence_noise_strength() const;
+	float get_turbulence_noise_scale() const;
+	float get_turbulence_noise_speed_random() const;
+	Vector2 get_turbulence_noise_speed() const;
+
 	PackedStringArray get_configuration_warnings() const override;
 
 	void restart(bool p_keep_seed = false);
+
+	int get_particles_count() const;
+	bool is_particle_active(int p_index);
+	Vector2 get_particle_position(int p_index);
+	Color get_particle_color(int p_index);
 
 	void convert_from_particles(Node *p_particles);
 

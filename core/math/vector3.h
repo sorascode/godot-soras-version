@@ -138,6 +138,7 @@ struct [[nodiscard]] Vector3 {
 	_FORCE_INLINE_ Vector3 sign() const;
 	_FORCE_INLINE_ Vector3 ceil() const;
 	_FORCE_INLINE_ Vector3 round() const;
+	_FORCE_INLINE_ Vector3 fract() const;
 	Vector3 clamp(const Vector3 &p_min, const Vector3 &p_max) const;
 	Vector3 clampf(real_t p_min, real_t p_max) const;
 
@@ -226,6 +227,10 @@ Vector3 Vector3::ceil() const {
 
 Vector3 Vector3::round() const {
 	return Vector3(Math::round(x), Math::round(y), Math::round(z));
+}
+
+Vector3 Vector3::fract() const {
+	return Vector3(Math::fract(x), Math::fract(y), Math::fract(z));
 }
 
 Vector3 Vector3::lerp(const Vector3 &p_to, real_t p_weight) const {

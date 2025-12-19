@@ -609,7 +609,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		RID shadow_fb;
 		int shadow_texture_size = 2048;
 
-		static const int MAX_LIGHTS_LIMIT = 12;
+		static const int MAX_LIGHTS_LIMIT = 32;
         RID occluder_texture;
 		RID occluder_views[MAX_LIGHTS_LIMIT];
         RID occluder_fbs[MAX_LIGHTS_LIMIT];
