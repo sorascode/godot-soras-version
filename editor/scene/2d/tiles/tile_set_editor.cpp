@@ -339,7 +339,12 @@ void TileSetEditor::_source_duplicate_pressed() {
 				if (!(property.usage & PROPERTY_USAGE_STORAGE)) {
 					continue;
 				}
-				Variant value = src_tile_data->get(property.name);
+				Variant value;
+				if (property.name == "terrain_set") {
+					value = tile_set->get_terrain_sets_count() - 1;
+				} else {
+					value = src_tile_data->get(property.name);
+				}
 				Variant default_value = ClassDB::class_get_default_property_value("TileData", property.name);
 				if (default_value.get_type() != Variant::NIL && bool(Variant::evaluate(Variant::OP_EQUAL, value, default_value))) {
 					continue;
