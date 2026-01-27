@@ -31,7 +31,7 @@
 #import "os_macos.h"
 
 #import "dir_access_macos.h"
-#ifdef DEBUG_ENABLED
+#ifdef TOOLS_ENABLED
 #import "display_server_embedded.h"
 #endif
 #import "display_server_macos.h"
@@ -39,6 +39,8 @@
 #import "godot_application_delegate.h"
 
 #include "core/crypto/crypto_core.h"
+#include "core/io/file_access.h"
+#include "core/os/main_loop.h"
 #include "core/profiling/profiling.h"
 #include "core/version_generated.gen.h"
 #include "drivers/apple/os_log_logger.h"
@@ -470,6 +472,19 @@ String OS_MacOS::get_bundle_icon_path() const {
 	return ret;
 }
 
+String OS_MacOS::get_bundle_icon_name() const {
+	String ret;
+
+	NSBundle *main = [NSBundle mainBundle];
+	if (main) {
+		NSString *icon_name = [[main infoDictionary] objectForKey:@"CFBundleIconName"];
+		if (icon_name) {
+			ret.append_utf8([icon_name UTF8String]);
+		}
+	}
+	return ret;
+}
+
 // Get properly capitalized engine name for system paths
 String OS_MacOS::get_godot_dir_name() const {
 	return String(GODOT_VERSION_SHORT_NAME).capitalize();
@@ -837,6 +852,13 @@ Error OS_MacOS::create_process(const String &p_path, const List<String> &p_argum
 }
 
 Error OS_MacOS::create_instance(const List<String> &p_arguments, ProcessID *r_child_id) {
+	// Do not run headless instance as app bundle, since it will never send `applicationDidFinishLaunching` and register as failed start after timeout.
+	for (size_t i = 0; i < std::size(OS_MacOS::headless_args); i++) {
+		if (p_arguments.find(String(OS_MacOS::headless_args[i]))) {
+			return OS_Unix::create_process(get_executable_path(), p_arguments, r_child_id, false);
+		}
+	}
+
 	// If executable is bundled, always execute editor instances as an app bundle to ensure app window is registered and activated correctly.
 	NSString *nsappname = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
 	if (nsappname != nil) {
@@ -1234,7 +1256,7 @@ OS_MacOS_Headless::OS_MacOS_Headless(const char *p_execpath, int p_argc, char **
 
 // MARK: - OS_MacOS_Embedded
 
-#ifdef DEBUG_ENABLED
+#ifdef TOOLS_ENABLED
 
 void OS_MacOS_Embedded::run() {
 	CFRunLoopGetCurrent();

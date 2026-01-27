@@ -37,9 +37,10 @@
 #include "core/templates/rb_set.h"
 #include "scene/gui/control.h"
 #include "scene/resources/image_texture.h"
+#include "scene/resources/mesh.h"
 
 #ifndef NAVIGATION_2D_DISABLED
-#include "servers/navigation_server_2d.h"
+#include "servers/navigation_2d/navigation_server_2d.h"
 #endif // NAVIGATION_2D_DISABLED
 
 /////////////////////////////// TileMapPattern //////////////////////////////////////
@@ -1223,12 +1224,10 @@ Array TileSet::map_tile_proxy(int p_source_from, Vector2i p_coords_from, int p_a
 
 	// Source matches.
 	if (source_level_proxies.has(p_source_from)) {
-		Array output = { source_level_proxies[p_source_from], p_coords_from, p_alternative_from };
-		return output;
+		return Array{ source_level_proxies[p_source_from], p_coords_from, p_alternative_from };
 	}
 
-	Array output = { p_source_from, p_coords_from, p_alternative_from };
-	return output;
+	return Array{ p_source_from, p_coords_from, p_alternative_from };
 }
 
 void TileSet::cleanup_invalid_tile_proxies() {
@@ -4297,7 +4296,7 @@ int TileSetScenesCollectionSource::get_alternative_tile_id(const Vector2i p_atla
 
 bool TileSetScenesCollectionSource::has_alternative_tile(const Vector2i p_atlas_coords, int p_alternative_tile) const {
 	ERR_FAIL_COND_V(p_atlas_coords != Vector2i(), false);
-	return scenes.has(p_alternative_tile);
+	return scenes.has(TileSetAtlasSource::alternative_no_transform(p_alternative_tile));
 }
 
 int TileSetScenesCollectionSource::create_scene_tile(Ref<PackedScene> p_packed_scene, int p_id_override) {
@@ -4359,8 +4358,9 @@ void TileSetScenesCollectionSource::set_scene_tile_scene(int p_id, Ref<PackedSce
 }
 
 Ref<PackedScene> TileSetScenesCollectionSource::get_scene_tile_scene(int p_id) const {
-	ERR_FAIL_COND_V(!scenes.has(p_id), Ref<PackedScene>());
-	return scenes[p_id].scene;
+	int scene_tile = TileSetAtlasSource::alternative_no_transform(p_id);
+	ERR_FAIL_COND_V(!scenes.has(scene_tile), Ref<PackedScene>());
+	return scenes[scene_tile].scene;
 }
 
 void TileSetScenesCollectionSource::set_scene_tile_display_placeholder(int p_id, bool p_display_placeholder) {
@@ -4372,6 +4372,7 @@ void TileSetScenesCollectionSource::set_scene_tile_display_placeholder(int p_id,
 }
 
 bool TileSetScenesCollectionSource::get_scene_tile_display_placeholder(int p_id) const {
+	p_id = TileSetAtlasSource::alternative_no_transform(p_id);
 	ERR_FAIL_COND_V(!scenes.has(p_id), false);
 	return scenes[p_id].display_placeholder;
 }
@@ -4402,8 +4403,9 @@ bool TileSetScenesCollectionSource::_set(const StringName &p_name, const Variant
 			return true;
 		} else if (components.size() >= 3 && components[2] == "display_placeholder") {
 			if (!has_scene_tile_id(scene_id)) {
-				create_scene_tile(p_value, scene_id);
+				create_scene_tile(Ref<PackedScene>(), scene_id);
 			}
+			set_scene_tile_display_placeholder(scene_id, p_value);
 
 			return true;
 		}
@@ -4420,7 +4422,7 @@ bool TileSetScenesCollectionSource::_get(const StringName &p_name, Variant &r_re
 			r_ret = scenes[components[1].to_int()].scene;
 			return true;
 		} else if (components.size() >= 3 && components[2] == "display_placeholder") {
-			r_ret = scenes[components[1].to_int()].scene;
+			r_ret = scenes[components[1].to_int()].display_placeholder;
 			return true;
 		}
 	}
@@ -5095,10 +5097,10 @@ Ref<NavigationPolygon> TileData::get_navigation_polygon(int p_layer_id, bool p_f
 		new_outlines.resize(outline_count);
 
 		for (int i = 0; i < outline_count; i++) {
-			new_outlines.write[i] = get_transformed_vertices(outlines[i], p_flip_h, p_flip_v, p_transpose);
+			new_outlines.write[i] = get_transformed_vertices(outlines[i], p_flip_h, p_flip_v, p_transpose, true);
 		}
 
-		transformed_polygon->set_data(new_points, layer_tile_data.navigation_polygon->get_polygons(), new_outlines);
+		transformed_polygon->set_data(new_points, new_polygons, new_outlines);
 
 		layer_tile_data.transformed_navigation_polygon[key] = transformed_polygon;
 		return transformed_polygon;
@@ -5149,14 +5151,15 @@ Variant TileData::get_custom_data_by_layer_id(int p_layer_id) const {
 	return custom_data[p_layer_id];
 }
 
-PackedVector2Array TileData::get_transformed_vertices(const PackedVector2Array &p_vertices, bool p_flip_h, bool p_flip_v, bool p_transpose) {
+PackedVector2Array TileData::get_transformed_vertices(const PackedVector2Array &p_vertices, bool p_flip_h, bool p_flip_v, bool p_transpose, bool p_preserve_winding_order) {
 	const Vector2 *r = p_vertices.ptr();
 	int size = p_vertices.size();
 
 	PackedVector2Array new_points;
-	new_points.resize(size);
+	new_points.resize_uninitialized(size);
 	Vector2 *w = new_points.ptrw();
 
+	bool reverse_vertex_order = p_preserve_winding_order && ((p_flip_h != p_flip_v) != p_transpose);
 	for (int i = 0; i < size; i++) {
 		Vector2 v;
 		if (p_transpose) {
@@ -5171,7 +5174,7 @@ PackedVector2Array TileData::get_transformed_vertices(const PackedVector2Array &
 		if (p_flip_v) {
 			v.y *= -1;
 		}
-		w[i] = v;
+		w[reverse_vertex_order ? (size - 1 - i) : i] = v;
 	}
 	return new_points;
 }

@@ -88,6 +88,7 @@ BASE_STRINGS = [
     "This method may be changed or removed in future versions.",
     "This operator may be changed or removed in future versions.",
     "This theme property may be changed or removed in future versions.",
+    # See also `make_rst_class()` and `editor/doc/editor_help.cpp`.
     "[b]Note:[/b] The returned array is [i]copied[/i] and any changes to it will not update the original property value. See [%s] for more details.",
 ]
 strings_l10n: dict[str, str] = {}
@@ -1206,6 +1207,7 @@ def make_rst_class(class_def: ClassDef, state: State, dry_run: bool, output_dir:
         # Annotation descriptions
         if len(class_def.annotations) > 0:
             f.write(make_separator(True))
+            f.write(".. rst-class:: classref-descriptions-group\n\n")
             f.write(make_heading("Annotations", "-"))
 
             index = 0
@@ -1306,6 +1308,7 @@ def make_rst_class(class_def: ClassDef, state: State, dry_run: bool, output_dir:
 
                 # Add copy note to built-in properties returning `Packed*Array`.
                 if property_def.type_name.type_name in PACKED_ARRAY_TYPES:
+                    # See also `BASE_STRINGS` and `editor/doc/editor_help.cpp`.
                     copy_note = f"[b]Note:[/b] The returned array is [i]copied[/i] and any changes to it will not update the original property value. See [{property_def.type_name.type_name}] for more details."
                     f.write(f"{format_text_block(copy_note, property_def, state)}\n\n")
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from __future__ import annotations
+
 import fnmatch
 import math
 import os

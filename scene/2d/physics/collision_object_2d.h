@@ -33,12 +33,14 @@
 #include "scene/2d/node_2d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/2d/shape_2d.h"
-#include "servers/physics_server_2d.h"
+#include "servers/physics_2d/physics_server_2d.h"
 
 class CollisionObject2D : public Node2D {
 	GDCLASS(CollisionObject2D, Node2D);
 
 public:
+	static constexpr AncestralClass static_ancestral_class = AncestralClass::COLLISION_OBJECT_2D;
+
 	enum DisableMode {
 		DISABLE_MODE_REMOVE,
 		DISABLE_MODE_MAKE_STATIC,
@@ -114,7 +116,7 @@ protected:
 
 	virtual void _space_changed(const RID &p_new_space);
 
-	GDVIRTUAL3(_input_event, Viewport *, Ref<InputEvent>, int)
+	GDVIRTUAL3(_input_event, RequiredParam<Viewport>, RequiredParam<InputEvent>, int)
 	GDVIRTUAL0(_mouse_enter)
 	GDVIRTUAL0(_mouse_exit)
 	GDVIRTUAL1(_mouse_shape_enter, int)

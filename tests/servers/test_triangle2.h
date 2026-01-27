@@ -30,7 +30,12 @@
 
 #pragma once
 
+<<<<<<<< HEAD:tests/servers/test_triangle2.h
 #include "modules/navigation_2d/triangle2.h"
+========
+#include "servers/physics_2d/physics_server_2d.h"
+#include "servers/rendering/rendering_server.h"
+>>>>>>>> 4.6-stable:scene/resources/2d/circle_shape_2d.cpp
 
 #include "tests/test_macros.h"
 

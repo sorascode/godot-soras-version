@@ -35,7 +35,6 @@
 
 #include "core/os/mutex.h"
 #include "core/templates/paged_allocator.h"
-#include "core/templates/hashfuncs.h"
 
 namespace tracy {
 static bool configured = false;

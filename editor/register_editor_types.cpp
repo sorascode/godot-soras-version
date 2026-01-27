@@ -105,6 +105,7 @@
 #include "editor/scene/gradient_editor_plugin.h"
 #include "editor/scene/gui/control_editor_plugin.h"
 #include "editor/scene/gui/font_config_plugin.h"
+#include "editor/scene/gui/margin_container_editor_plugin.h"
 #include "editor/scene/gui/style_box_editor_plugin.h"
 #include "editor/scene/gui/theme_editor_plugin.h"
 #include "editor/scene/material_editor_plugin.h"
@@ -145,6 +146,7 @@ void register_editor_types() {
 	GDREGISTER_CLASS(EditorTranslationParserPlugin);
 	GDREGISTER_CLASS(EditorImportPlugin);
 	GDREGISTER_CLASS(EditorScript);
+	GDREGISTER_CLASS(EditorDock);
 	GDREGISTER_CLASS(EditorSelection);
 	GDREGISTER_CLASS(EditorFileDialog);
 	GDREGISTER_CLASS(EditorSettings);
@@ -229,6 +231,7 @@ void register_editor_types() {
 	EditorPlugins::add_by_type<GradientTexture2DEditorPlugin>();
 	EditorPlugins::add_by_type<InputEventEditorPlugin>();
 	EditorPlugins::add_by_type<LightmapGIEditorPlugin>();
+	EditorPlugins::add_by_type<MarginContainerEditorPlugin>();
 	EditorPlugins::add_by_type<MaterialEditorPlugin>();
 	EditorPlugins::add_by_type<MeshEditorPlugin>();
 	EditorPlugins::add_by_type<MeshInstance3DEditorPlugin>();
@@ -276,7 +279,7 @@ void register_editor_types() {
 #endif
 
 	// For correct doc generation.
-	GLOBAL_DEF("editor/run/main_run_args", "");
+	GLOBAL_DEF(PropertyInfo(Variant::STRING, "editor/run/main_run_args", PROPERTY_HINT_NONE, "monospace"), "");
 
 	GLOBAL_DEF(PropertyInfo(Variant::STRING, "editor/script/templates_search_path", PROPERTY_HINT_DIR), "res://script_templates");
 
@@ -300,6 +303,13 @@ void register_editor_types() {
 	ei_singleton.editor_only = true;
 	Engine::get_singleton()->add_singleton(ei_singleton);
 
+	if (RenderingServer::get_singleton()) {
+		// RenderingServer needs to exist for this to succeed.
+		Texture3DEditor::init_shaders();
+		TextureLayeredEditor::init_shaders();
+		TexturePreview::init_shaders();
+	}
+
 	// Required as GDExtensions can register docs at init time way before this
 	// class is actually instantiated.
 	EditorHelp::init_gdext_pointers();
@@ -309,6 +319,10 @@ void register_editor_types() {
 
 void unregister_editor_types() {
 	OS::get_singleton()->benchmark_begin_measure("Editor", "Unregister Types");
+
+	Texture3DEditor::finish_shaders();
+	TextureLayeredEditor::finish_shaders();
+	TexturePreview::finish_shaders();
 
 	EditorNode::cleanup();
 	EditorInterface::free();
