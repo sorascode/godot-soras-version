@@ -118,7 +118,7 @@ Vector<Ref<Shape3D>> MeshInstance3DEditor::create_shape_from_mesh(Ref<Mesh> p_me
 				Ref<BoxShape3D> box_shape;
 				box_shape.instantiate();
 				AABB mesh_aabb = p_mesh->get_aabb();
-				box_shape->set_size(mesh_aabb.get_size().maxf(0.001));
+				box_shape->set_size(Vector3(mesh_aabb.get_size()).maxf(0.001));
 				shapes.push_back(box_shape);
 				shape_offset_transform.origin = mesh_aabb.get_center();
 			}

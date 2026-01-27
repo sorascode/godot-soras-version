@@ -50,6 +50,9 @@ struct [[nodiscard]] Transform2Di {
 	// Warning #2: 2D be aware that unlike 3D code, 2D code uses a left-handed coordinate system: Y-axis points down,
 	// and angle is measure from +X to +Y in a clockwise-fashion.
 
+	static const Transform2Di FLIP_X;
+	static const Transform2Di FLIP_Y;
+
 	Vector2i columns[3] = {
 		{ 1, 0 },
 		{ 0, 1 },
@@ -125,11 +128,8 @@ struct [[nodiscard]] Transform2Di {
 		columns[2][1] = p_oy;
 	}
 
-	Transform2Di(const Vector2i &p_x, const Vector2i &p_y, const Vector2i &p_origin) {
-		columns[0] = p_x;
-		columns[1] = p_y;
-		columns[2] = p_origin;
-	}
+	constexpr Transform2Di(const Vector2i &p_x, const Vector2i &p_y, const Vector2i &p_origin) :
+			columns{ p_x, p_y, p_origin } {}
 
 	Transform2Di(const Vector2i &p_pos);
 
@@ -137,11 +137,11 @@ struct [[nodiscard]] Transform2Di {
 
 	Transform2Di(const Transform2D &p_transform2D);
 
-	Transform2Di() {
-		columns[0][0] = 1;
-		columns[1][1] = 1;
-	}
+	Transform2Di() = default;
 };
+
+inline constexpr Transform2Di Transform2Di::FLIP_X = { { -1, 0 }, { 0, 1 }, { 0, 0 } };
+inline constexpr Transform2Di Transform2Di::FLIP_Y = { { 1, 0 }, { 0, -1 }, { 0, 0 } };
 
 Vector2i Transform2Di::basis_xform(const Vector2i &p_vec) const {
 	return Vector2i(

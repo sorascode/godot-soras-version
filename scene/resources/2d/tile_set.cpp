@@ -5088,7 +5088,19 @@ Ref<NavigationPolygon> TileData::get_navigation_polygon(int p_layer_id, bool p_f
 		Ref<NavigationPolygon> transformed_polygon;
 		transformed_polygon.instantiate();
 
-		PackedVector2Array new_points = get_transformed_vertices(layer_tile_data.navigation_polygon->get_vertices(), p_flip_h, p_flip_v, p_transpose);
+		// Winding order:
+		// - Preserve for outlines.
+		// - If there are no polygons provided, preserve for vertices.
+		// - If there are polygons provided, preserve for polygons, don't preserve for vertices (so the vertex order is unchanged and polygons don't need reindexing).
+
+		Vector<Vector<int>> new_polygons = layer_tile_data.navigation_polygon->get_polygons();
+		if ((p_flip_h != p_flip_v) != p_transpose) {
+			for (Vector<int> &polygon : new_polygons) {
+				polygon.reverse();
+			}
+		}
+
+		PackedVector2Array new_points = get_transformed_vertices(layer_tile_data.navigation_polygon->get_vertices(), p_flip_h, p_flip_v, p_transpose, new_polygons.is_empty());
 
 		const Vector<Vector<Vector2>> outlines = layer_tile_data.navigation_polygon->get_outlines();
 		int outline_count = outlines.size();

@@ -2975,7 +2975,16 @@ uint32_t Variant::recursive_hash(int recursion_count) const {
 			return hash_fmix32(h);
 		} break;
 		case TRANSFORM2DI: {
-			return HashMapHasherDefault::hash(*reinterpret_cast<const Transform2Di *>(_data._mem));
+			uint32_t h = HASH_MURMUR3_SEED;
+			const Transform2Di &t = *_data._transform2di;
+			h = hash_murmur3_one_32(uint32_t(t[0].x), h);
+			h = hash_murmur3_one_32(uint32_t(t[0].y), h);
+			h = hash_murmur3_one_32(uint32_t(t[1].x), h);
+			h = hash_murmur3_one_32(uint32_t(t[1].y), h);
+			h = hash_murmur3_one_32(uint32_t(t[2].x), h);
+			h = hash_murmur3_one_32(uint32_t(t[2].y), h);
+
+			return hash_fmix32(h);
 		} break;
 		case VECTOR3: {
 			return HashMapHasherDefault::hash(*reinterpret_cast<const Vector3 *>(_data._mem));

@@ -884,7 +884,7 @@ void main() {
 
 		vec4 light_color;
 
-		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW) && bool(draw_data.flags & (INSTANCE_FLAGS_SHADOW_MASKED << i))) {
+		if (bool(light_array.data[light_base].flags & LIGHT_FLAGS_HAS_SHADOW) && bool(read_draw_data_flags & (INSTANCE_FLAGS_SHADOW_MASKED << i))) {
 
 			vec2 occluder_max_size = vec2(light_array.data[light_base].occluder_max_size, light_array.data[light_base].occluder_max_size);
 			vec2 light_size = occluder_max_size * vec2(light_array.data[light_base].occluder_scale_x, light_array.data[light_base].occluder_scale_y);

@@ -1250,7 +1250,7 @@ void RendererCanvasRenderRD::_update_shadow_atlas() {
 void RendererCanvasRenderRD::_update_occluder_atlas() {
 	if (state.occluder_fbs[0] == RID()) {
 		//ah, we lack the occluder texture...
-		RD::get_singleton()->free(state.occluder_texture); //erase placeholder
+		RD::get_singleton()->free_rid(state.occluder_texture); //erase placeholder
 
 		RD::TextureFormat tf;
 		tf.texture_type = RD::TEXTURE_TYPE_2D_ARRAY;

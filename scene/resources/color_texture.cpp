@@ -31,6 +31,7 @@
 #include "color_texture.h"
 
 #include "core/math/geometry_2d.h"
+#include "servers/rendering/rendering_server.h"
 
 ColorTexture::ColorTexture() {
 	_queue_update();
@@ -39,7 +40,7 @@ ColorTexture::ColorTexture() {
 ColorTexture::~ColorTexture() {
 	if (texture.is_valid()) {
 		ERR_FAIL_NULL(RenderingServer::get_singleton());
-		RS::get_singleton()->free(texture);
+		RS::get_singleton()->free_rid(texture);
 	}
 }
 
