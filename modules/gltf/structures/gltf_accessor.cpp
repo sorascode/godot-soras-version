@@ -460,6 +460,7 @@ int64_t GLTFAccessor::_get_numbers_per_variant_for_gltf(Variant::Type p_variant_
 		case Variant::ARRAY:
 		case Variant::PACKED_STRING_ARRAY:
 		case Variant::PACKED_VECTOR2_ARRAY:
+		case Variant::PACKED_VECTOR2I_ARRAY:
 		case Variant::PACKED_VECTOR3_ARRAY:
 		case Variant::PACKED_COLOR_ARRAY:
 		case Variant::PACKED_VECTOR4_ARRAY:
@@ -484,6 +485,7 @@ int64_t GLTFAccessor::_get_numbers_per_variant_for_gltf(Variant::Type p_variant_
 		case Variant::COLOR:
 			return 4;
 		case Variant::TRANSFORM2D:
+		case Variant::TRANSFORM2DI:
 		case Variant::AABB:
 		case Variant::BASIS:
 			return 9;

@@ -84,119 +84,119 @@
                     "value": 11
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_VECTOR4",
+                    "name": "GDEXTENSION_VARIANT_TYPE_TRANSFORM2DI",
                     "value": 12
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_VECTOR4I",
+                    "name": "GDEXTENSION_VARIANT_TYPE_VECTOR4",
                     "value": 13
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PLANE",
+                    "name": "GDEXTENSION_VARIANT_TYPE_VECTOR4I",
                     "value": 14
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_QUATERNION",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PLANE",
                     "value": 15
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_AABB",
+                    "name": "GDEXTENSION_VARIANT_TYPE_QUATERNION",
                     "value": 16
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_BASIS",
+                    "name": "GDEXTENSION_VARIANT_TYPE_AABB",
                     "value": 17
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_TRANSFORM3D",
+                    "name": "GDEXTENSION_VARIANT_TYPE_BASIS",
                     "value": 18
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PROJECTION",
+                    "name": "GDEXTENSION_VARIANT_TYPE_TRANSFORM3D",
                     "value": 19
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_COLOR",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PROJECTION",
                     "value": 20
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_STRING_NAME",
+                    "name": "GDEXTENSION_VARIANT_TYPE_COLOR",
                     "value": 21
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_NODE_PATH",
+                    "name": "GDEXTENSION_VARIANT_TYPE_STRING_NAME",
                     "value": 22
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_RID",
+                    "name": "GDEXTENSION_VARIANT_TYPE_NODE_PATH",
                     "value": 23
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_OBJECT",
+                    "name": "GDEXTENSION_VARIANT_TYPE_RID",
                     "value": 24
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_CALLABLE",
+                    "name": "GDEXTENSION_VARIANT_TYPE_OBJECT",
                     "value": 25
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_SIGNAL",
+                    "name": "GDEXTENSION_VARIANT_TYPE_CALLABLE",
                     "value": 26
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_DICTIONARY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_SIGNAL",
                     "value": 27
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_DICTIONARY",
                     "value": 28
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_ARRAY",
                     "value": 29
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_INT32_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY",
                     "value": 30
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_INT64_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_INT32_ARRAY",
                     "value": 31
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_FLOAT32_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_INT64_ARRAY",
                     "value": 32
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_FLOAT64_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_FLOAT32_ARRAY",
                     "value": 33
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_STRING_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_FLOAT64_ARRAY",
                     "value": 34
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_STRING_ARRAY",
                     "value": 35
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR3_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2_ARRAY",
                     "value": 36
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_COLOR_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2I_ARRAY",
                     "value": 37
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR4_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR3_ARRAY",
                     "value": 38
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_TRANSFORM2DI",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_COLOR_ARRAY",
                     "value": 39
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2I_ARRAY",
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR4_ARRAY",
                     "value": 40
                 },
                 {
@@ -7021,6 +7021,64 @@
             ],
             "description": [
                 "Gets a const pointer to a Vector2 in a PackedVector2Array."
+            ],
+            "since": "4.1"
+        },
+        {
+            "name": "packed_vector2i_array_operator_index",
+            "return_value": {
+                "type": "GDExtensionTypePtr",
+                "description": [
+                    "A pointer to the requested Vector2i."
+                ]
+            },
+            "arguments": [
+                {
+                    "name": "p_self",
+                    "type": "GDExtensionTypePtr",
+                    "description": [
+                        "A pointer to a PackedVector2iArray object."
+                    ]
+                },
+                {
+                    "name": "p_index",
+                    "type": "GDExtensionInt",
+                    "description": [
+                        "The index of the Vector2i to get."
+                    ]
+                }
+            ],
+            "description": [
+                "Gets a pointer to a Vector2i in a PackedVector2iArray."
+            ],
+            "since": "4.1"
+        },
+        {
+            "name": "packed_vector2i_array_operator_index_const",
+            "return_value": {
+                "type": "GDExtensionTypePtr",
+                "description": [
+                    "A const pointer to the requested Vector2i."
+                ]
+            },
+            "arguments": [
+                {
+                    "name": "p_self",
+                    "type": "GDExtensionConstTypePtr",
+                    "description": [
+                        "A const pointer to a PackedVector2iArray object."
+                    ]
+                },
+                {
+                    "name": "p_index",
+                    "type": "GDExtensionInt",
+                    "description": [
+                        "The index of the Vector2i to get."
+                    ]
+                }
+            ],
+            "description": [
+                "Gets a const pointer to a Vector2i in a PackedVector2iArray."
             ],
             "since": "4.1"
         },
