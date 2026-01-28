@@ -192,8 +192,16 @@
                     "value": 38
                 },
                 {
-                    "name": "GDEXTENSION_VARIANT_TYPE_VARIANT_MAX",
+                    "name": "GDEXTENSION_VARIANT_TYPE_TRANSFORM2DI",
                     "value": 39
+                },
+                {
+                    "name": "GDEXTENSION_VARIANT_TYPE_PACKED_VECTOR2I_ARRAY",
+                    "value": 40
+                },
+                {
+                    "name": "GDEXTENSION_VARIANT_TYPE_VARIANT_MAX",
+                    "value": 41
                 }
             ]
         },
