@@ -724,6 +724,18 @@ void RendererCanvasCull::canvas_item_set_update_when_visible(RID p_item, bool p_
 	canvas_item->update_when_visible = p_update;
 }
 
+void RendererCanvasCull::canvas_item_add_point(RID p_item, const Point2i &p_pos, const Color &p_color) {
+	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
+	ERR_FAIL_NULL(canvas_item);
+
+	Item::CommandPrimitive *point = canvas_item->alloc_command<Item::CommandPrimitive>();
+	ERR_FAIL_NULL(point);
+
+	point->points[0] = p_pos;
+	point->colors[0] = p_color;
+	point->point_count = 1;
+}
+
 void RendererCanvasCull::canvas_item_add_line(RID p_item, const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width, bool p_antialiased) {
 	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
 	ERR_FAIL_NULL(canvas_item);
