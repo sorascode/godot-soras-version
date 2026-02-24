@@ -47,7 +47,7 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 		ERR_PRINT("Rect2 size is negative, this is not supported. Use Rect2.abs() to get a Rect2 with a positive size.");
 	}
 #endif
-	int32_t min = 0, max = 1;
+	real_t min = 0, max = 1;
 	int axis = 0;
 	int32_t sign = 0;
 
@@ -63,7 +63,7 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 			if (seg_from > box_end || seg_to < box_begin) {
 				return false;
 			}
-			int32_t length = seg_to - seg_from;
+			real_t length = seg_to - seg_from;
 			cmin = (seg_from < box_begin) ? ((box_begin - seg_from) / length) : 0;
 			cmax = (seg_to > box_end) ? ((box_end - seg_from) / length) : 1;
 			csign = -1;
@@ -72,7 +72,7 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 			if (seg_to > box_end || seg_from < box_begin) {
 				return false;
 			}
-			int32_t length = seg_to - seg_from;
+			real_t length = seg_to - seg_from;
 			cmin = (seg_from > box_end) ? (box_end - seg_from) / length : 0;
 			cmax = (seg_to < box_begin) ? (box_begin - seg_from) / length : 1;
 			csign = 1;
@@ -91,7 +91,7 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 		}
 	}
 
-	Vector2i rel = p_to - p_from;
+	Vector2 rel = p_to - p_from;
 
 	if (r_normal) {
 		Vector2i normal;
@@ -100,7 +100,7 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 	}
 
 	if (r_pos) {
-		*r_pos = p_from + rel * min;
+		*r_pos = p_from + (rel * min).round();
 	}
 
 	return true;
