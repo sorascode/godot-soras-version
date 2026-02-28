@@ -103,5 +103,11 @@ bool Rect2i::intersects_segment(const Point2i &p_from, const Point2i &p_to, Poin
 		*r_pos = p_from + (rel * min).round();
 	}
 
+	if (r_pos && r_normal) {
+		if (*r_normal == Vector2i(1, 0) || *r_normal == Vector2i(0, 1)) {
+			*r_pos += *r_normal;
+		}
+	}
+
 	return true;
 }

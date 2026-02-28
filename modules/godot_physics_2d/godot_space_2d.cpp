@@ -45,6 +45,10 @@ _FORCE_INLINE_ static bool _can_collide_with(GodotCollisionObject2D *p_object, u
 		return false;
 	}
 
+	if (!p_object->is_collidable()) {
+		return false;
+	}
+
 	if (p_object->get_type() == GodotCollisionObject2D::TYPE_AREA && !p_collide_with_areas) {
 		return false;
 	}
@@ -115,10 +119,84 @@ int GodotPhysicsDirectSpaceState2D::intersect_point(const PointParameters &p_par
 	return cc;
 }
 
+int GodotPhysicsDirectSpaceState2D::intersect_ray_all(const RayParameters &p_parameters, RayResult *r_results, int p_result_max) {
+	if (p_result_max <= 0) {
+		return 0;
+	}
+
+	ERR_FAIL_COND_V(space->locked, false);
+
+	Vector2i begin, end;
+	begin = p_parameters.from;
+	end = p_parameters.to;
+
+	int amount = space->broadphase->cull_segment(begin, end, space->intersection_query_results, GodotSpace2D::INTERSECTION_QUERY_MAX, space->intersection_query_subindex_results);
+
+	int cc = 0;
+
+	//todo, create another array that references results, compute AABBs and check closest point to ray origin, sort, and stop evaluating results when beyond first collision
+
+	for (int i = 0; i < amount; i++) {
+		if (cc >= p_result_max) {
+			break;
+		}
+
+		if (!_can_collide_with(space->intersection_query_results[i], p_parameters.collision_mask, p_parameters.collide_with_bodies, p_parameters.collide_with_areas)) {
+			continue;
+		}
+
+		if (p_parameters.exclude.has(space->intersection_query_results[i]->get_self())) {
+			continue;
+		}
+
+		const GodotCollisionObject2D *col_obj = space->intersection_query_results[i];
+
+		int shape_idx = space->intersection_query_subindex_results[i];
+		Transform2Di inv_xform = col_obj->get_shape_inv_transform(shape_idx) * col_obj->get_inv_transform();
+
+		Vector2i local_from = inv_xform.xform(begin);
+		Vector2i local_to = inv_xform.xform(end);
+
+		const GodotShape2D *shape = col_obj->get_shape(shape_idx);
+
+		Vector2i shape_point, shape_normal;
+
+		if (shape->contains_point(local_from)) {
+			if (p_parameters.hit_from_inside) {
+				// Hit shape at starting point.
+				r_results[cc].position = begin;
+				r_results[cc].normal = Vector2i();
+				r_results[cc].shape = shape_idx;
+				r_results[cc].collider_id = col_obj->get_instance_id();
+				if (r_results[cc].collider_id.is_valid()) {
+					r_results[cc].collider = ObjectDB::get_instance(r_results[cc].collider_id);
+				}
+				cc++;
+			}
+			continue;
+		}
+
+		if (shape->intersect_segment(local_from, local_to, shape_point, shape_normal)) {
+			Transform2Di xform = col_obj->get_transform() * col_obj->get_shape_transform(shape_idx);
+			shape_point = xform.xform(shape_point);
+
+			r_results[cc].position = shape_point;
+			r_results[cc].normal = inv_xform.basis_xform_inv(shape_normal).normalized();
+			r_results[cc].shape = shape_idx;
+			r_results[cc].collider_id = col_obj->get_instance_id();
+			if (r_results[cc].collider_id.is_valid()) {
+				r_results[cc].collider = ObjectDB::get_instance(r_results[cc].collider_id);
+			}
+			cc++;
+		}
+	}
+	return cc;
+}
+
 bool GodotPhysicsDirectSpaceState2D::intersect_ray(const RayParameters &p_parameters, RayResult &r_result) {
 	ERR_FAIL_COND_V(space->locked, false);
 
-	Vector2 begin, end;
+	Vector2i begin, end;
 	Vector2 normal;
 	begin = p_parameters.from;
 	end = p_parameters.to;
@@ -129,7 +207,7 @@ bool GodotPhysicsDirectSpaceState2D::intersect_ray(const RayParameters &p_parame
 	//todo, create another array that references results, compute AABBs and check closest point to ray origin, sort, and stop evaluating results when beyond first collision
 
 	bool collided = false;
-	Vector2 res_point, res_normal;
+	Vector2i res_point, res_normal;
 	int res_shape = -1;
 	const GodotCollisionObject2D *res_obj = nullptr;
 	real_t min_d = 1e10;
@@ -160,7 +238,7 @@ bool GodotPhysicsDirectSpaceState2D::intersect_ray(const RayParameters &p_parame
 				// Hit shape at starting point.
 				min_d = 0;
 				res_point = begin;
-				res_normal = Vector2();
+				res_normal = Vector2i();
 				res_shape = shape_idx;
 				res_obj = col_obj;
 				collided = true;

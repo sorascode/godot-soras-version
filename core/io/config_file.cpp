@@ -289,7 +289,6 @@ Error ConfigFile::_parse(const String &p_path, VariantParser::Stream *p_stream) 
 		if (err == ERR_FILE_EOF) {
 			return OK;
 		} else if (err != OK) {
-			ERR_PRINT(vformat("ConfigFile parse error at %s:%d: %s.", p_path, lines, error_text));
 			return err;
 		}
 
