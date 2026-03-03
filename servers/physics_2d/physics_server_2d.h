@@ -738,11 +738,11 @@ public:
 	static Ref<PhysicsRayQueryParameters2D> create(Vector2 p_from, Vector2 p_to, uint32_t p_mask, const TypedArray<RID> &p_exclude);
 	const PhysicsDirectSpaceState2D::RayParameters &get_parameters() const { return parameters; }
 
-	void set_from(const Vector2 &p_from) { parameters.from = p_from; }
-	const Vector2 &get_from() const { return parameters.from; }
+	void set_from(const Vector2i &p_from) { parameters.from = p_from; }
+	const Vector2i &get_from() const { return parameters.from; }
 
-	void set_to(const Vector2 &p_to) { parameters.to = p_to; }
-	const Vector2 &get_to() const { return parameters.to; }
+	void set_to(const Vector2i &p_to) { parameters.to = p_to; }
+	const Vector2i &get_to() const { return parameters.to; }
 
 	void set_collision_mask(uint32_t p_mask) { parameters.collision_mask = p_mask; }
 	uint32_t get_collision_mask() const { return parameters.collision_mask; }
