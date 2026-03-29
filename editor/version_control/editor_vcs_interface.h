@@ -109,7 +109,7 @@ protected:
 	GDVIRTUAL1_REQUIRED(_stage_file, String);
 	GDVIRTUAL1_REQUIRED(_unstage_file, String);
 	GDVIRTUAL1_REQUIRED(_discard_file, String);
-	GDVIRTUAL1_REQUIRED(_commit, String);
+	GDVIRTUAL2_REQUIRED(_commit, String, bool);
 	GDVIRTUAL2R_REQUIRED(TypedArray<Dictionary>, _get_diff, String, int);
 	GDVIRTUAL0R_REQUIRED(bool, _shut_down);
 	GDVIRTUAL0R_REQUIRED(String, _get_vcs_name);
@@ -144,7 +144,7 @@ public:
 	void stage_file(const String &p_file_path);
 	void unstage_file(const String &p_file_path);
 	void discard_file(const String &p_file_path);
-	void commit(const String &p_msg);
+	void commit(const String &p_msg, bool p_amend);
 	List<DiffFile> get_diff(const String &p_identifier, TreeArea p_area);
 	bool shut_down();
 	String get_vcs_name();

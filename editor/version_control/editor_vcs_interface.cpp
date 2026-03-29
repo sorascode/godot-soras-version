@@ -87,8 +87,8 @@ void EditorVCSInterface::discard_file(const String &p_file_path) {
 	GDVIRTUAL_CALL(_discard_file, p_file_path);
 }
 
-void EditorVCSInterface::commit(const String &p_msg) {
-	GDVIRTUAL_CALL(_commit, p_msg);
+void EditorVCSInterface::commit(const String &p_msg, bool p_amend) {
+	GDVIRTUAL_CALL(_commit, p_msg, p_amend);
 }
 
 List<EditorVCSInterface::DiffFile> EditorVCSInterface::get_diff(const String &p_identifier, TreeArea p_area) {
@@ -312,7 +312,7 @@ void EditorVCSInterface::_bind_methods() {
 	GDVIRTUAL_BIND(_stage_file, "file_path");
 	GDVIRTUAL_BIND(_unstage_file, "file_path");
 	GDVIRTUAL_BIND(_discard_file, "file_path");
-	GDVIRTUAL_BIND(_commit, "msg");
+	GDVIRTUAL_BIND(_commit, "msg", "amend");
 	GDVIRTUAL_BIND(_get_diff, "identifier", "area");
 	GDVIRTUAL_BIND(_shut_down);
 	GDVIRTUAL_BIND(_get_vcs_name);

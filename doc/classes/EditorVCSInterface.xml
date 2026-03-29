@@ -20,8 +20,9 @@
 		<method name="_commit" qualifiers="virtual required">
 			<return type="void" />
 			<param index="0" name="msg" type="String" />
+			<param index="1" name="amend" type="bool" />
 			<description>
-				Commits the currently staged changes and applies the commit [param msg] to the resulting commit.
+				Commits the currently staged changes and applies the commit [param msg] to the resulting commit. If [param amend] is [code]true[/code] the commit will modify the most recent commit instead.
 			</description>
 		</method>
 		<method name="_create_branch" qualifiers="virtual required">
