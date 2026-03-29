@@ -182,6 +182,8 @@ bool VersionControlEditorPlugin::_load_plugin(const String &p_name) {
 	_refresh_branch_list();
 	_refresh_remote_list();
 
+	toggle_amend_commit->set_visible(EditorVCSInterface::get_singleton()->allow_amends());
+
 	return true;
 }
 
@@ -319,8 +321,7 @@ void VersionControlEditorPlugin::_toggle_amend_commit(bool p_toggled) {
 	if (p_toggled) {
 		previous_commit_message = commit_message->get_text();
 		commit_message->set_text(amend_commit_message);
-	}
-	else {
+	} else {
 		commit_message->set_text(previous_commit_message);
 		previous_commit_message = "";
 	}
@@ -1310,7 +1311,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
 	ED_SHORTCUT("version_control/commit", TTRC("Commit"), KeyModifierMask::CMD_OR_CTRL | Key::ENTER);
 
-	HBoxContainer* hbox = memnew(HBoxContainer);
+	HBoxContainer *hbox = memnew(HBoxContainer);
 	commit_area->add_child(hbox);
 
 	commit_button = memnew(Button);
