@@ -805,6 +805,7 @@ private:
 		int text_highlight_h_padding;
 		int text_highlight_v_padding;
 
+		int underline_offset;
 		int underline_alpha;
 		int strikethrough_alpha;
 

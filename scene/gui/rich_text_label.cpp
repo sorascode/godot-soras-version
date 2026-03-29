@@ -1048,7 +1048,7 @@ int RichTextLabel::_draw_line(ItemFrame *p_frame, int p_line, const Vector2 &p_o
 		RID rid = text_buf->get_line_rid(line);
 		double l_ascent = TS->shaped_text_get_ascent(rid);
 		Size2 l_size = TS->shaped_text_get_size(rid);
-		double upos = TS->shaped_text_get_underline_position(rid);
+		double upos = TS->shaped_text_get_underline_position(rid) + theme_cache.underline_offset;
 		double uth = TS->shaped_text_get_underline_thickness(rid);
 
 		off.y += l_ascent;
@@ -7843,6 +7843,7 @@ void RichTextLabel::_bind_methods() {
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, RichTextLabel, text_highlight_h_padding);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, RichTextLabel, text_highlight_v_padding);
 
+	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, RichTextLabel, underline_offset);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, RichTextLabel, underline_alpha);
 	BIND_THEME_ITEM(Theme::DATA_TYPE_CONSTANT, RichTextLabel, strikethrough_alpha);
 

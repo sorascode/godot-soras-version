@@ -964,6 +964,9 @@
 		<theme_item name="text_highlight_v_padding" data_type="constant" type="int" default="3">
 			The vertical padding around boxes drawn by the [code][fgcolor][/code] and [code][bgcolor][/code] tags. This does not affect the appearance of text selection. To avoid any risk of neighboring highlights overlapping each other, set this to [code]0[/code] to disable padding.
 		</theme_item>
+		<theme_item name="underline_offset" data_type="constant" type="int" default="0">
+			The underline y offset.
+		</theme_item>
 		<theme_item name="underline_alpha" data_type="constant" type="int" default="50">
 			The default underline color transparency (percent). For underlines with a custom color, this theme item is only used if the custom color's alpha is [code]0.0[/code] (fully transparent).
 		</theme_item>

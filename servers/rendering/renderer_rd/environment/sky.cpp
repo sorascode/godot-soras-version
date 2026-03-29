@@ -921,15 +921,6 @@ void SkyRD::set_texture_format(RD::DataFormat p_texture_format) {
 	texture_format = p_texture_format;
 }
 
-#if defined(MACOS_ENABLED) && defined(__x86_64__)
-void SkyRD::check_cubemap_array() {
-	if (OS::get_singleton()->get_current_rendering_driver_name() == "vulkan" && RenderingServer::get_singleton()->get_video_adapter_name().contains("Intel")) {
-		// Disable texture array reflections on macOS on Intel GPUs due to driver bugs.
-		sky_use_cubemap_array = false;
-	}
-}
-#endif
-
 SkyRD::~SkyRD() {
 	// cleanup anything created in init...
 	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
