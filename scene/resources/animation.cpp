@@ -4926,8 +4926,8 @@ void Animation::compress(uint32_t p_page_size, uint32_t p_fps, float p_split_tol
 			}
 			for (int j = 0; j < 3; j++) {
 				// Can't have zero.
-				if (aabb.size[j] < CMP_EPSILON) {
-					aabb.size[j] = CMP_EPSILON;
+				if (aabb.size[j] < 1) {
+					aabb.size[j] = 1;
 				}
 			}
 			bounds = aabb;
@@ -4946,8 +4946,8 @@ void Animation::compress(uint32_t p_page_size, uint32_t p_fps, float p_split_tol
 			}
 			for (int j = 0; j < 3; j++) {
 				// Can't have zero.
-				if (aabb.size[j] < CMP_EPSILON) {
-					aabb.size[j] = CMP_EPSILON;
+				if (aabb.size[j] < 1) {
+					aabb.size[j] = 1;
 				}
 			}
 			bounds = aabb;

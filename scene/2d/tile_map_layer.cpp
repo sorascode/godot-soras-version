@@ -922,16 +922,13 @@ void TileMapLayer::_physics_update(bool p_force_cleanup) {
 					// Actually merge the polygons.
 					Vector<Vector<Vector2i>> out_rectangles = Geometry2D::merge_many_rectangles(kvbody.value.rectangles, tile_set->get_tile_size(), physics_quadrant_size, quadrant_origin);
 					// Create shapes for each polygon.
-					int body_shape_index = 0;
 					for (Vector<Vector2i> &rectangle : out_rectangles) {
 						Ref<RectangleShape2D> shape;
 						shape.instantiate();
 						shape->set_size(rectangle[0]);
 						shape->set_offset(rectangle[1]);
 						ps->body_add_shape(kvbody.value.body, shape->get_rid());
-						//ps->body_set_shape_as_one_way_collision(kvbody.value.body, body_shape_index, kvbody.key.one_way_collision, kvbody.key.one_way_collision_margin);
 						physics_quadrant->shapes.push_back(shape);
-						body_shape_index++;
 					}
 				}
 			} else {

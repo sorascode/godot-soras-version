@@ -287,6 +287,8 @@ public:
 	void set_rectangles_color(Color p_color);
 	void set_multiple_rectangle_mode(bool p_multiple_polygon_mode);
 
+	static Vector<Vector2i> rectangle_to_polygon(Size2i size, Point2i offset);
+
 	GenericTileRectangleEditor();
 };
 
@@ -512,13 +514,3 @@ public:
 
 	TileDataNavigationEditor();
 };
-
-static Vector<Vector2i> _rectangle_to_polygon(Size2i size, Point2i offset) {
-	Vector<Vector2i> polygon;
-	polygon.resize(4);
-	polygon.write[0] = offset + -(size / 2);
-	polygon.write[1] = offset + Vector2i(size.x + 1, -size.y) / 2;
-	polygon.write[2] = offset + (size + Vector2i(1, 1)) / 2;
-	polygon.write[3] = offset + Vector2i(-size.x, size.y + 1) / 2;
-	return polygon;
-}

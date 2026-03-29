@@ -236,7 +236,7 @@ void Voxelizer::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p_z, co
 		int half = (1 << cell_subdiv) >> (p_level + 1);
 		for (int i = 0; i < 8; i++) {
 			AABB aabb = p_aabb;
-			aabb.size *= 0.5;
+			aabb.size /= 2;
 
 			int nx = p_x;
 			int ny = p_y;
@@ -262,7 +262,7 @@ void Voxelizer::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p_z, co
 			{
 				AABB test_aabb = aabb;
 				//test_aabb.grow_by(test_aabb.get_longest_axis_size()*0.05); //grow a bit to avoid numerical error in real-time
-				Vector3 qsize = test_aabb.size * 0.5; //quarter size, for fast aabb test
+				Vector3 qsize = test_aabb.size / 2; //quarter size, for fast aabb test
 
 				if (!Geometry3D::triangle_box_overlap(test_aabb.position + qsize, qsize, p_vtx)) {
 					//if (!Face3(p_vtx[0],p_vtx[1],p_vtx[2]).intersects_aabb2(aabb)) {
@@ -477,7 +477,7 @@ Voxelizer::BakeResult Voxelizer::plot_mesh(const Transform3D &p_xform, Ref<Mesh>
 				}
 
 				//test against original bounds
-				if (!Geometry3D::triangle_box_overlap(original_bounds.get_center(), original_bounds.size * 0.5, vtxs)) {
+				if (!Geometry3D::triangle_box_overlap(original_bounds.get_center(), original_bounds.size / 2, vtxs)) {
 					continue;
 				}
 				//plot
@@ -516,7 +516,7 @@ Voxelizer::BakeResult Voxelizer::plot_mesh(const Transform3D &p_xform, Ref<Mesh>
 				}
 
 				//test against original bounds
-				if (!Geometry3D::triangle_box_overlap(original_bounds.get_center(), original_bounds.size * 0.5, vtxs)) {
+				if (!Geometry3D::triangle_box_overlap(original_bounds.get_center(), original_bounds.size / 2, vtxs)) {
 					continue;
 				}
 				//plot face
@@ -958,7 +958,7 @@ void Voxelizer::_debug_mesh(int p_idx, int p_level, const AABB &p_aabb, Ref<Mult
 		Vector3 center = p_aabb.get_center();
 		Transform3D xform;
 		xform.origin = center;
-		xform.basis.scale(p_aabb.size * 0.5);
+		xform.basis.scale(p_aabb.size / 2);
 		p_multimesh->set_instance_transform(idx, xform);
 		Color col;
 		col = Color(bake_cells[p_idx].albedo[0], bake_cells[p_idx].albedo[1], bake_cells[p_idx].albedo[2]);
@@ -976,7 +976,7 @@ void Voxelizer::_debug_mesh(int p_idx, int p_level, const AABB &p_aabb, Ref<Mult
 			}
 
 			AABB aabb = p_aabb;
-			aabb.size *= 0.5;
+			aabb.size /= 2;
 
 			if (i & 1) {
 				aabb.position.x += aabb.size.x;
