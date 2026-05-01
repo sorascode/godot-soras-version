@@ -3084,7 +3084,6 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				instance_data->modulation[3] = color.a;
 			} break;
 
-
 			case Item::Command::TYPE_POLYGON_I: {
 				const Item::CommandPolygonI *polygon_i = static_cast<const Item::CommandPolygonI *>(c);
 
@@ -3096,6 +3095,7 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 				r_current_batch->command = c;
 				r_current_batch->flags = 0;
 				r_current_batch->use_msdf = false;
+				r_current_batch->use_lcd = false;
 
 				TextureState tex_state(polygon_i->texture, texture_filter, texture_repeat, false, use_linear_colors);
 				TextureInfo *tex_info = texture_info_map.getptr(tex_state);
@@ -3592,10 +3592,11 @@ void RendererCanvasRenderRD::_render_batch(RD::DrawListID p_draw_list, CanvasSha
 			PolygonBuffers *pb = polygon_buffers.polygons.getptr(polygon_i->polygon.polygon_id);
 			ERR_FAIL_NULL(pb);
 
-			RD::get_singleton()->draw_list_set_push_constant(p_draw_list, &push_constant, sizeof(push_constant));
+			pipeline_key.vertex_format_id = pb->vertex_format_id;
+			pipeline = _get_pipeline_specialization_or_ubershader(p_shader_data, pipeline_key, push_constant);
 			RD::get_singleton()->draw_list_bind_render_pipeline(p_draw_list, pipeline);
 
-			RD::get_singleton()->draw_list_set_push_constant(p_draw_list, &push_constant, sizeof(PushConstant));
+			RD::get_singleton()->draw_list_set_push_constant(p_draw_list, &push_constant, sizeof(push_constant));
 			RD::get_singleton()->draw_list_bind_vertex_array(p_draw_list, pb->vertex_array);
 			if (pb->indices.is_valid()) {
 				RD::get_singleton()->draw_list_bind_index_array(p_draw_list, pb->indices);
