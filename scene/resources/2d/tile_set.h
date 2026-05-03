@@ -40,6 +40,7 @@
 #include "scene/resources/image_texture.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/physics_material.h"
+#include "tile_set.h"
 
 #ifndef PHYSICS_2D_DISABLED
 #include "scene/resources/2d/rectangle_shape_2d.h"
@@ -57,6 +58,7 @@ class TileMap;
 class TileSetSource;
 class TileSetAtlasSource;
 class TileData;
+class AlternativeTileData;
 
 union TileMapCell {
 	struct {
@@ -806,7 +808,7 @@ public:
 class TileData : public Object {
 	GDCLASS(TileData, Object);
 
-private:
+protected:
 	const TileSet *tile_set = nullptr;
 	bool allow_transform = true;
 
@@ -865,7 +867,6 @@ private:
 	// Custom data
 	Vector<Variant> custom_data;
 
-protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
@@ -883,7 +884,7 @@ protected:
 public:
 	// Not exposed.
 	void set_tile_set(const TileSet *p_tile_set);
-	void notify_tile_data_properties_should_change();
+	virtual void notify_tile_data_properties_should_change();
 	void add_occlusion_layer(int p_index);
 	void move_occlusion_layer(int p_from_index, int p_to_pos);
 	void remove_occlusion_layer(int p_index);
@@ -952,6 +953,7 @@ public:
 	void add_collision_rectangle(int p_layer_id);
 	void remove_collision_rectangle(int p_layer_id, int p_rectangle_index);
 	void set_collision_rectangle_data(int p_layer_id, int p_rectangle_index, Vector<Vector2i> p_data);
+	void set_collision_rectangle(int p_layer_id, int p_rectangle_index, Ref<RectangleShape2D> shape);
 	Vector<Vector2i> get_collision_rectangle_data(int p_layer_id, int p_rectangle_index) const;
 	void set_collision_one_way(int p_layer_id, bool p_one_way);
 	bool is_collision_one_way(int p_layer_id) const;
@@ -990,6 +992,19 @@ public:
 	static PackedVector2Array get_transformed_vertices(const PackedVector2Array &p_vertices, bool p_flip_h, bool p_flip_v, bool p_transpose, bool p_preserve_winding_order = false);
 	static Vector2i get_transformed_size(const Vector2i &p_size, bool p_transpose);
 	static Vector2i get_transformed_offset(const Vector2i &p_offset, const Vector2i &p_size, bool p_flip_h, bool p_flip_v, bool p_transpose);
+
+	static TileSet::CellNeighbor transformed_cell_neighbour(TileSet::CellNeighbor p_cell_neighbor, bool p_flip_h, bool p_flip_v, bool p_transpose);
+};
+
+class AlternativeTileData : public TileData {
+	GDCLASS(AlternativeTileData, TileData);
+
+private:
+	TileData *base = nullptr;
+public:
+	// Not exposed.
+	void set_base(TileData *p_base);
+	void notify_tile_data_properties_should_change() override;
 };
 
 VARIANT_ENUM_CAST(TileSet::CellNeighbor);
