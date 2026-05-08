@@ -166,6 +166,7 @@
 #endif
 
 // 2D
+#include "2d/line_builder.h"
 #include "resources/color_texture.h"
 #include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/audio_listener_2d.h"
@@ -914,6 +915,7 @@ void register_scene_types() {
 	GDREGISTER_CLASS(SpriteFrames);
 	GDREGISTER_CLASS(AnimatedSprite2D);
 	GDREGISTER_CLASS(Marker2D);
+	GDREGISTER_CLASS(LineBuilder);
 	GDREGISTER_CLASS(Line2D);
 	GDREGISTER_CLASS(MeshInstance2D);
 	GDREGISTER_CLASS(MultiMeshInstance2D);

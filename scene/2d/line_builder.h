@@ -31,8 +31,14 @@
 #pragma once
 
 #include "line_2d.h"
+#include "core/object/ref_counted.h"
 
-class LineBuilder {
+class LineBuilder : public RefCounted {
+	GDCLASS(LineBuilder, RefCounted);
+
+protected:
+	static void _bind_methods();
+
 public:
 	// TODO Move in a struct and reference it
 	// Input
@@ -42,9 +48,9 @@ public:
 	Line2D::LineCapMode end_cap_mode = Line2D::LINE_CAP_NONE;
 	bool closed = false;
 	float width = 10.0;
-	Curve *curve = nullptr;
-	Color default_color = Color(0.4, 0.5, 1);
-	Gradient *gradient = nullptr;
+	Ref<Curve> curve = nullptr;
+	Color default_color = Color(1, 1, 1);
+	Ref<Gradient> gradient = nullptr;
 	Line2D::LineTextureMode texture_mode = Line2D::LineTextureMode::LINE_TEXTURE_NONE;
 	float sharp_limit = 2.f;
 	int round_precision = 8;
@@ -58,7 +64,49 @@ public:
 	Vector<Vector2> uvs;
 	Vector<int> indices;
 
-	LineBuilder();
+	Vector<Vector2> get_points() const;
+	void set_points(const Vector<Vector2> &p_points);
+
+	Line2D::LineJointMode get_joint_mode() const;
+	void set_joint_mode(Line2D::LineJointMode p_joint_mode);
+
+	Line2D::LineCapMode get_begin_cap_mode() const;
+	void set_begin_cap_mode(Line2D::LineCapMode p_begin_cap_mode);
+
+	Line2D::LineCapMode get_end_cap_mode() const;
+	void set_end_cap_mode(Line2D::LineCapMode p_end_cap_mode);
+
+	bool is_closed() const;
+	void set_closed(bool p_closed);
+
+	float get_width() const;
+	void set_width(float p_width);
+
+	Ref<Curve> get_curve() const;
+	void set_curve(const Ref<Curve> &p_curve);
+
+	Color get_default_color() const;
+	void set_default_color(Color p_default_color);
+
+	Ref<Gradient> get_gradient() const;
+	void set_gradient(const Ref<Gradient> &p_gradient);
+
+	Line2D::LineTextureMode get_texture_mode() const;
+	void set_texture_mode(Line2D::LineTextureMode p_texture_mode);
+
+	float get_sharp_limit() const;
+	void set_sharp_limit(float p_sharp_limit);
+
+	int get_round_precision() const;
+	void set_round_precision(int p_round_precision);
+
+	float get_tile_aspect() const;
+	void set_tile_aspect(float p_tile_aspect);
+
+	Vector<Vector2> get_vertices() const;
+	Vector<Color> get_colors() const;
+	Vector<Vector2> get_uvs() const;
+	Vector<int> get_indices() const;
 
 	void build();
 

@@ -39,7 +39,124 @@ static inline Vector2 interpolate(const Rect2 &r, const Vector2 &v) {
 			Math::lerp(r.position.y, r.position.y + r.get_size().y, v.y));
 }
 
-LineBuilder::LineBuilder() {
+Vector<Vector2> LineBuilder::get_points() const {
+	return points;
+}
+
+void LineBuilder::set_points(const Vector<Vector2> &p_points) {
+	points = p_points;
+}
+
+Line2D::LineJointMode LineBuilder::get_joint_mode() const {
+	return joint_mode;
+}
+
+void LineBuilder::set_joint_mode(Line2D::LineJointMode p_joint_mode) {
+	joint_mode = p_joint_mode;
+}
+
+Line2D::LineCapMode LineBuilder::get_begin_cap_mode() const {
+	return begin_cap_mode;
+}
+
+void LineBuilder::set_begin_cap_mode(Line2D::LineCapMode p_begin_cap_mode) {
+	begin_cap_mode = p_begin_cap_mode;
+}
+
+Line2D::LineCapMode LineBuilder::get_end_cap_mode() const {
+	return end_cap_mode;
+}
+
+void LineBuilder::set_end_cap_mode(Line2D::LineCapMode p_end_cap_mode) {
+	end_cap_mode = p_end_cap_mode;
+}
+
+bool LineBuilder::is_closed() const {
+	return closed;
+}
+
+void LineBuilder::set_closed(bool p_closed) {
+	closed = p_closed;
+}
+
+float LineBuilder::get_width() const {
+	return width;
+}
+
+void LineBuilder::set_width(float p_width) {
+	width = p_width;
+}
+
+Ref<Curve> LineBuilder::get_curve() const {
+	return curve;
+}
+
+void LineBuilder::set_curve(const Ref<Curve> &p_curve) {
+	curve = p_curve;
+}
+
+Color LineBuilder::get_default_color() const {
+	return default_color;
+}
+
+void LineBuilder::set_default_color(Color p_default_color) {
+	default_color = p_default_color;
+}
+
+Ref<Gradient> LineBuilder::get_gradient() const {
+	return gradient;
+}
+
+void LineBuilder::set_gradient(const Ref<Gradient> &p_gradient) {
+	gradient = p_gradient;
+}
+
+Line2D::LineTextureMode LineBuilder::get_texture_mode() const {
+	return texture_mode;
+}
+
+void LineBuilder::set_texture_mode(Line2D::LineTextureMode p_texture_mode) {
+	texture_mode = p_texture_mode;
+}
+
+float LineBuilder::get_sharp_limit() const {
+	return sharp_limit;
+}
+
+void LineBuilder::set_sharp_limit(float p_sharp_limit) {
+	sharp_limit = p_sharp_limit;
+}
+
+int LineBuilder::get_round_precision() const {
+	return round_precision;
+}
+
+void LineBuilder::set_round_precision(int p_round_precision) {
+	round_precision = p_round_precision;
+}
+
+float LineBuilder::get_tile_aspect() const {
+	return tile_aspect;
+}
+
+void LineBuilder::set_tile_aspect(float p_tile_aspect) {
+	tile_aspect = p_tile_aspect;
+}
+
+Vector<Vector2> LineBuilder::get_vertices() const {
+	return vertices;
+}
+
+Vector<Color> LineBuilder::get_colors() const {
+	return colors;
+}
+
+Vector<Vector2> LineBuilder::get_uvs() const {
+	return uvs;
+}
+
+Vector<int> LineBuilder::get_indices() const {
+	return indices;
 }
 
 void LineBuilder::build() {
@@ -595,4 +712,67 @@ void LineBuilder::new_arc(Vector2 center, Vector2 vbegin, float angle_delta, Col
 		indices.push_back(++vi);
 		indices.push_back(vi + 1);
 	}
+}
+
+
+void LineBuilder::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("build"), &LineBuilder::build);
+
+	ClassDB::bind_method(D_METHOD("get_points"), &LineBuilder::get_points);
+	ClassDB::bind_method(D_METHOD("set_points", "points"), &LineBuilder::set_points);
+
+	ClassDB::bind_method(D_METHOD("get_joint_mode"), &LineBuilder::get_joint_mode);
+	ClassDB::bind_method(D_METHOD("set_joint_mode", "joint_mode"), &LineBuilder::set_joint_mode);
+
+	ClassDB::bind_method(D_METHOD("get_begin_cap_mode"), &LineBuilder::get_begin_cap_mode);
+	ClassDB::bind_method(D_METHOD("set_begin_cap_mode", "begin_cap_mode"), &LineBuilder::set_begin_cap_mode);
+
+	ClassDB::bind_method(D_METHOD("get_end_cap_mode"), &LineBuilder::get_end_cap_mode);
+	ClassDB::bind_method(D_METHOD("set_end_cap_mode", "end_cap_mode"), &LineBuilder::set_end_cap_mode);
+
+	ClassDB::bind_method(D_METHOD("is_closed"), &LineBuilder::is_closed);
+	ClassDB::bind_method(D_METHOD("set_closed", "closed"), &LineBuilder::set_closed);
+
+	ClassDB::bind_method(D_METHOD("get_width"), &LineBuilder::get_width);
+	ClassDB::bind_method(D_METHOD("set_width", "width"), &LineBuilder::set_width);
+
+	ClassDB::bind_method(D_METHOD("get_curve"), &LineBuilder::get_curve);
+	ClassDB::bind_method(D_METHOD("set_curve", "curve"), &LineBuilder::set_curve);
+
+	ClassDB::bind_method(D_METHOD("get_default_color"), &LineBuilder::get_default_color);
+	ClassDB::bind_method(D_METHOD("set_default_color", "default_color"), &LineBuilder::set_default_color);
+
+	ClassDB::bind_method(D_METHOD("get_gradient"), &LineBuilder::get_gradient);
+	ClassDB::bind_method(D_METHOD("set_gradient", "gradient"), &LineBuilder::set_gradient);
+
+	ClassDB::bind_method(D_METHOD("get_texture_mode"), &LineBuilder::get_texture_mode);
+	ClassDB::bind_method(D_METHOD("set_texture_mode", "texture_mode"), &LineBuilder::set_texture_mode);
+
+	ClassDB::bind_method(D_METHOD("get_sharp_limit"), &LineBuilder::get_sharp_limit);
+	ClassDB::bind_method(D_METHOD("set_sharp_limit", "sharp_limit"), &LineBuilder::set_sharp_limit);
+
+	ClassDB::bind_method(D_METHOD("get_round_precision"), &LineBuilder::get_round_precision);
+	ClassDB::bind_method(D_METHOD("set_round_precision", "round_precision"), &LineBuilder::set_round_precision);
+
+	ClassDB::bind_method(D_METHOD("get_tile_aspect"), &LineBuilder::get_tile_aspect);
+	ClassDB::bind_method(D_METHOD("set_tile_aspect", "tile_aspect"), &LineBuilder::set_tile_aspect);
+
+	ClassDB::bind_method(D_METHOD("get_vertices"), &LineBuilder::get_vertices);
+	ClassDB::bind_method(D_METHOD("get_colors"), &LineBuilder::get_colors);
+	ClassDB::bind_method(D_METHOD("get_uvs"), &LineBuilder::get_uvs);
+	ClassDB::bind_method(D_METHOD("get_indices"), &LineBuilder::get_indices);
+
+	ADD_PROPERTY(PropertyInfo(Variant::PACKED_VECTOR2_ARRAY, "points"), "set_points", "get_points");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "joint_mode", PROPERTY_HINT_ENUM, "Sharp,Bevel,Round"), "set_joint_mode", "get_joint_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "begin_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "end_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "closed"), "set_closed", "is_closed");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "width", PROPERTY_HINT_NONE, "suffix:px"), "set_width", "get_width");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
+	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "default_color"), "set_default_color", "get_default_color");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "texture_mode", PROPERTY_HINT_ENUM, "None,Tile,Stretch"), "set_texture_mode", "get_texture_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "round_precision", PROPERTY_HINT_RANGE, "1,32,1"), "set_round_precision", "get_round_precision");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "tile_aspect"), "set_tile_aspect", "get_tile_aspect");
 }
