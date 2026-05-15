@@ -270,6 +270,14 @@ bool SolidBody2D::is_one_way_collision_enabled() const {
 	return one_way_collision;
 }
 
+void SolidBody2D::set_safe(bool p_enable) {
+	safe = p_enable;
+}
+
+bool SolidBody2D::is_safe() const {
+	return safe;
+}
+
 void SolidBody2D::update_riders() {
 	riders.clear();
 	if (one_way_collision) {
@@ -286,6 +294,8 @@ void SolidBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("move_v_exact_collide", "amount", "collision_callback", "pusher"), &SolidBody2D::_move_v_exact_collide, DEFVAL(0), DEFVAL(Callable()), DEFVAL(RID()));
 	ClassDB::bind_method(D_METHOD("set_one_way_collision", "enabled"), &SolidBody2D::set_one_way_collision);
 	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &SolidBody2D::is_one_way_collision_enabled);
+	ClassDB::bind_method(D_METHOD("set_safe", "enabled"), &SolidBody2D::set_safe);
+	ClassDB::bind_method(D_METHOD("is_safe"), &SolidBody2D::is_safe);
 	ClassDB::bind_method(D_METHOD("set_transfer_speed", "speed"), &SolidBody2D::set_transfer_speed);
 	ClassDB::bind_method(D_METHOD("get_transfer_speed"), &SolidBody2D::get_transfer_speed);
 	ClassDB::bind_method(D_METHOD("update_riders"), &SolidBody2D::update_riders);
@@ -293,6 +303,7 @@ void SolidBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_rider"), &SolidBody2D::has_rider);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "safe"), "set_safe", "is_safe");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "transfer_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_transfer_speed", "get_transfer_speed");
 
 	GDVIRTUAL_BIND(_move_h_exact_collide, "amount", "collision_callback", "pusher");

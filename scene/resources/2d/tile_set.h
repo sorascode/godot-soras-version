@@ -839,6 +839,7 @@ protected:
 		};
 
 		bool one_way = false;
+		bool safe = true;
 		Vector2 linear_velocity;
 		double angular_velocity = 0.0;
 		Vector<PolygonShapeTileData> rectangles;
@@ -957,6 +958,8 @@ public:
 	Vector<Vector2i> get_collision_rectangle_data(int p_layer_id, int p_rectangle_index) const;
 	void set_collision_one_way(int p_layer_id, bool p_one_way);
 	bool is_collision_one_way(int p_layer_id) const;
+	void set_safe(int p_layer_id, bool p_one_way);
+	bool is_safe(int p_layer_id) const;
 	Ref<RectangleShape2D> get_collision_rectangle_shape(int p_layer_id, int p_rectangle_index, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false) const;
 #endif // PHYSICS_2D_DISABLED
 

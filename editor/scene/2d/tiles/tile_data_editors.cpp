@@ -2429,6 +2429,7 @@ void TileDataCollisionEditor::_set_painted_value(TileSetAtlasSource *p_tile_set_
 	dummy_object->set("linear_velocity", tile_data->get_constant_linear_velocity(physics_layer));
 	dummy_object->set("angular_velocity", tile_data->get_constant_angular_velocity(physics_layer));
 	dummy_object->set("one_way", tile_data->is_collision_one_way(physics_layer));
+	dummy_object->set("safe", tile_data->is_safe(physics_layer));
 	for (const KeyValue<StringName, EditorProperty *> &E : property_editors) {
 		E.value->update_property();
 	}
@@ -2444,6 +2445,7 @@ void TileDataCollisionEditor::_set_value(TileSetAtlasSource *p_tile_set_atlas_so
 	tile_data->set_constant_linear_velocity(physics_layer, dict["linear_velocity"]);
 	tile_data->set_constant_angular_velocity(physics_layer, dict["angular_velocity"]);
 	tile_data->set_collision_one_way(physics_layer, dict["one_way"]);
+	tile_data->set_safe(physics_layer, dict["safe"]);
 	Array array = dict["rectangles"];
 	tile_data->set_collision_rectangles_count(physics_layer, array.size());
 	for (int i = 0; i < array.size(); i++) {
@@ -2462,6 +2464,7 @@ Variant TileDataCollisionEditor::_get_value(TileSetAtlasSource *p_tile_set_atlas
 	dict["linear_velocity"] = tile_data->get_constant_linear_velocity(physics_layer);
 	dict["angular_velocity"] = tile_data->get_constant_angular_velocity(physics_layer);
 	dict["one_way"] = tile_data->is_collision_one_way(physics_layer);
+	dict["safe"] = tile_data->is_safe(physics_layer);
 	Array array;
 	for (int i = 0; i < tile_data->get_collision_rectangles_count(physics_layer); i++) {
 		Dictionary rectangle_dict;

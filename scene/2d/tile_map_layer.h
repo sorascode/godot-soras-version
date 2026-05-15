@@ -245,6 +245,7 @@ public:
 		real_t angular_velocity = 0.0;
 
 		bool one_way_collision = false;
+		bool safe = true;
 
 		int64_t y_origin = 0; // This is only used if one_way_collision is on, to avoid merging rectangles vertically in that case.
 
@@ -252,12 +253,15 @@ public:
 			if (physics_layer == p_other.physics_layer) {
 				if (linear_velocity == p_other.linear_velocity) {
 					if (angular_velocity == p_other.angular_velocity) {
-						if (one_way_collision == p_other.one_way_collision) {
-							if (one_way_collision && y_origin != p_other.y_origin) {
-								return y_origin < p_other.y_origin;
+						if (safe == p_other.safe) {
+							if (one_way_collision == p_other.one_way_collision) {
+								if (one_way_collision && y_origin != p_other.y_origin) {
+									return y_origin < p_other.y_origin;
+								}
 							}
+							return one_way_collision < p_other.one_way_collision;
 						}
-						return one_way_collision < p_other.one_way_collision;
+						return safe < p_other.safe;
 					}
 					return angular_velocity < p_other.angular_velocity;
 				}
@@ -273,6 +277,7 @@ public:
 			return physics_layer == p_other.physics_layer &&
 					linear_velocity == p_other.linear_velocity &&
 					angular_velocity == p_other.angular_velocity &&
+					safe == p_other.safe &&
 					one_way_collision == p_other.one_way_collision &&
 					(!one_way_collision || y_origin == p_other.y_origin);
 		}
@@ -284,6 +289,7 @@ public:
 			h = hash_murmur3_one_real(p_hash.linear_velocity.x);
 			h = hash_murmur3_one_real(p_hash.linear_velocity.y, h);
 			h = hash_murmur3_one_real(p_hash.angular_velocity, h);
+			h = hash_murmur3_one_real(p_hash.safe, h);
 			if (p_hash.one_way_collision) {
 				h = hash_murmur3_one_32(p_hash.y_origin, h);
 			}

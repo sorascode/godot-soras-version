@@ -864,6 +864,7 @@ void TileMapLayer::_physics_update(bool p_force_cleanup) {
 						Vector2 linear_velocity = tile_data->get_constant_linear_velocity(tile_set_physics_layer);
 						real_t angular_velocity = tile_data->get_constant_angular_velocity(tile_set_physics_layer);
 						bool one_way_collision = tile_data->is_collision_one_way(tile_set_physics_layer);
+						bool safe = tile_data->is_safe(tile_set_physics_layer);
 
 						// Setup polygons for merge.
 						for (int rectangle_index = 0; rectangle_index < tile_data->get_collision_rectangles_count(tile_set_physics_layer); rectangle_index++) {
@@ -873,6 +874,7 @@ void TileMapLayer::_physics_update(bool p_force_cleanup) {
 							physics_body_key.linear_velocity = linear_velocity;
 							physics_body_key.angular_velocity = angular_velocity;
 							physics_body_key.one_way_collision = one_way_collision;
+							physics_body_key.safe = safe;
 							physics_body_key.y_origin = map_to_local(cell_data.coords).y;
 
 							if (!physics_quadrant->bodies.has(physics_body_key)) {

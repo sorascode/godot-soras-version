@@ -4983,6 +4983,17 @@ bool TileData::is_collision_one_way(int p_layer_id) const {
 	return physics[p_layer_id].one_way;
 }
 
+void TileData::set_safe(int p_layer_id, bool p_safe) {
+	ERR_FAIL_INDEX(p_layer_id, physics.size());
+	physics.write[p_layer_id].safe = p_safe;
+	emit_signal(CoreStringName(changed));
+}
+
+bool TileData::is_safe(int p_layer_id) const {
+	ERR_FAIL_INDEX_V(p_layer_id, physics.size(), false);
+	return physics[p_layer_id].safe;
+}
+
 Ref<RectangleShape2D> TileData::get_collision_rectangle_shape(int p_layer_id, int p_rectangle_index, bool p_flip_h, bool p_flip_v, bool p_transpose) const {
 	ERR_FAIL_INDEX_V(p_layer_id, physics.size(), Ref<RectangleShape2D>());
 	ERR_FAIL_INDEX_V(p_rectangle_index, physics[p_layer_id].rectangles.size(), Ref<RectangleShape2D>());
@@ -5330,6 +5341,9 @@ bool TileData::_set(const StringName &p_name, const Variant &p_value) {
 			} else if (components[1] == "one_way") {
 				set_collision_one_way(layer_index, p_value);
 				return true;
+			} else if (components[1] == "safe") {
+				set_safe(layer_index, p_value);
+				return true;
 			} else if (components[1] == "rectangles_count") {
 				if (p_value.get_type() != Variant::INT) {
 					return false;
@@ -5475,6 +5489,9 @@ bool TileData::_get(const StringName &p_name, Variant &r_ret) const {
 				} else if (components[1] == "one_way") {
 					r_ret = is_collision_one_way(layer_index);
 					return true;
+				} else if (components[1] == "safe") {
+					r_ret = is_safe(layer_index);
+					return true;
 				} else if (components[1] == "rectangles_count") {
 					r_ret = get_collision_rectangles_count(layer_index);
 					return true;
@@ -5574,6 +5591,13 @@ void TileData::_get_property_list(List<PropertyInfo> *p_list) const {
 			}
 			p_list->push_back(property_info);
 
+			// physics_layer_%d/safe
+			property_info = PropertyInfo(Variant::BOOL, vformat("physics_layer_%d/%s", i, PNAME("safe")), PROPERTY_HINT_NONE);
+			if (physics[i].safe == false) {
+				property_info.usage ^= PROPERTY_USAGE_STORAGE;
+			}
+			p_list->push_back(property_info);
+
 			p_list->push_back(PropertyInfo(Variant::INT, vformat("physics_layer_%d/%s", i, PNAME("rectangles_count")), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 
 			for (int j = 0; j < physics[i].rectangles.size(); j++) {
@@ -5668,6 +5692,8 @@ void TileData::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_constant_angular_velocity", "layer_id"), &TileData::get_constant_angular_velocity);
 	ClassDB::bind_method(D_METHOD("set_collision_one_way", "layer_id", "one_way"), &TileData::set_collision_one_way);
 	ClassDB::bind_method(D_METHOD("is_collision_one_way", "layer_id"), &TileData::is_collision_one_way);
+	ClassDB::bind_method(D_METHOD("set_safe", "layer_id", "one_way"), &TileData::set_safe);
+	ClassDB::bind_method(D_METHOD("is_safe", "layer_id"), &TileData::is_safe);
 	ClassDB::bind_method(D_METHOD("set_collision_rectangles_count", "layer_id", "rectangles_count"), &TileData::set_collision_rectangles_count);
 	ClassDB::bind_method(D_METHOD("get_collision_rectangles_count", "layer_id"), &TileData::get_collision_rectangles_count);
 	ClassDB::bind_method(D_METHOD("add_collision_rectangle", "layer_id"), &TileData::add_collision_rectangle);
@@ -5902,6 +5928,7 @@ void AlternativeTileData::notify_tile_data_properties_should_change() {
 #ifndef PHYSICS_2D_DISABLED
 	for (int i = 0; i < physics.size(); i++) {
 		set_collision_one_way(i, base->is_collision_one_way(i));
+		set_safe(i, base->is_safe(i));
 		set_constant_linear_velocity(i, base->get_constant_linear_velocity(i));
 		set_constant_angular_velocity(i, base->get_constant_angular_velocity(i));
 		int base_count = base->get_collision_rectangles_count(i);
