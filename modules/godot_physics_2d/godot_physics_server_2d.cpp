@@ -1120,9 +1120,9 @@ bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Vector2i &p_d
 	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
 
 	GodotBody2D *other = body_owner.get_or_null(p_other);
-	ERR_FAIL_NULL_V(other, false);
-	ERR_FAIL_NULL_V(other->get_space(), false);
-	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+	if (other == nullptr || other->get_space() == nullptr || other->get_space()->is_locked()) {
+		return false;
+	}
 
 	_update_shapes();
 
@@ -1147,9 +1147,9 @@ bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Vector2i &p_d
 	ERR_FAIL_COND_V(area->get_space()->is_locked(), false);
 
 	GodotBody2D *other = body_owner.get_or_null(p_other);
-	ERR_FAIL_NULL_V(other, false);
-	ERR_FAIL_NULL_V(other->get_space(), false);
-	ERR_FAIL_COND_V(other->get_space()->is_locked(), false);
+	if (other == nullptr || other->get_space() == nullptr || other->get_space()->is_locked()) {
+		return false;
+	}
 
 	_update_shapes();
 
