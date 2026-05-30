@@ -452,6 +452,7 @@ class CanvasTexture : public Texture2D {
 
 	Ref<Texture2D> diffuse_texture;
 	Ref<Texture2D> normal_texture;
+	Ref<Texture2D> depth_texture;
 	Ref<Texture2D> specular_texture;
 	Color specular = Color(1, 1, 1, 1);
 	real_t shininess = 1.0;
@@ -470,6 +471,9 @@ public:
 
 	void set_normal_texture(const Ref<Texture2D> &p_normal);
 	Ref<Texture2D> get_normal_texture() const;
+
+	void set_depth_texture(const Ref<Texture2D> &p_depth);
+	Ref<Texture2D> get_depth_texture() const;
 
 	void set_specular_texture(const Ref<Texture2D> &p_specular);
 	Ref<Texture2D> get_specular_texture() const;

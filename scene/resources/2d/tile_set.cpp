@@ -4241,6 +4241,12 @@ void TileSetAtlasSource::_update_padded_texture() {
 			padded_texture->set_normal_texture(_create_padded_image_texture(src));
 		}
 
+		// Depth
+		src = src_canvas_texture->get_depth_texture();
+		if (src.is_valid()) {
+			padded_texture->set_depth_texture(_create_padded_image_texture(src));
+		}
+
 		// Specular
 		src = src_canvas_texture->get_specular_texture();
 		if (src.is_valid()) {

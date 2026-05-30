@@ -1923,6 +1923,20 @@ Ref<Texture2D> CanvasTexture::get_normal_texture() const {
 	return normal_texture;
 }
 
+void CanvasTexture::set_depth_texture(const Ref<Texture2D> &p_depth) {
+	ERR_FAIL_COND_MSG(Object::cast_to<CanvasTexture>(p_depth.ptr()) != nullptr, "Can't self-assign a CanvasTexture");
+	if (depth_texture == p_depth) {
+		return;
+	}
+	depth_texture = p_depth;
+	RID tex_rid = depth_texture.is_valid() ? depth_texture->get_rid() : RID();
+	RS::get_singleton()->canvas_texture_set_channel(canvas_texture, RS::CANVAS_TEXTURE_CHANNEL_DEPTH, tex_rid);
+	emit_changed();
+}
+Ref<Texture2D> CanvasTexture::get_depth_texture() const {
+	return depth_texture;
+}
+
 void CanvasTexture::set_specular_texture(const Ref<Texture2D> &p_specular) {
 	ERR_FAIL_COND_MSG(Object::cast_to<CanvasTexture>(p_specular.ptr()) != nullptr, "Can't self-assign a CanvasTexture");
 	if (specular_texture == p_specular) {
@@ -2038,6 +2052,9 @@ void CanvasTexture::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_normal_texture", "texture"), &CanvasTexture::set_normal_texture);
 	ClassDB::bind_method(D_METHOD("get_normal_texture"), &CanvasTexture::get_normal_texture);
 
+	ClassDB::bind_method(D_METHOD("set_depth_texture", "texture"), &CanvasTexture::set_depth_texture);
+	ClassDB::bind_method(D_METHOD("get_depth_texture"), &CanvasTexture::get_depth_texture);
+
 	ClassDB::bind_method(D_METHOD("set_specular_texture", "texture"), &CanvasTexture::set_specular_texture);
 	ClassDB::bind_method(D_METHOD("get_specular_texture"), &CanvasTexture::get_specular_texture);
 
@@ -2057,6 +2074,8 @@ void CanvasTexture::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "diffuse_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_diffuse_texture", "get_diffuse_texture");
 	ADD_GROUP("NormalMap", "normal_");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_normal_texture", "get_normal_texture");
+	ADD_GROUP("Depth", "depth_");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "depth_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_depth_texture", "get_depth_texture");
 	ADD_GROUP("Specular", "specular_");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "specular_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture2D"), "set_specular_texture", "get_specular_texture");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "specular_color", PROPERTY_HINT_COLOR_NO_ALPHA), "set_specular_color", "get_specular_color");

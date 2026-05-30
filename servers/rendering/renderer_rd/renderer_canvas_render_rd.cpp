@@ -2126,7 +2126,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 	}
 
 	// preallocate slots for uniform set 3
-	state.batch_texture_uniforms.resize(4);
+	state.batch_texture_uniforms.resize(5);
 
 	{ //shader variants
 
@@ -2182,6 +2182,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.renames["TEXTURE"] = "color_texture";
 		actions.renames["TEXTURE_PIXEL_SIZE"] = "read_draw_data_color_texture_pixel_size";
 		actions.renames["NORMAL_TEXTURE"] = "normal_texture";
+		actions.renames["DEPTH_TEXTURE"] = "depth_texture";
 		actions.renames["SPECULAR_SHININESS_TEXTURE"] = "specular_texture";
 		actions.renames["SPECULAR_SHININESS"] = "specular_shininess";
 		actions.renames["SCREEN_UV"] = "screen_uv";
@@ -2231,6 +2232,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 
 		actions.custom_samplers["TEXTURE"] = "texture_sampler";
 		actions.custom_samplers["NORMAL_TEXTURE"] = "texture_sampler";
+		actions.custom_samplers["DEPTH_TEXTURE"] = "texture_sampler";
 		actions.custom_samplers["SPECULAR_SHININESS_TEXTURE"] = "texture_sampler";
 		actions.base_texture_binding_index = 1;
 		actions.texture_layout_set = MATERIAL_UNIFORM_SET;
@@ -2473,6 +2475,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 	RendererRD::TextureStorage::CanvasTextureInfo info = RendererRD::TextureStorage::get_singleton()->canvas_texture_get_info(default_canvas_texture, default_filter, default_repeat, false, false);
 	default_texture_info.diffuse = info.diffuse;
 	default_texture_info.normal = info.normal;
+	default_texture_info.depth = info.depth;
 	default_texture_info.specular = info.specular;
 	default_texture_info.sampler = info.sampler;
 
@@ -3492,6 +3495,7 @@ void RendererCanvasRenderRD::_render_batch(RD::DrawListID p_draw_list, CanvasSha
 			uniform_ptrw[1] = RD::Uniform(RD::UNIFORM_TYPE_TEXTURE, 1, p_batch->tex_info->normal);
 			uniform_ptrw[2] = RD::Uniform(RD::UNIFORM_TYPE_TEXTURE, 2, p_batch->tex_info->specular);
 			uniform_ptrw[3] = RD::Uniform(RD::UNIFORM_TYPE_SAMPLER, 3, p_batch->tex_info->sampler);
+			uniform_ptrw[4] = RD::Uniform(RD::UNIFORM_TYPE_TEXTURE, 4, p_batch->tex_info->depth);
 
 			RID rid = RD::get_singleton()->uniform_set_create(state.batch_texture_uniforms, shader.default_version_rd_shader, BATCH_UNIFORM_SET);
 			ERR_FAIL_COND_MSG(rid.is_null(), "Failed to create uniform set for batch.");
@@ -3833,6 +3837,7 @@ void RendererCanvasRenderRD::_prepare_batch_texture_info(RID p_texture, TextureS
 	p_info->state = p_state;
 	p_info->diffuse = info.diffuse;
 	p_info->normal = info.normal;
+	p_info->depth = info.depth;
 	p_info->specular = info.specular;
 	p_info->sampler = info.sampler;
 

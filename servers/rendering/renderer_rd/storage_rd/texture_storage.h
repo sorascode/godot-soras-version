@@ -81,12 +81,14 @@ public:
 	struct CanvasTextureInfo {
 		RID diffuse;
 		RID normal;
+		RID depth;
 		RID specular;
 		RID sampler;
 		Size2i size;
 		Color specular_color;
 
 		bool use_normal = false;
+		bool use_depth = false;
 		bool use_specular = false;
 
 		_FORCE_INLINE_ bool is_valid() const { return diffuse.is_valid(); }
@@ -108,6 +110,7 @@ private:
 	struct CanvasTextureCache {
 		RID diffuse;
 		RID normal;
+		RID depth;
 		RID specular;
 	};
 
@@ -115,6 +118,7 @@ private:
 	public:
 		RID diffuse;
 		RID normal_map;
+		RID depth;
 		RID specular;
 		Color specular_color = Color(1, 1, 1, 1);
 		float shininess = 1.0;
@@ -128,6 +132,7 @@ private:
 
 		Size2i size_cache = Size2i(1, 1);
 		bool use_normal_cache = false;
+		bool use_depth_cache = false;
 		bool use_specular_cache = false;
 
 		void clear_cache();

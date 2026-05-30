@@ -497,6 +497,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		TextureState state;
 		RID diffuse;
 		RID normal;
+		RID depth;
 		RID specular;
 		RID sampler;
 		Vector2 texpixel_size;

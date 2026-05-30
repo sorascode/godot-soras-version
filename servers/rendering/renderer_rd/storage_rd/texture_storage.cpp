@@ -679,6 +679,9 @@ void TextureStorage::canvas_texture_set_channel(RID p_canvas_texture, RS::Canvas
 		case RS::CANVAS_TEXTURE_CHANNEL_NORMAL: {
 			ct->normal_map = p_texture;
 		} break;
+		case RS::CANVAS_TEXTURE_CHANNEL_DEPTH: {
+			ct->depth = p_texture;
+		} break;
 		case RS::CANVAS_TEXTURE_CHANNEL_SPECULAR: {
 			ct->specular = p_texture;
 		} break;
@@ -744,6 +747,7 @@ TextureStorage::CanvasTextureInfo TextureStorage::canvas_texture_get_info(RID p_
 	CanvasTextureCache &ctc = ct->info_cache[int(p_use_srgb)];
 	if (!RD::get_singleton()->texture_is_valid(ctc.diffuse) ||
 			!RD::get_singleton()->texture_is_valid(ctc.normal) ||
+			!RD::get_singleton()->texture_is_valid(ctc.depth) ||
 			!RD::get_singleton()->texture_is_valid(ctc.specular)) {
 		{ //diffuse
 			t = get_texture(ct->diffuse);
@@ -771,6 +775,19 @@ TextureStorage::CanvasTextureInfo TextureStorage::canvas_texture_get_info(RID p_
 				}
 			}
 		}
+		{ //depth
+			t = get_texture(ct->depth);
+			if (!t) {
+				ctc.depth = texture_rd_get_default(DEFAULT_RD_TEXTURE_TRANSPARENT);
+				ct->use_depth_cache = false;
+			} else {
+				ctc.depth = t->rd_texture;
+				ct->use_depth_cache = true;
+				if (t->render_target) {
+					t->render_target->was_used = true;
+				}
+			}
+		}
 		{ //specular
 			t = get_texture(ct->specular);
 			if (!t) {
@@ -789,11 +806,13 @@ TextureStorage::CanvasTextureInfo TextureStorage::canvas_texture_get_info(RID p_
 	CanvasTextureInfo res;
 	res.diffuse = ctc.diffuse;
 	res.normal = ctc.normal;
+	res.depth = ctc.depth;
 	res.specular = ctc.specular;
 	res.sampler = material_storage->sampler_rd_get_default(filter, repeat);
 	res.size = ct->size_cache;
 	res.specular_color = ct->specular_color;
 	res.use_normal = ct->use_normal_cache;
+	res.use_depth = ct->use_depth_cache;
 	res.use_specular = ct->use_specular_cache;
 
 	return res;
