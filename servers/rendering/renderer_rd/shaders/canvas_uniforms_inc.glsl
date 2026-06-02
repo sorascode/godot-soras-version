@@ -168,6 +168,11 @@ struct Light {
 	float occluder_scale_x;
 	float occluder_scale_y;
 	uint occluder_max_size;
+
+	float width;
+	float depth;
+	uint pad0;
+	uint pad1;
 };
 
 layout(set = 0, binding = 2, std430) restrict readonly buffer LightData {

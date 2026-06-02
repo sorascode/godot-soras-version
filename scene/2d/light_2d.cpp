@@ -95,6 +95,23 @@ real_t Light2D::get_height() const {
 	return height;
 }
 
+void Light2D::set_width(real_t p_width) {
+	width = p_width;
+	RS::get_singleton()->canvas_light_set_width(canvas_light, width);
+}
+
+real_t Light2D::get_width() const {
+	return width;
+}
+
+void Light2D::set_depth_value(float p_depth_value) {
+	if (get_depth_value() == p_depth_value) {
+		return;
+	}
+	CanvasItem::set_depth_value(p_depth_value);
+	RS::get_singleton()->canvas_light_set_depth(canvas_light, p_depth_value);
+}
+
 void Light2D::set_energy(real_t p_energy) {
 	energy = p_energy;
 	RS::get_singleton()->canvas_light_set_energy(canvas_light, energy);
@@ -300,6 +317,9 @@ void Light2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_height", "height"), &Light2D::set_height);
 	ClassDB::bind_method(D_METHOD("get_height"), &Light2D::get_height);
 
+	ClassDB::bind_method(D_METHOD("set_width", "width"), &Light2D::set_width);
+	ClassDB::bind_method(D_METHOD("get_width"), &Light2D::get_width);
+
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "is_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_only"), "set_editor_only", "is_editor_only");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
@@ -478,6 +498,7 @@ void PointLight2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset", PROPERTY_HINT_NONE, "suffix:px"), "set_texture_offset", "get_texture_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "texture_scale", PROPERTY_HINT_RANGE, "0.01,50,0.01"), "set_texture_scale", "get_texture_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "height", PROPERTY_HINT_RANGE, "0,1024,1,or_greater,suffix:px"), "set_height", "get_height");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "width", PROPERTY_HINT_RANGE, "0,1024,1,or_greater,suffix:px"), "set_width", "get_width");
 }
 
 PointLight2D::PointLight2D() {

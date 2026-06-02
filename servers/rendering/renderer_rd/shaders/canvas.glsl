@@ -1012,6 +1012,8 @@ void main() {
 
 		vec3 light_position = vec3(light_array.data[light_base].position, light_array.data[light_base].height);
 		vec4 light = light_color;
+		vec2 light_size = vec2(light_array.data[light_base].width, light_array.data[light_base].height);
+		float light_depth = light_array.data[light_base].depth;
 
 #CODE : POST_SINGLE_LIGHT
 

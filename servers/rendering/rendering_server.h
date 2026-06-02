@@ -1664,6 +1664,8 @@ public:
 	virtual void canvas_light_set_transform(RID p_light, const Transform2D &p_transform) = 0;
 	virtual void canvas_light_set_color(RID p_light, const Color &p_color) = 0;
 	virtual void canvas_light_set_height(RID p_light, float p_height) = 0;
+	virtual void canvas_light_set_width(RID p_light, float p_width) = 0;
+	virtual void canvas_light_set_depth(RID p_light, float p_depth) = 0;
 	virtual void canvas_light_set_energy(RID p_light, float p_energy) = 0;
 	virtual void canvas_light_set_z_range(RID p_light, int p_min_z, int p_max_z) = 0;
 	virtual void canvas_light_set_layer_range(RID p_light, int p_min_layer, int p_max_layer) = 0;

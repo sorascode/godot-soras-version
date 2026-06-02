@@ -3444,6 +3444,8 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("canvas_light_set_texture_offset", "light", "offset"), &RenderingServer::canvas_light_set_texture_offset);
 	ClassDB::bind_method(D_METHOD("canvas_light_set_color", "light", "color"), &RenderingServer::canvas_light_set_color);
 	ClassDB::bind_method(D_METHOD("canvas_light_set_height", "light", "height"), &RenderingServer::canvas_light_set_height);
+	ClassDB::bind_method(D_METHOD("canvas_light_set_width", "light", "width"), &RenderingServer::canvas_light_set_width);
+	ClassDB::bind_method(D_METHOD("canvas_light_set_depth", "light", "depth"), &RenderingServer::canvas_light_set_depth);
 	ClassDB::bind_method(D_METHOD("canvas_light_set_energy", "light", "energy"), &RenderingServer::canvas_light_set_energy);
 	ClassDB::bind_method(D_METHOD("canvas_light_set_z_range", "light", "min_z", "max_z"), &RenderingServer::canvas_light_set_z_range);
 	ClassDB::bind_method(D_METHOD("canvas_light_set_layer_range", "light", "min_layer", "max_layer"), &RenderingServer::canvas_light_set_layer_range);

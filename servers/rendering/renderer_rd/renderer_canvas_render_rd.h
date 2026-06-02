@@ -348,6 +348,11 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		float occluder_scale_x;
 		float occluder_scale_y;
 		uint32_t occluder_max_size;
+
+		float width;
+		float depth;
+		uint32_t pad0;
+		uint32_t pad1;
 	};
 
 	RID_Owner<OccluderPolygon> occluder_polygon_owner;

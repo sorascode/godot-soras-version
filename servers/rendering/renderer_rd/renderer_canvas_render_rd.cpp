@@ -809,6 +809,11 @@ void RendererCanvasRenderRD::canvas_render_items(RID p_to_render_target, Item *p
 				state.light_uniforms[index].flags |= LIGHT_FLAGS_HAS_SHADOW;
 			}
 
+			state.light_uniforms[index].width = l->width; //0..1 here
+			state.light_uniforms[index].depth = l->depth;
+			state.light_uniforms[index].pad0 = 0;
+			state.light_uniforms[index].pad1 = 0;
+
 			l->render_index_cache = index;
 
 			index++;
@@ -855,7 +860,7 @@ void RendererCanvasRenderRD::canvas_render_items(RID p_to_render_target, Item *p
 			_update_transform_2d_to_mat2x4(l->light_shader_xform.affine_inverse(), state.light_uniforms[index].matrix);
 			_update_transform_2d_to_mat2x4(l->xform_cache.affine_inverse(), state.light_uniforms[index].shadow_matrix);
 
-			state.light_uniforms[index].height = l->height * (p_canvas_transform.columns[0].length() + p_canvas_transform.columns[1].length()) * 0.5; //approximate height conversion to the canvas size, since all calculations are done in canvas coords to avoid precision loss
+			state.light_uniforms[index].height = l->height; //approximate height conversion to the canvas size, since all calculations are done in canvas coords to avoid precision loss
 			for (int i = 0; i < 4; i++) {
 				state.light_uniforms[index].shadow_color[i] = uint8_t(CLAMP(int32_t(l->shadow_color[i] * 255.0), 0, 255));
 				state.light_uniforms[index].color[i] = l->color[i];
@@ -897,6 +902,11 @@ void RendererCanvasRenderRD::canvas_render_items(RID p_to_render_target, Item *p
 			state.light_uniforms[index].occluder_scale_x = clight->occluder_details.texture_scale[0];
 			state.light_uniforms[index].occluder_scale_y = clight->occluder_details.texture_scale[1];
 			state.light_uniforms[index].occluder_max_size = state.occluder_texture_size;
+
+			state.light_uniforms[index].width = l->width;
+			state.light_uniforms[index].depth = l->depth;
+			state.light_uniforms[index].pad0 = 0;
+			state.light_uniforms[index].pad1 = 0;
 
 			l->render_index_cache = index;
 
@@ -2198,6 +2208,8 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.renames["DEPTH_TEXTURE"] = "depth_texture";
 		actions.renames["SPECULAR_SHININESS_TEXTURE"] = "specular_texture";
 		actions.renames["SPECULAR_SHININESS"] = "specular_shininess";
+		actions.renames["LIGHT_SIZE"] = "light_size";
+		actions.renames["LIGHT_DEPTH"] = "light_depth";
 		actions.renames["DEPTH"] = "depth";
 		actions.renames["SCREEN_UV"] = "screen_uv";
 		actions.renames["REGION_RECT"] = "region_rect";

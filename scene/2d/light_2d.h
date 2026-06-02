@@ -57,6 +57,7 @@ private:
 	Color color = Color(1, 1, 1);
 	Color shadow_color = Color(0, 0, 0, 0);
 	real_t height = 0.0;
+	real_t width = 0.0;
 	real_t energy = 1.0;
 	int z_min = -1024;
 	int z_max = 1024;
@@ -93,6 +94,11 @@ public:
 
 	void set_height(real_t p_height);
 	real_t get_height() const;
+
+	void set_width(real_t p_width);
+	real_t get_width() const;
+
+	virtual void set_depth_value(float p_depth_value) override;
 
 	void set_energy(real_t p_energy);
 	real_t get_energy() const;

@@ -57,6 +57,8 @@ public:
 		Transform2D xform_curr;
 		Transform2D xform_prev;
 		float height;
+		float width;
+		float depth;
 		float energy;
 		float scale;
 		int z_min;
@@ -104,6 +106,8 @@ public:
 			color = Color(1, 1, 1);
 			shadow_color = Color(0, 0, 0, 0);
 			height = 0;
+			width = 0;
+			depth = 0;
 			z_min = -1024;
 			z_max = 1024;
 			layer_min = 0;

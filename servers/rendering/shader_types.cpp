@@ -361,6 +361,8 @@ ShaderTypes::ShaderTypes() {
 
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_SIZE"] = ShaderLanguage::TYPE_VEC2;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_DEPTH"] = ShaderLanguage::TYPE_FLOAT;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["BASE_COLOR"] = ShaderLanguage::TYPE_VEC4;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["FRAGCOORD"] = constt(ShaderLanguage::TYPE_VEC4);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["NORMAL"] = constt(ShaderLanguage::TYPE_VEC3);

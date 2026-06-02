@@ -2494,6 +2494,20 @@ void RendererCanvasCull::canvas_light_set_height(RID p_light, float p_height) {
 	clight->height = p_height;
 }
 
+void RendererCanvasCull::canvas_light_set_width(RID p_light, float p_width) {
+	RendererCanvasRender::Light *clight = canvas_light_owner.get_or_null(p_light);
+	ERR_FAIL_NULL(clight);
+
+	clight->width = p_width;
+}
+
+void RendererCanvasCull::canvas_light_set_depth(RID p_light, float p_depth) {
+	RendererCanvasRender::Light *clight = canvas_light_owner.get_or_null(p_light);
+	ERR_FAIL_NULL(clight);
+
+	clight->depth = p_depth;
+}
+
 void RendererCanvasCull::canvas_light_set_energy(RID p_light, float p_energy) {
 	RendererCanvasRender::Light *clight = canvas_light_owner.get_or_null(p_light);
 	ERR_FAIL_NULL(clight);
