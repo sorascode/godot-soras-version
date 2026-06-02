@@ -166,6 +166,7 @@ void TileMapLayer::_debug_update(bool p_force_cleanup) {
 			}
 			rs->canvas_item_set_z_index(ci, RS::CANVAS_ITEM_Z_MAX - 1);
 			rs->canvas_item_set_parent(ci, get_canvas_item());
+			rs->canvas_item_set_depth(ci, -1.0);
 		}
 		const Vector2 quadrant_pos = tile_set->map_to_local(debug_quadrant->quadrant_coords * TILE_MAP_DEBUG_QUADRANT_SIZE);
 		Transform2D xform(0, quadrant_pos);
@@ -356,6 +357,7 @@ void TileMapLayer::_rendering_update(bool p_force_cleanup) {
 						rs->canvas_item_set_z_as_relative_to_parent(ci, true);
 						rs->canvas_item_set_z_index(ci, tile_z_index);
 						rs->canvas_item_set_self_modulate(ci, layer_modulate);
+						rs->canvas_item_set_depth(ci, get_depth_value());
 
 						rs->canvas_item_set_default_texture_filter(ci, RS::CanvasItemTextureFilter(get_texture_filter_in_tree()));
 						rs->canvas_item_set_default_texture_repeat(ci, RS::CanvasItemTextureRepeat(get_texture_repeat_in_tree()));
@@ -3324,6 +3326,16 @@ void TileMapLayer::set_z_index(int p_z_index) {
 	}
 	CanvasItem::set_z_index(p_z_index);
 	dirty.flags[DIRTY_FLAGS_LAYER_Z_INDEX] = true;
+	_queue_internal_update();
+	emit_signal(CoreStringName(changed));
+}
+
+void TileMapLayer::set_depth_value(float p_depth_value) {
+	if (get_depth_value() == p_depth_value) {
+		return;
+	}
+	CanvasItem::set_depth_value(p_depth_value);
+	dirty.flags[DIRTY_FLAGS_LAYER_DEPTH] = true;
 	_queue_internal_update();
 	emit_signal(CoreStringName(changed));
 }

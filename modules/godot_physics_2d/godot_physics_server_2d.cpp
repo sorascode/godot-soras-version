@@ -1115,9 +1115,9 @@ bool GodotPhysicsServer2D::body_collides_at(RID p_body, const Vector2i &p_delta,
 
 bool GodotPhysicsServer2D::body_collides_at_with(RID p_body, const Vector2i &p_delta, const RID &p_other) {
 	GodotBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_NULL_V(body, false);
-	ERR_FAIL_NULL_V(body->get_space(), false);
-	ERR_FAIL_COND_V(body->get_space()->is_locked(), false);
+	if (body == nullptr || body->get_space() == nullptr || body->get_space()->is_locked()) {
+		return false;
+	}
 
 	GodotBody2D *other = body_owner.get_or_null(p_other);
 	if (other == nullptr || other->get_space() == nullptr || other->get_space()->is_locked()) {
@@ -1142,9 +1142,9 @@ bool GodotPhysicsServer2D::body_collides_at_all(RID p_body, const Vector2i &p_de
 
 bool GodotPhysicsServer2D::area_collides_at_with(RID p_area, const Vector2i &p_delta, const RID &p_other) {
 	GodotArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_NULL_V(area, false);
-	ERR_FAIL_NULL_V(area->get_space(), false);
-	ERR_FAIL_COND_V(area->get_space()->is_locked(), false);
+	if (area == nullptr || area->get_space() == nullptr || area->get_space()->is_locked()) {
+		return false;
+	}
 
 	GodotBody2D *other = body_owner.get_or_null(p_other);
 	if (other == nullptr || other->get_space() == nullptr || other->get_space()->is_locked()) {

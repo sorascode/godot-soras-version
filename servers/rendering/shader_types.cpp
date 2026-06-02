@@ -299,6 +299,7 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["DEPTH_TEXTURE"] = constt(ShaderLanguage::TYPE_SAMPLER2D);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["SPECULAR_SHININESS_TEXTURE"] = constt(ShaderLanguage::TYPE_SAMPLER2D);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["SPECULAR_SHININESS"] = constt(ShaderLanguage::TYPE_VEC4);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["DEPTH"] = constt(ShaderLanguage::TYPE_FLOAT);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["SCREEN_UV"] = constt(ShaderLanguage::TYPE_VEC2);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["REGION_RECT"] = constt(ShaderLanguage::TYPE_VEC4);
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["fragment"].built_ins["SCREEN_PIXEL_SIZE"] = constt(ShaderLanguage::TYPE_VEC2);
@@ -357,6 +358,28 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["pre_light"].built_ins["LIGHT_SAMPLE_OFFSET"] = ShaderLanguage::TYPE_VEC2;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["pre_light"].can_discard = true;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["pre_light"].main_function = true;
+
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["BASE_COLOR"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["FRAGCOORD"] = constt(ShaderLanguage::TYPE_VEC4);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["NORMAL"] = constt(ShaderLanguage::TYPE_VEC3);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["UV"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["SPECULAR_SHININESS"] = constt(ShaderLanguage::TYPE_VEC4);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_POSITION"] = constt(ShaderLanguage::TYPE_VEC3);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_DIRECTION"] = constt(ShaderLanguage::TYPE_VEC3);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_ENERGY"] = constt(ShaderLanguage::TYPE_FLOAT);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_IS_DIRECTIONAL"] = constt(ShaderLanguage::TYPE_BOOL);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT_VERTEX"] = constt(ShaderLanguage::TYPE_VEC3);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["SHADOW_MODULATE"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["SCREEN_UV"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["TEXTURE"] = constt(ShaderLanguage::TYPE_SAMPLER2D);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["TEXTURE_PIXEL_SIZE"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["SCREEN_PIXEL_SIZE"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].built_ins["POINT_COORD"] = constt(ShaderLanguage::TYPE_VEC2);
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].can_discard = true;
+	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_single_light"].main_function = true;
 
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
 	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC4;

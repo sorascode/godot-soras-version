@@ -108,6 +108,20 @@ TextureStorage::TextureStorage() {
 		}
 
 		for (int i = 0; i < 16; i++) {
+			// Opaque gray.
+			pv.set(i * 4 + 0, 128);
+			pv.set(i * 4 + 1, 128);
+			pv.set(i * 4 + 2, 128);
+			pv.set(i * 4 + 3, 255);
+		}
+
+		{
+			Vector<Vector<uint8_t>> vpv;
+			vpv.push_back(pv);
+			default_rd_textures[DEFAULT_RD_TEXTURE_GRAY] = RD::get_singleton()->texture_create(tformat, RD::TextureView(), vpv);
+		}
+
+		for (int i = 0; i < 16; i++) {
 			// Opaque black.
 			pv.set(i * 4 + 0, 0);
 			pv.set(i * 4 + 1, 0);
@@ -778,7 +792,7 @@ TextureStorage::CanvasTextureInfo TextureStorage::canvas_texture_get_info(RID p_
 		{ //depth
 			t = get_texture(ct->depth);
 			if (!t) {
-				ctc.depth = texture_rd_get_default(DEFAULT_RD_TEXTURE_TRANSPARENT);
+				ctc.depth = texture_rd_get_default(DEFAULT_RD_TEXTURE_GRAY);
 				ct->use_depth_cache = false;
 			} else {
 				ctc.depth = t->rd_texture;

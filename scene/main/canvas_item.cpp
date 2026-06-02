@@ -776,6 +776,21 @@ bool CanvasItem::is_y_sort_enabled() const {
 	return y_sort_enabled;
 }
 
+void CanvasItem::set_depth_value(float p_depth_value) {
+	ERR_THREAD_GUARD;
+	ERR_FAIL_COND(p_depth_value < -1.0);
+	ERR_FAIL_COND(p_depth_value > 1.0);
+	depth_value = p_depth_value;
+	RS::get_singleton()->canvas_item_set_depth(canvas_item, depth_value);
+	update_configuration_warnings();
+}
+
+
+float CanvasItem::get_depth_value() const {
+	ERR_READ_THREAD_GUARD_V(-1.0);
+	return depth_value;
+}
+
 void CanvasItem::draw_dashed_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width, real_t p_dash, bool p_aligned, bool p_antialiased) {
 	ERR_THREAD_GUARD;
 	ERR_DRAW_GUARD;
@@ -1488,6 +1503,9 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_y_sort_enabled", "enabled"), &CanvasItem::set_y_sort_enabled);
 	ClassDB::bind_method(D_METHOD("is_y_sort_enabled"), &CanvasItem::is_y_sort_enabled);
 
+	ClassDB::bind_method(D_METHOD("set_depth_value", "depth_value"), &CanvasItem::set_depth_value);
+	ClassDB::bind_method(D_METHOD("get_depth_value"), &CanvasItem::get_depth_value);
+
 	ClassDB::bind_method(D_METHOD("set_draw_behind_parent", "enable"), &CanvasItem::set_draw_behind_parent);
 	ClassDB::bind_method(D_METHOD("is_draw_behind_parent_enabled"), &CanvasItem::is_draw_behind_parent_enabled);
 
@@ -1592,6 +1610,7 @@ void CanvasItem::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "z_index", PROPERTY_HINT_RANGE, itos(RS::CANVAS_ITEM_Z_MIN) + "," + itos(RS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "y_sort_enabled"), "set_y_sort_enabled", "is_y_sort_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_value", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01"), "set_depth_value", "get_depth_value");
 
 	ADD_GROUP("Texture", "texture_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "texture_filter", PROPERTY_HINT_ENUM, "Inherit,Nearest,Linear,Nearest Mipmap,Linear Mipmap,Nearest Mipmap Anisotropic,Linear Mipmap Anisotropic"), "set_texture_filter", "get_texture_filter");

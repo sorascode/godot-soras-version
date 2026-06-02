@@ -382,6 +382,7 @@ public:
 		mutable Rect2 rect;
 		RID material;
 		RID skeleton;
+		float depth = -1.0;
 
 		int32_t instance_allocated_shader_uniforms_offset = -1;
 

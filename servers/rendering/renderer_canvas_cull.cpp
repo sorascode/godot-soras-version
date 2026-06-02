@@ -2215,6 +2215,15 @@ void RendererCanvasCull::canvas_item_set_copy_to_backbuffer(RID p_item, bool p_e
 	}
 }
 
+void RendererCanvasCull::canvas_item_set_depth(RID p_item, float p_depth) {
+	ERR_FAIL_COND(p_depth < -1.0 || p_depth > 1.0);
+
+	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
+	ERR_FAIL_NULL(canvas_item);
+
+	canvas_item->depth = p_depth;
+}
+
 void RendererCanvasCull::canvas_item_clear(RID p_item) {
 	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
 	ERR_FAIL_NULL(canvas_item);

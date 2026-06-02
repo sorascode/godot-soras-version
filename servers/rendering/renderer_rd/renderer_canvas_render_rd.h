@@ -83,6 +83,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 
 		BATCH_FLAGS_DEFAULT_NORMAL_MAP_USED = (1 << 9),
 		BATCH_FLAGS_DEFAULT_SPECULAR_MAP_USED = (1 << 10),
+		BATCH_FLAGS_DEFAULT_DEPTH_MAP_USED = (1 << 11),
 	};
 
 	enum {
@@ -205,6 +206,10 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		RID uniform_set_srgb;
 		RID uniform_set_override;
 		RID uniform_set_srgb_override;
+		RID orig_uniform_set;
+		RID orig_uniform_set_srgb;
+		RID orig_uniform_set_override;
+		RID orig_uniform_set_srgb_override;
 
 		virtual void set_render_priority(int p_priority) {}
 		virtual void set_next_pass(RID p_pass) {}
@@ -412,7 +417,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		ShaderSpecialization shader_specialization;
 		uint32_t specular_shininess;
 		uint32_t batch_flags;
-		uint32_t pad0;
+		float depth;
 
 		float msdf[2];
 		float color_texture_pixel_size[2];
@@ -555,6 +560,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 
 		TextureInfo *tex_info;
 
+		float depth = -1.0;
 		Color modulate = Color(1.0, 1.0, 1.0, 1.0);
 		float msdf_pix_range = 0.0;
 		float msdf_outline = 0.0;
@@ -562,7 +568,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		Item *clip = nullptr;
 
 		RID material;
-		CanvasMaterialData *material_data = nullptr;
+		RID original_material;
 
 		const Item::Command *command = nullptr;
 		Item::Command::Type command_type = Item::Command::TYPE_ANIMATION_SLICE; // Can default to any type that doesn't form a batch.
@@ -586,7 +592,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 			PushConstant pc;
 			pc.specular_shininess = tex_info->specular_shininess;
 			pc.batch_flags = tex_info->flags | flags;
-			pc.pad0 = 0;
+			pc.depth = depth;
 
 			pc.msdf[0] = msdf_pix_range;
 			pc.msdf[1] = msdf_outline;

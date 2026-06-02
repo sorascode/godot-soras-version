@@ -557,6 +557,7 @@ Node *GPUParticles2DEditorPlugin::_convert_particles() {
 	cpu_particles->set_visible(particles->is_visible());
 	cpu_particles->set_process_mode(particles->get_process_mode());
 	cpu_particles->set_z_index(particles->get_z_index());
+	cpu_particles->set_depth_value(particles->get_depth_value());
 	return cpu_particles;
 }
 

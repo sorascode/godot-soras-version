@@ -769,6 +769,12 @@ void main() {
 		specular_shininess = vec4(1.0);
 	}
 
+#if defined(DEPTH_USED)
+	float depth = params.depth;
+#else
+	float depth = -1.0;
+#endif
+
 #if defined(SCREEN_UV_USED)
 	vec2 screen_uv = gl_FragCoord.xy * canvas_data.screen_pixel_size;
 #else
@@ -1001,6 +1007,17 @@ void main() {
 #endif
 			);
 		}
+
+#ifdef POST_SINGLE_LIGHT_CODE_USED
+
+		vec3 light_position = vec3(light_array.data[light_base].position, light_array.data[light_base].height);
+		vec4 light = light_color;
+
+#CODE : POST_SINGLE_LIGHT
+
+		light_color = light;
+
+#endif
 
 		light_blend_compute(light_base, light_color, light_mix.rgb);
 #ifdef MODE_LIGHT_ONLY

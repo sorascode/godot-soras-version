@@ -328,6 +328,9 @@ void TextureStorage::canvas_texture_set_channel(RID p_canvas_texture, RS::Canvas
 		case RS::CANVAS_TEXTURE_CHANNEL_NORMAL: {
 			ct->normal_map = p_texture;
 		} break;
+		case RS::CANVAS_TEXTURE_CHANNEL_DEPTH: {
+			//ct->depth = p_texture;
+		} break;
 		case RS::CANVAS_TEXTURE_CHANNEL_SPECULAR: {
 			ct->specular = p_texture;
 		} break;

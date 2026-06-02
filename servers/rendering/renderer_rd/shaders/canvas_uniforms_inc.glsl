@@ -47,12 +47,13 @@ struct InstanceData {
 
 #define BATCH_FLAGS_DEFAULT_NORMAL_MAP_USED (1 << 9)
 #define BATCH_FLAGS_DEFAULT_SPECULAR_MAP_USED (1 << 10)
+#define BATCH_FLAGS_DEFAULT_DEPTH_MAP_USED (1 << 11)
 
 layout(push_constant, std430) uniform Params {
 	uint sc_packed_0;
 	uint specular_shininess;
 	uint batch_flags;
-	uint pad0;
+	float depth;
 
 	vec2 msdf;
 	vec2 color_texture_pixel_size;

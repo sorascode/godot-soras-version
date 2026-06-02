@@ -101,6 +101,7 @@ private:
 	int z_index = 0;
 	bool z_relative = true;
 	bool y_sort_enabled = false;
+	float depth_value = -1.0;
 
 	Window *window = nullptr;
 	bool visible = true;
@@ -316,6 +317,9 @@ public:
 
 	virtual void set_y_sort_enabled(bool p_enabled);
 	virtual bool is_y_sort_enabled() const;
+
+	virtual void set_depth_value(float p_depth_value);
+	float get_depth_value() const;
 
 	/* DRAWING API */
 

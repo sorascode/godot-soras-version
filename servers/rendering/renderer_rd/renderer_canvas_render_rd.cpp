@@ -1948,6 +1948,7 @@ void RendererCanvasRenderRD::CanvasShaderData::set_code(const String &p_code) {
 	actions.entry_point_stages["fragment"] = ShaderCompiler::STAGE_FRAGMENT;
 	actions.entry_point_stages["pre_light"] = ShaderCompiler::STAGE_FRAGMENT;
 	actions.entry_point_stages["light"] = ShaderCompiler::STAGE_FRAGMENT;
+	actions.entry_point_stages["post_single_light"] = ShaderCompiler::STAGE_FRAGMENT;
 	actions.entry_point_stages["post_light"] = ShaderCompiler::STAGE_FRAGMENT;
 
 	actions.render_mode_values["blend_add"] = Pair<int *, int>(&blend_mode, BLEND_MODE_ADD);
@@ -2087,18 +2088,30 @@ bool RendererCanvasRenderRD::CanvasMaterialData::update_parameters(const HashMap
 	RendererCanvasRenderRD *canvas_singleton = static_cast<RendererCanvasRenderRD *>(RendererCanvasRender::singleton);
 	MutexLock lock(canvas_singleton->shader.mutex);
 	RID shader_to_update = canvas_singleton->shader.canvas_shader.version_get_shader(shader_data->version, 0);
-	bool uniform_set_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set, shader_to_update, MATERIAL_UNIFORM_SET, true, false, false);
-	bool uniform_set_srgb_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_srgb, shader_to_update, MATERIAL_UNIFORM_SET, false, false, false);
-	bool uniform_set_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_override, shader_to_update, MATERIAL_UNIFORM_SET, true, false, true);
-	bool uniform_set_srgb_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_srgb_override, shader_to_update, MATERIAL_UNIFORM_SET, false, false, true);
+	bool uniform_set_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set, shader_to_update, MATERIAL_UNIFORM_SET, true, false, false);
+	bool uniform_set_srgb_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_srgb, shader_to_update, MATERIAL_UNIFORM_SET, false, false, false);
+	bool uniform_set_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_override, shader_to_update, MATERIAL_UNIFORM_SET, true, false, true);
+	bool uniform_set_srgb_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_srgb_override, shader_to_update, MATERIAL_UNIFORM_SET, false, false, true);
+	if (uniform_set_changed) {
+		uniform_set = orig_uniform_set;
+	}
+	if (uniform_set_srgb_changed) {
+		uniform_set_srgb = orig_uniform_set_srgb;
+	}
+	if (uniform_set_override_changed) {
+		uniform_set_override = orig_uniform_set_override;
+	}
+	if (uniform_set_srgb_override_changed) {
+		uniform_set_srgb_override = orig_uniform_set_srgb_override;
+	}
 	return uniform_set_changed || uniform_set_srgb_changed || uniform_set_override_changed || uniform_set_srgb_override_changed;
 }
 
 RendererCanvasRenderRD::CanvasMaterialData::~CanvasMaterialData() {
-	free_parameters_uniform_set(uniform_set);
-	free_parameters_uniform_set(uniform_set_srgb);
-	free_parameters_uniform_set(uniform_set_override);
-	free_parameters_uniform_set(uniform_set_srgb_override);
+	free_parameters_uniform_set(orig_uniform_set);
+	free_parameters_uniform_set(orig_uniform_set_srgb);
+	free_parameters_uniform_set(orig_uniform_set_override);
+	free_parameters_uniform_set(orig_uniform_set_srgb_override);
 }
 
 RendererRD::MaterialStorage::MaterialData *RendererCanvasRenderRD::_create_material_func(CanvasShaderData *p_shader) {
@@ -2185,6 +2198,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.renames["DEPTH_TEXTURE"] = "depth_texture";
 		actions.renames["SPECULAR_SHININESS_TEXTURE"] = "specular_texture";
 		actions.renames["SPECULAR_SHININESS"] = "specular_shininess";
+		actions.renames["DEPTH"] = "depth";
 		actions.renames["SCREEN_UV"] = "screen_uv";
 		actions.renames["REGION_RECT"] = "region_rect";
 		actions.renames["SCREEN_PIXEL_SIZE"] = "canvas_data.screen_pixel_size";
@@ -2221,6 +2235,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.usage_defines["NORMAL"] = "#define NORMAL_USED\n";
 		actions.usage_defines["NORMAL_MAP"] = "#define NORMAL_MAP_USED\n";
 		actions.usage_defines["SPECULAR_SHININESS"] = "#define SPECULAR_SHININESS_USED\n";
+		actions.usage_defines["DEPTH"] = "#define DEPTH_USED\n";
 		actions.usage_defines["POINT_SIZE"] = "#define USE_POINT_SIZE\n";
 		actions.usage_defines["CUSTOM0"] = "#define CUSTOM0_USED\n";
 		actions.usage_defines["CUSTOM1"] = "#define CUSTOM1_USED\n";
@@ -2607,7 +2622,6 @@ uint32_t RendererCanvasRenderRD::get_pipeline_compilations(RS::PipelineSource p_
 void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target, int p_item_count, const Transform2D &p_canvas_transform_inverse, Light *p_lights, bool &r_sdf_used, bool p_to_backbuffer, RID p_overwrite_material, bool p_use_override, RenderingMethod::RenderInfo *r_render_info) {
 	// Record batches
 	{
-		RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
 		Item *current_clip = nullptr;
 
 		// Record Batches.
@@ -2625,8 +2639,17 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 			}
 
 			RID material;
+			RID original_material;
+			bool params_changed = false;
 			if (p_overwrite_material.is_valid()) {
 				material = p_overwrite_material;
+
+				if (ci->material_owner == nullptr) {
+					original_material = ci->material;
+				} else {
+					original_material = ci->material_owner->material;
+				}
+				params_changed = true;
 			} else if (ci->material_owner == nullptr) {
 				material = ci->material;
 			} else {
@@ -2647,16 +2670,12 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 				}
 			}
 
-			if (material != current_batch->material) {
+			if (material != current_batch->material || ci->depth != current_batch->depth || params_changed) {
 				current_batch = _new_batch(batch_broken);
 
-				CanvasMaterialData *material_data = nullptr;
-				if (material.is_valid()) {
-					material_data = static_cast<CanvasMaterialData *>(material_storage->material_get_data(material, RendererRD::MaterialStorage::SHADER_TYPE_2D));
-				}
-
 				current_batch->material = material;
-				current_batch->material_data = material_data;
+				current_batch->original_material = original_material;
+				current_batch->depth = ci->depth;
 			}
 
 			if (ci->repeat_source_item == nullptr || ci->repeat_size == Vector2()) {
@@ -2689,6 +2708,7 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 	// Render batches
 
 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
+	RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
 
 	RID framebuffer;
 	RID fb_uniform_set;
@@ -2746,7 +2766,36 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 		}
 
 		CanvasShaderData *shader_data = shader.default_version_data;
-		CanvasMaterialData *material_data = current_batch->material_data;
+
+		CanvasMaterialData *material_data = nullptr;
+		if (current_batch->material.is_valid()) {
+			material_data = static_cast<CanvasMaterialData *>(material_storage->material_get_data(current_batch->material, RendererRD::MaterialStorage::SHADER_TYPE_2D));
+		}
+		if (material_data && current_batch->original_material.is_valid()) {
+			CanvasMaterialData *original_material_data = static_cast<CanvasMaterialData *>(material_storage->material_get_data(current_batch->original_material, RendererRD::MaterialStorage::SHADER_TYPE_2D));
+			bool same_uniforms = true;
+			if (original_material_data->shader_data->uniforms.size() != material_data->shader_data->uniforms.size()) {
+				same_uniforms = false;
+			} else {
+				for (KeyValue<StringName, ShaderLanguage::ShaderNode::Uniform> &E : material_data->shader_data->uniforms) {
+					if (!original_material_data->shader_data->uniforms.has(E.key)) {
+						same_uniforms = false;
+						break;
+					}
+				}
+			}
+			if (same_uniforms) {
+				material_data->uniform_set = original_material_data->uniform_set;
+				material_data->uniform_set_srgb = original_material_data->uniform_set_srgb;
+				material_data->uniform_set_override = original_material_data->uniform_set_override;
+				material_data->uniform_set_srgb_override = original_material_data->uniform_set_srgb_override;
+			} else {
+				material_data->uniform_set = material_data->orig_uniform_set;
+				material_data->uniform_set_srgb = material_data->orig_uniform_set_srgb;
+				material_data->uniform_set_override = material_data->orig_uniform_set_override;
+				material_data->uniform_set_srgb_override = material_data->orig_uniform_set_srgb_override;
+			}
+		}
 		if (material_data) {
 			if (material_data->shader_data->version.is_valid() && material_data->shader_data->is_valid()) {
 				shader_data = material_data->shader_data;
@@ -3848,6 +3897,10 @@ void RendererCanvasRenderRD::_prepare_batch_texture_info(RID p_texture, TextureS
 
 	if (info.use_normal) {
 		p_info->flags |= BATCH_FLAGS_DEFAULT_NORMAL_MAP_USED;
+	}
+
+	if (info.use_depth) {
+		p_info->flags |= BATCH_FLAGS_DEFAULT_DEPTH_MAP_USED;
 	}
 
 	uint8_t a = uint8_t(CLAMP(info.specular_color.a * 255.0, 0.0, 255.0));
