@@ -2098,30 +2098,18 @@ bool RendererCanvasRenderRD::CanvasMaterialData::update_parameters(const HashMap
 	RendererCanvasRenderRD *canvas_singleton = static_cast<RendererCanvasRenderRD *>(RendererCanvasRender::singleton);
 	MutexLock lock(canvas_singleton->shader.mutex);
 	RID shader_to_update = canvas_singleton->shader.canvas_shader.version_get_shader(shader_data->version, 0);
-	bool uniform_set_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set, shader_to_update, MATERIAL_UNIFORM_SET, true, false, false);
-	bool uniform_set_srgb_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_srgb, shader_to_update, MATERIAL_UNIFORM_SET, false, false, false);
-	bool uniform_set_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_override, shader_to_update, MATERIAL_UNIFORM_SET, true, false, true);
-	bool uniform_set_srgb_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, orig_uniform_set_srgb_override, shader_to_update, MATERIAL_UNIFORM_SET, false, false, true);
-	if (uniform_set_changed) {
-		uniform_set = orig_uniform_set;
-	}
-	if (uniform_set_srgb_changed) {
-		uniform_set_srgb = orig_uniform_set_srgb;
-	}
-	if (uniform_set_override_changed) {
-		uniform_set_override = orig_uniform_set_override;
-	}
-	if (uniform_set_srgb_override_changed) {
-		uniform_set_srgb_override = orig_uniform_set_srgb_override;
-	}
+	bool uniform_set_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set, shader_to_update, MATERIAL_UNIFORM_SET, true, false, false);
+	bool uniform_set_srgb_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_srgb, shader_to_update, MATERIAL_UNIFORM_SET, false, false, false);
+	bool uniform_set_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_override, shader_to_update, MATERIAL_UNIFORM_SET, true, false, true);
+	bool uniform_set_srgb_override_changed = update_parameters_uniform_set(p_parameters, p_uniform_dirty, p_textures_dirty, shader_data->uniforms, shader_data->ubo_offsets.ptr(), shader_data->texture_uniforms, shader_data->default_texture_params, shader_data->ubo_size, uniform_set_srgb_override, shader_to_update, MATERIAL_UNIFORM_SET, false, false, true);
 	return uniform_set_changed || uniform_set_srgb_changed || uniform_set_override_changed || uniform_set_srgb_override_changed;
 }
 
 RendererCanvasRenderRD::CanvasMaterialData::~CanvasMaterialData() {
-	free_parameters_uniform_set(orig_uniform_set);
-	free_parameters_uniform_set(orig_uniform_set_srgb);
-	free_parameters_uniform_set(orig_uniform_set_override);
-	free_parameters_uniform_set(orig_uniform_set_srgb_override);
+	free_parameters_uniform_set(uniform_set);
+	free_parameters_uniform_set(uniform_set_srgb);
+	free_parameters_uniform_set(uniform_set_override);
+	free_parameters_uniform_set(uniform_set_srgb_override);
 }
 
 RendererRD::MaterialStorage::MaterialData *RendererCanvasRenderRD::_create_material_func(CanvasShaderData *p_shader) {
@@ -2211,6 +2199,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.renames["LIGHT_SIZE"] = "light_size";
 		actions.renames["LIGHT_DEPTH"] = "light_depth";
 		actions.renames["DEPTH"] = "depth";
+		actions.renames["IS_SOLID"] = "is_solid";
 		actions.renames["SCREEN_UV"] = "screen_uv";
 		actions.renames["REGION_RECT"] = "region_rect";
 		actions.renames["SCREEN_PIXEL_SIZE"] = "canvas_data.screen_pixel_size";
@@ -2248,6 +2237,7 @@ RendererCanvasRenderRD::RendererCanvasRenderRD() {
 		actions.usage_defines["NORMAL_MAP"] = "#define NORMAL_MAP_USED\n";
 		actions.usage_defines["SPECULAR_SHININESS"] = "#define SPECULAR_SHININESS_USED\n";
 		actions.usage_defines["DEPTH"] = "#define DEPTH_USED\n";
+		actions.usage_defines["IS_SOLID"] = "#define IS_SOLID_USED\n";
 		actions.usage_defines["POINT_SIZE"] = "#define USE_POINT_SIZE\n";
 		actions.usage_defines["CUSTOM0"] = "#define CUSTOM0_USED\n";
 		actions.usage_defines["CUSTOM1"] = "#define CUSTOM1_USED\n";
@@ -2682,12 +2672,13 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 				}
 			}
 
-			if (material != current_batch->material || ci->depth != current_batch->depth || params_changed) {
+			if (material != current_batch->material || ci->depth != current_batch->depth  || ci->is_solid != current_batch->is_solid || params_changed) {
 				current_batch = _new_batch(batch_broken);
 
 				current_batch->material = material;
 				current_batch->original_material = original_material;
 				current_batch->depth = ci->depth;
+				current_batch->is_solid = ci->is_solid;
 			}
 
 			if (ci->repeat_source_item == nullptr || ci->repeat_size == Vector2()) {
@@ -2783,6 +2774,11 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 		if (current_batch->material.is_valid()) {
 			material_data = static_cast<CanvasMaterialData *>(material_storage->material_get_data(current_batch->material, RendererRD::MaterialStorage::SHADER_TYPE_2D));
 		}
+		bool was_swapped = false;
+		RID orig_uniform_set;
+		RID orig_uniform_set_srgb;
+		RID orig_uniform_set_override;
+		RID orig_uniform_set_srgb_override;
 		if (material_data && current_batch->original_material.is_valid()) {
 			CanvasMaterialData *original_material_data = static_cast<CanvasMaterialData *>(material_storage->material_get_data(current_batch->original_material, RendererRD::MaterialStorage::SHADER_TYPE_2D));
 			bool same_uniforms = true;
@@ -2797,15 +2793,15 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 				}
 			}
 			if (same_uniforms) {
+				orig_uniform_set = material_data->uniform_set;
+				orig_uniform_set_srgb = material_data->uniform_set_srgb;
+				orig_uniform_set_override = material_data->uniform_set_override;
+				orig_uniform_set_srgb_override = material_data->uniform_set_srgb_override;
 				material_data->uniform_set = original_material_data->uniform_set;
 				material_data->uniform_set_srgb = original_material_data->uniform_set_srgb;
 				material_data->uniform_set_override = original_material_data->uniform_set_override;
 				material_data->uniform_set_srgb_override = original_material_data->uniform_set_srgb_override;
-			} else {
-				material_data->uniform_set = material_data->orig_uniform_set;
-				material_data->uniform_set_srgb = material_data->orig_uniform_set_srgb;
-				material_data->uniform_set_override = material_data->orig_uniform_set_override;
-				material_data->uniform_set_srgb_override = material_data->orig_uniform_set_srgb_override;
+				was_swapped = true;
 			}
 		}
 		if (material_data) {
@@ -2826,6 +2822,13 @@ void RendererCanvasRenderRD::_render_batch_items(RenderTarget p_to_render_target
 		}
 
 		_render_batch(draw_list, shader_data, fb_format, p_lights, current_batch, r_render_info);
+
+		if (was_swapped) {
+			material_data->uniform_set = orig_uniform_set;
+			material_data->uniform_set_srgb = orig_uniform_set_srgb;
+			material_data->uniform_set_override = orig_uniform_set_override;
+			material_data->uniform_set_srgb_override = orig_uniform_set_srgb_override;
+		}
 	}
 
 	RD::get_singleton()->draw_list_end();

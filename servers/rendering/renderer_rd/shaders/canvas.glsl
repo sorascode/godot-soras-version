@@ -775,6 +775,12 @@ void main() {
 	float depth = -1.0;
 #endif
 
+#if defined(IS_SOLID_USED)
+	bool is_solid = params.is_solid;
+#else
+	bool is_solid = false;
+#endif
+
 #if defined(SCREEN_UV_USED)
 	vec2 screen_uv = gl_FragCoord.xy * canvas_data.screen_pixel_size;
 #else

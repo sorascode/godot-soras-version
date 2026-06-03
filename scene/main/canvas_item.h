@@ -102,6 +102,7 @@ private:
 	bool z_relative = true;
 	bool y_sort_enabled = false;
 	float depth_value = -1.0;
+	bool is_solid = false;
 
 	Window *window = nullptr;
 	bool visible = true;
@@ -320,6 +321,9 @@ public:
 
 	virtual void set_depth_value(float p_depth_value);
 	float get_depth_value() const;
+
+	virtual void set_is_solid(bool p_solid);
+	bool get_is_solid() const;
 
 	/* DRAWING API */
 

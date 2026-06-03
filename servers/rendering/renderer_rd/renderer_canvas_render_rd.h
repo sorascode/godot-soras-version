@@ -206,10 +206,6 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		RID uniform_set_srgb;
 		RID uniform_set_override;
 		RID uniform_set_srgb_override;
-		RID orig_uniform_set;
-		RID orig_uniform_set_srgb;
-		RID orig_uniform_set_override;
-		RID orig_uniform_set_srgb_override;
 
 		virtual void set_render_priority(int p_priority) {}
 		virtual void set_next_pass(RID p_pass) {}
@@ -426,6 +422,11 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 
 		float msdf[2];
 		float color_texture_pixel_size[2];
+
+		uint32_t is_solid;
+		uint32_t pad0;
+		uint32_t pad1;
+		uint32_t pad2;
 	};
 
 	struct PushConstantAttributes {
@@ -566,6 +567,7 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 		TextureInfo *tex_info;
 
 		float depth = -1.0;
+		bool is_solid = false;
 		Color modulate = Color(1.0, 1.0, 1.0, 1.0);
 		float msdf_pix_range = 0.0;
 		float msdf_outline = 0.0;
@@ -603,6 +605,11 @@ class RendererCanvasRenderRD : public RendererCanvasRender {
 			pc.msdf[1] = msdf_outline;
 			pc.color_texture_pixel_size[0] = tex_info->texpixel_size.x;
 			pc.color_texture_pixel_size[1] = tex_info->texpixel_size.y;
+
+			pc.is_solid = is_solid;
+			pc.pad0 = 0;
+			pc.pad1 = 0;
+			pc.pad2 = 0;
 			return pc;
 		}
 

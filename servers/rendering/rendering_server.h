@@ -1616,6 +1616,7 @@ public:
 	virtual void canvas_item_set_z_as_relative_to_parent(RID p_item, bool p_enable) = 0;
 	virtual void canvas_item_set_copy_to_backbuffer(RID p_item, bool p_enable, const Rect2 &p_rect) = 0;
 	virtual void canvas_item_set_depth(RID p_item, float p_depth) = 0;
+	virtual void canvas_item_set_solid(RID p_item, bool p_solid) = 0;
 
 	virtual void canvas_item_attach_skeleton(RID p_item, RID p_skeleton) = 0;
 

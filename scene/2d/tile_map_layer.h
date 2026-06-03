@@ -359,7 +359,8 @@ public:
 		DIRTY_FLAGS_LAYER_Y_SORT_ORIGIN,
 		DIRTY_FLAGS_LAYER_X_DRAW_ORDER_REVERSED,
 		DIRTY_FLAGS_LAYER_Z_INDEX,
-		DIRTY_FLAGS_LAYER_DEPTH,
+		DIRTY_FLAGS_LAYER_DEPTH_VALUE,
+		DIRTY_FLAGS_LAYER_IS_SOLID,
 		DIRTY_FLAGS_LAYER_LIGHT_MASK,
 		DIRTY_FLAGS_LAYER_TEXTURE_FILTER,
 		DIRTY_FLAGS_LAYER_TEXTURE_REPEAT,
@@ -624,6 +625,7 @@ public:
 	virtual void set_z_index(int p_z_index) override;
 	virtual void set_light_mask(int p_light_mask) override;
 	virtual void set_depth_value(float p_depth_value) override;
+	virtual void set_is_solid(bool p_solid) override;
 	void set_rendering_quadrant_size(int p_size);
 	int get_rendering_quadrant_size() const;
 

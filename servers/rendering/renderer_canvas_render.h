@@ -387,6 +387,7 @@ public:
 		RID material;
 		RID skeleton;
 		float depth = -1.0;
+		bool is_solid = false;
 
 		int32_t instance_allocated_shader_uniforms_offset = -1;
 

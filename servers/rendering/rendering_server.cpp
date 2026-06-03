@@ -3393,6 +3393,7 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("canvas_item_set_copy_to_backbuffer", "item", "enabled", "rect"), &RenderingServer::canvas_item_set_copy_to_backbuffer);
 	ClassDB::bind_method(D_METHOD("canvas_item_attach_skeleton", "item", "skeleton"), &RenderingServer::canvas_item_attach_skeleton);
 	ClassDB::bind_method(D_METHOD("canvas_item_set_depth", "item", "depth"), &RenderingServer::canvas_item_set_depth);
+	ClassDB::bind_method(D_METHOD("canvas_item_set_solid", "item", "solid"), &RenderingServer::canvas_item_set_solid);
 
 	ClassDB::bind_method(D_METHOD("canvas_item_clear", "item"), &RenderingServer::canvas_item_clear);
 	ClassDB::bind_method(D_METHOD("canvas_item_set_draw_index", "item", "index"), &RenderingServer::canvas_item_set_draw_index);

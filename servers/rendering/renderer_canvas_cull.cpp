@@ -2224,6 +2224,13 @@ void RendererCanvasCull::canvas_item_set_depth(RID p_item, float p_depth) {
 	canvas_item->depth = p_depth;
 }
 
+void RendererCanvasCull::canvas_item_set_solid(RID p_item, bool p_solid) {
+	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
+	ERR_FAIL_NULL(canvas_item);
+
+	canvas_item->is_solid = p_solid;
+}
+
 void RendererCanvasCull::canvas_item_clear(RID p_item) {
 	Item *canvas_item = canvas_item_owner.get_or_null(p_item);
 	ERR_FAIL_NULL(canvas_item);

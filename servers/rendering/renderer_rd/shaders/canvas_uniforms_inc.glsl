@@ -57,6 +57,12 @@ layout(push_constant, std430) uniform Params {
 
 	vec2 msdf;
 	vec2 color_texture_pixel_size;
+
+	bool is_solid;
+	uint pad0;
+	uint pad1;
+	uint pad2;
+
 #ifdef USE_ATTRIBUTES
 	// Particles and meshes
 	vec2 world_x;

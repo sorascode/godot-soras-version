@@ -791,6 +791,19 @@ float CanvasItem::get_depth_value() const {
 	return depth_value;
 }
 
+void CanvasItem::set_is_solid(bool p_is_solid) {
+	ERR_THREAD_GUARD;
+	is_solid = p_is_solid;
+	RS::get_singleton()->canvas_item_set_solid(canvas_item, is_solid);
+	update_configuration_warnings();
+}
+
+
+bool CanvasItem::get_is_solid() const {
+	ERR_READ_THREAD_GUARD_V(false);
+	return is_solid;
+}
+
 void CanvasItem::draw_dashed_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, real_t p_width, real_t p_dash, bool p_aligned, bool p_antialiased) {
 	ERR_THREAD_GUARD;
 	ERR_DRAW_GUARD;
@@ -1506,6 +1519,9 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_depth_value", "depth_value"), &CanvasItem::set_depth_value);
 	ClassDB::bind_method(D_METHOD("get_depth_value"), &CanvasItem::get_depth_value);
 
+	ClassDB::bind_method(D_METHOD("set_is_solid", "is_solid"), &CanvasItem::set_is_solid);
+	ClassDB::bind_method(D_METHOD("get_is_solid"), &CanvasItem::get_is_solid);
+
 	ClassDB::bind_method(D_METHOD("set_draw_behind_parent", "enable"), &CanvasItem::set_draw_behind_parent);
 	ClassDB::bind_method(D_METHOD("is_draw_behind_parent_enabled"), &CanvasItem::is_draw_behind_parent_enabled);
 
@@ -1611,6 +1627,7 @@ void CanvasItem::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "y_sort_enabled"), "set_y_sort_enabled", "is_y_sort_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "depth_value", PROPERTY_HINT_RANGE, "-1.0,1.0,0.01"), "set_depth_value", "get_depth_value");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_solid"), "set_is_solid", "get_is_solid");
 
 	ADD_GROUP("Texture", "texture_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "texture_filter", PROPERTY_HINT_ENUM, "Inherit,Nearest,Linear,Nearest Mipmap,Linear Mipmap,Nearest Mipmap Anisotropic,Linear Mipmap Anisotropic"), "set_texture_filter", "get_texture_filter");
