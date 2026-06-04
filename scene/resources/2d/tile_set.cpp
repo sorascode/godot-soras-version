@@ -4724,6 +4724,7 @@ TileData *TileData::duplicate() {
 #endif // NAVIGATION_2D_DISABLED
 	// Misc
 	output->probability = probability;
+	output->disable_copy_of_alt = disable_copy_of_alt;
 	// Custom data
 	output->custom_data = custom_data;
 
@@ -5172,6 +5173,14 @@ void TileData::set_probability(float p_probability) {
 }
 float TileData::get_probability() const {
 	return probability;
+}
+
+void TileData::set_disable_copy_of_alt(bool p_disable_copy_of_alt) {
+	disable_copy_of_alt = p_disable_copy_of_alt;
+	emit_signal(CoreStringName(changed));
+}
+bool TileData::get_disable_copy_of_alt() const {
+	return disable_copy_of_alt;
 }
 
 // Custom data
@@ -5726,6 +5735,8 @@ void TileData::_bind_methods() {
 	// Misc.
 	ClassDB::bind_method(D_METHOD("set_probability", "probability"), &TileData::set_probability);
 	ClassDB::bind_method(D_METHOD("get_probability"), &TileData::get_probability);
+	ClassDB::bind_method(D_METHOD("set_disable_copy_of_alt", "disable_copy_of_alt"), &TileData::set_disable_copy_of_alt);
+	ClassDB::bind_method(D_METHOD("get_disable_copy_of_alt"), &TileData::get_disable_copy_of_alt);
 
 	// Custom data.
 	ClassDB::bind_method(D_METHOD("set_custom_data", "layer_name", "value"), &TileData::set_custom_data);
@@ -5750,6 +5761,7 @@ void TileData::_bind_methods() {
 
 	ADD_GROUP("Miscellaneous", "");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "probability"), "set_probability", "get_probability");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disable_copy_of_alt"), "set_disable_copy_of_alt", "get_disable_copy_of_alt");
 
 	ADD_SIGNAL(MethodInfo("changed"));
 }
@@ -5904,7 +5916,7 @@ void AlternativeTileData::set_base(TileData *p_base) {
 void AlternativeTileData::notify_tile_data_properties_should_change() {
 	TileData::notify_tile_data_properties_should_change();
 
-	if (base == nullptr || tile_set == nullptr) {
+	if (base == nullptr || base->get_disable_copy_of_alt() || tile_set == nullptr) {
 		return;
 	}
 

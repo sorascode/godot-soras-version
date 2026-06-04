@@ -864,6 +864,7 @@ protected:
 
 	// Misc
 	double probability = 1.0;
+	bool disable_copy_of_alt = false;
 
 	// Custom data
 	Vector<Variant> custom_data;
@@ -983,6 +984,8 @@ public:
 	// Misc
 	void set_probability(float p_probability);
 	float get_probability() const;
+	void set_disable_copy_of_alt(bool p_disable_copy_of_alt);
+	bool get_disable_copy_of_alt() const;
 
 	// Custom data.
 	void set_custom_data(String p_layer_name, Variant p_value);
