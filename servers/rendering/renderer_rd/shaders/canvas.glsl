@@ -557,7 +557,7 @@ vec4 light_color_compute(uint light_base, bool normal_used, vec2 tex_uv_atlas, v
 
 #ifdef LIGHT_CODE_USED
 
-	vec3 light_position = vec3(light_array.data[light_base].position, light_array.data[light_base].height);
+	vec3 light_position = vec3(light_array.data[light_base].position, 0.0);
 
 	light_color.rgb *= light_base_color.rgb;
 	light_color = light_compute(light_vertex, light_position, normal, light_color, light_base_color.a, specular_shininess, shadow_modulate, screen_uv, uv, base_color, false);
@@ -566,7 +566,7 @@ vec4 light_color_compute(uint light_base, bool normal_used, vec2 tex_uv_atlas, v
 	light_color.rgb *= light_base_color.rgb * light_base_color.a;
 
 	if (normal_used) {
-		vec3 light_pos = vec3(light_array.data[light_base].position, light_array.data[light_base].height);
+		vec3 light_pos = vec3(light_array.data[light_base].position, 0.0);
 		vec3 pos = light_vertex;
 		vec3 light_vec = normalize(light_pos - pos);
 
@@ -1016,7 +1016,7 @@ void main() {
 
 #ifdef POST_SINGLE_LIGHT_CODE_USED
 
-		vec3 light_position = vec3(light_array.data[light_base].position, light_array.data[light_base].height);
+		vec3 light_position = vec3(light_array.data[light_base].position, 0.0);
 		vec4 light = light_color;
 		vec2 light_size = vec2(light_array.data[light_base].width, light_array.data[light_base].height);
 		float light_depth = light_array.data[light_base].depth;
