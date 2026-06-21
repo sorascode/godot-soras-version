@@ -1117,6 +1117,35 @@ void RasterizerCanvasGLES3::_record_item_commands(const Item *p_item, RID p_rend
 				_add_to_batch(r_index, r_batch_broken);
 			} break;
 
+			case Item::Command::TYPE_POLYGON_I: {
+				const Item::CommandPolygonI *polygon_i = static_cast<const Item::CommandPolygonI *>(c);
+
+				// Polygon's can't be batched, so always create a new batch
+				_new_batch(r_batch_broken);
+
+				state.canvas_instance_batches[state.current_batch_index].tex = polygon_i->texture;
+				state.canvas_instance_batches[state.current_batch_index].command_type = Item::Command::TYPE_POLYGON_I;
+				state.canvas_instance_batches[state.current_batch_index].command = c;
+				state.canvas_instance_batches[state.current_batch_index].specialization &= specialization_command_mask;
+				state.canvas_instance_batches[state.current_batch_index].specialization |= CanvasShaderGLES3::USE_ATTRIBUTES;
+				state.canvas_instance_batches[state.current_batch_index].flags = 0;
+
+				_prepare_canvas_texture(polygon_i->texture, state.canvas_instance_batches[state.current_batch_index].filter, state.canvas_instance_batches[state.current_batch_index].repeat, r_index, texpixel_size);
+
+				state.instance_data_array[r_index].modulation[0] = base_color.r;
+				state.instance_data_array[r_index].modulation[1] = base_color.g;
+				state.instance_data_array[r_index].modulation[2] = base_color.b;
+				state.instance_data_array[r_index].modulation[3] = base_color.a;
+
+				for (int j = 0; j < 4; j++) {
+					state.instance_data_array[r_index].src_rect[j] = 0;
+					state.instance_data_array[r_index].dst_rect[j] = 0;
+					state.instance_data_array[r_index].ninepatch_margins[j] = 0;
+				}
+
+				_add_to_batch(r_index, r_batch_broken);
+			} break;
+
 			case Item::Command::TYPE_PRIMITIVE: {
 				const Item::CommandPrimitive *primitive = static_cast<const Item::CommandPrimitive *>(c);
 
@@ -1354,6 +1383,41 @@ void RasterizerCanvasGLES3::_render_batch(Light *p_lights, uint32_t p_index, Ren
 			if (r_render_info) {
 				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME]++;
 				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += _indices_to_primitives(polygon->primitive, pb->count);
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME]++;
+			}
+		} break;
+
+		case Item::Command::TYPE_POLYGON_I: {
+			const Item::CommandPolygon *polygon_i = static_cast<const Item::CommandPolygon *>(state.canvas_instance_batches[p_index].command);
+
+			PolygonBuffers *pb = polygon_buffers.polygons.getptr(polygon_i->polygon.polygon_id);
+			ERR_FAIL_NULL(pb);
+
+			glBindVertexArray(pb->vertex_array);
+			glBindBuffer(GL_ARRAY_BUFFER, state.canvas_instance_data_buffers[state.current_data_buffer_index].instance_buffers[state.canvas_instance_batches[p_index].instance_buffer_index]);
+
+			uint32_t range_start = state.canvas_instance_batches[p_index].start * sizeof(InstanceData);
+			_enable_attributes(range_start, false);
+
+			if (pb->color_disabled && pb->color != Color(1.0, 1.0, 1.0, 1.0)) {
+				glVertexAttrib4f(RSE::ARRAY_COLOR, pb->color.r, pb->color.g, pb->color.b, pb->color.a);
+			}
+
+			if (pb->index_buffer != 0) {
+				glDrawElementsInstanced(prim[polygon_i->primitive], pb->count, GL_UNSIGNED_INT, nullptr, 1);
+			} else {
+				glDrawArraysInstanced(prim[polygon_i->primitive], 0, pb->count, 1);
+			}
+			glBindVertexArray(0);
+
+			if (pb->color_disabled && pb->color != Color(1.0, 1.0, 1.0, 1.0)) {
+				// Reset so this doesn't pollute other draw calls.
+				glVertexAttrib4f(RSE::ARRAY_COLOR, 1.0, 1.0, 1.0, 1.0);
+			}
+
+			if (r_render_info) {
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME]++;
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += _indices_to_primitives(polygon_i->primitive, pb->count);
 				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME]++;
 			}
 		} break;
@@ -2569,6 +2633,10 @@ RendererCanvasRender::PolygonID RasterizerCanvasGLES3::request_polygon(const Vec
 	polygon_buffers.polygons[id] = pb;
 
 	return id;
+}
+
+RendererCanvasRender::PolygonID RasterizerCanvasGLES3::request_polygon(const Vector<int> &p_indices, const Vector<Point2i> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, const Vector<int> &p_bones, const Vector<float> &p_weights, int p_count) {
+	ERR_FAIL_V_MSG(0, "Not Implemented.");
 }
 
 void RasterizerCanvasGLES3::free_polygon(PolygonID p_polygon) {

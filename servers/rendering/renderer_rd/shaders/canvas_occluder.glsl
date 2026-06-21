@@ -31,7 +31,10 @@ void main() {
 
 layout(push_constant, std430) uniform Constants {
 	mat2x4 modelview;
+
 	vec2 scale;
+	uint pad1;
+	uint pad2;
 }
 constants;
 

@@ -277,7 +277,7 @@ public:
 		};
 
 		struct CommandPolygonI : public Command {
-			RS::PrimitiveType primitive;
+			RSE::PrimitiveType primitive;
 			PolygonI polygon;
 
 			RID texture;

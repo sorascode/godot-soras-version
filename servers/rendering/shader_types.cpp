@@ -389,11 +389,11 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_single_light"].can_discard = true;
 	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_single_light"].main_function = true;
 
-	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
-	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC4;
-	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["BASE_COLOR"] = ShaderLanguage::TYPE_VEC4;
-	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].can_discard = true;
-	shader_modes[RS::SHADER_CANVAS_ITEM].functions["post_light"].main_function = true;
+	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["LIGHT"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["COLOR"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_light"].built_ins["BASE_COLOR"] = ShaderLanguage::TYPE_VEC4;
+	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_light"].can_discard = true;
+	shader_modes[RSE::SHADER_CANVAS_ITEM].functions["post_light"].main_function = true;
 
 	// canvasitem render modes
 	{

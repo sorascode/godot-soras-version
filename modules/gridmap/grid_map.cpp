@@ -1449,9 +1449,9 @@ LocalVector<GridMap::IndexKey> GridMap::get_index_keys_in_bounds(const AABB &p_b
 		return index_keys;
 	}
 
-	Vector3i cell_coords_start = (p_bounds.position / cell_size).floor();
+	Vector3i cell_coords_start = (p_bounds.position / cell_size);
 	// -CMP_EPSILON because we don't want the octants that are just starting at the edge of the bounds.
-	Vector3i cell_coords_end = ((p_bounds.get_end() - Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON)) / cell_size).floor();
+	Vector3i cell_coords_end = ((p_bounds.get_end() - Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON)) / cell_size);
 
 	for (int z = cell_coords_start.z; z < cell_coords_end.z + 1; z++) {
 		for (int y = cell_coords_start.y; y < cell_coords_end.y + 1; y++) {
@@ -1483,9 +1483,9 @@ LocalVector<GridMap::OctantKey> GridMap::get_octant_keys_in_bounds(const AABB &p
 		return octant_keys;
 	}
 
-	Vector3i cell_coords_start = (p_bounds.position / cell_size).floor();
+	Vector3i cell_coords_start = (p_bounds.position / cell_size);
 	// -CMP_EPSILON because we don't want the octants that are just starting at the edge of the bounds.
-	Vector3i cell_coords_end = ((p_bounds.get_end() - Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON)) / cell_size).floor();
+	Vector3i cell_coords_end = ((p_bounds.get_end() - Vector3(CMP_EPSILON, CMP_EPSILON, CMP_EPSILON)) / cell_size);
 
 	OctantKey octant_coords_start = get_octant_key_from_cell_coords(cell_coords_start);
 	OctantKey octant_coords_end = get_octant_key_from_cell_coords(cell_coords_end);

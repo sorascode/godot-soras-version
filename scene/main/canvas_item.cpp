@@ -2095,7 +2095,7 @@ void CanvasTexture::set_depth_texture(const Ref<Texture2D> &p_depth) {
 	}
 	depth_texture = p_depth;
 	RID tex_rid = depth_texture.is_valid() ? depth_texture->get_rid() : RID();
-	RS::get_singleton()->canvas_texture_set_channel(canvas_texture, RS::CANVAS_TEXTURE_CHANNEL_DEPTH, tex_rid);
+	RS::get_singleton()->canvas_texture_set_channel(canvas_texture, RSE::CANVAS_TEXTURE_CHANNEL_DEPTH, tex_rid);
 	emit_changed();
 }
 Ref<Texture2D> CanvasTexture::get_depth_texture() const {

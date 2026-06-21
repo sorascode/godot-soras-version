@@ -256,9 +256,9 @@ public:
 		v->type = Variant::TRANSFORM2D;
 	}
 	_FORCE_INLINE_ static void init_transform2di(Variant *v) {
-		v->_data._transform2di = (Transform2Di *)Variant::Pools::_bucket_small.alloc();
+		v->_data._transform2di = VariantPools::alloc<Transform2Di>();
 		memnew_placement(v->_data._transform2di, Transform2Di);
-		v->type = Variant::TRANSFORM2DI;
+		v->type = Variant::TRANSFORM2D;
 	}
 	_FORCE_INLINE_ static void init_quaternion(Variant *v) {
 		memnew_placement(v->_data._mem, Quaternion);

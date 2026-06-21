@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  abstract_polygon_2d_editor.cpp                                        */
+/*  abstract_polygon_i_2d_editor.cpp                                        */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -31,6 +31,7 @@
 #include "abstract_polygon_i_2d_editor.h"
 
 #include "core/math/geometry_2d.h"
+#include "core/object/callable_mp.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
@@ -40,6 +41,7 @@
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/button.h"
 #include "scene/gui/dialogs.h"
+#include "scene/main/scene_tree.h"
 
 bool AbstractPolygonI2DEditor::Vertex::operator==(const AbstractPolygonI2DEditor::Vertex &p_vertex) const {
 	return polygon == p_vertex.polygon && vertex == p_vertex.vertex;
@@ -232,7 +234,7 @@ void AbstractPolygonI2DEditor::_notification(int p_what) {
 			button_edit->set_pressed(true);
 
 			get_tree()->connect("node_removed", callable_mp(this, &AbstractPolygonI2DEditor::_node_removed));
-			create_resource->connect("confirmed", callable_mp(this, &AbstractPolygonI2DEditor::_create_resource));
+			create_resource->connect(SceneStringName(confirmed), callable_mp(this, &AbstractPolygonI2DEditor::_create_resource));
 		} break;
 	}
 }
@@ -736,7 +738,7 @@ void AbstractPolygonI2DEditor::forward_canvas_draw_over_viewport(Control *p_over
 			const Vector2i p = (vertex == edited_point) ? edited_point.pos : (points[i] + offset);
 			const Vector2i point = xform.xform(p);
 
-			const Color overlay_modulate = vertex == active_point ? Color(0.5, 1, 2) : Color(1, 1, 1);
+			const Color overlay_modulate = vertex == active_point ? Color(0.4, 1, 1) : Color(1, 1, 1);
 			p_overlay->draw_texture(handle, point - handle->get_size() * 0.5, overlay_modulate);
 
 			if (vertex == hover_point) {

@@ -31,6 +31,7 @@
 #include "line_builder.h"
 
 #include "core/math/geometry_2d.h"
+#include "core/object/class_db.h"
 
 // Utility method.
 static inline Vector2 interpolate(const Rect2 &r, const Vector2 &v) {

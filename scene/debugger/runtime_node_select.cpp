@@ -52,7 +52,6 @@
 
 #ifndef PHYSICS_2D_DISABLED
 #include "scene/2d/physics/collision_object_2d.h"
-#include "scene/2d/physics/collision_polygon_2d.h"
 #include "scene/2d/physics/collision_shape_2d.h"
 #endif // PHYSICS_2D_DISABLED
 
@@ -1077,7 +1076,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_n
 #ifndef PHYSICS_2D_DISABLED
 		// If it's a shape, get the collision object it's from.
 		// FIXME: If the collision object has multiple shapes, only the topmost will be above it in the list.
-		if (Object::cast_to<CollisionShape2D>(ci) || Object::cast_to<CollisionPolygon2D>(ci)) {
+		if (Object::cast_to<CollisionShape2D>(ci)) {
 			CollisionObject2D *collision_object = Object::cast_to<CollisionObject2D>(ci->get_parent());
 			if (collision_object) {
 				SelectResult res_col;

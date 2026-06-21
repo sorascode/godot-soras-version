@@ -3180,8 +3180,8 @@ void RendererCanvasRenderRD::_record_item_commands(const Item *p_item, RenderTar
 
 				// pipeline variant
 				{
-					ERR_CONTINUE(polygon_i->primitive < 0 || polygon_i->primitive >= RS::PRIMITIVE_MAX);
-					r_current_batch->shader_variant = polygon_i->primitive == RS::PRIMITIVE_POINTS ? SHADER_VARIANT_ATTRIBUTES_POINTS : SHADER_VARIANT_ATTRIBUTES;
+					ERR_CONTINUE(polygon_i->primitive < 0 || polygon_i->primitive >= RSE::PRIMITIVE_MAX);
+					r_current_batch->shader_variant = polygon_i->primitive == RSE::PRIMITIVE_POINTS ? SHADER_VARIANT_ATTRIBUTES_POINTS : SHADER_VARIANT_ATTRIBUTES;
 					r_current_batch->render_primitive = _primitive_type_to_render_primitive(polygon_i->primitive);
 				}
 
@@ -3674,9 +3674,9 @@ void RendererCanvasRenderRD::_render_batch(RD::DrawListID p_draw_list, CanvasSha
 
 			RD::get_singleton()->draw_list_draw(p_draw_list, pb->indices.is_valid());
 			if (r_render_info) {
-				r_render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME]++;
-				r_render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RS::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += _indices_to_primitives(polygon_i->primitive, pb->primitive_count);
-				r_render_info->info[RS::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME]++;
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME]++;
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME] += _indices_to_primitives(polygon_i->primitive, pb->primitive_count);
+				r_render_info->info[RSE::VIEWPORT_RENDER_INFO_TYPE_CANVAS][RSE::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME]++;
 			}
 		} break;
 

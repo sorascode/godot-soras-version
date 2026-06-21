@@ -30,6 +30,9 @@
 
 #include "character_body_2d.h"
 
+#include "core/object/callable_mp.h"
+#include "core/object/class_db.h"
+
 void CharacterBody2D::_bind_methods() {
 	GDVIRTUAL_BIND(_is_riding_solid, "solid");
 	GDVIRTUAL_BIND(_is_riding_one_way, "one_way");

@@ -30,6 +30,8 @@
 
 #include "solid_body_2d.h"
 
+#include "core/object/class_db.h"
+
 SolidBody2D::SolidBody2D() :
 		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_SOLID) {
 }

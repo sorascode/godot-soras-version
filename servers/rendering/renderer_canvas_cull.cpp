@@ -1226,10 +1226,10 @@ void RendererCanvasCull::canvas_item_add_polyline(RID p_item, const Vector<Point
 			prev_segment_dir = segment_dir;
 		}
 
-		pline_left->primitive = RS::PRIMITIVE_TRIANGLE_STRIP;
+		pline_left->primitive = RSE::PRIMITIVE_TRIANGLE_STRIP;
 		pline_left->polygon.create(indices, points_left, colors_left);
 
-		pline_right->primitive = RS::PRIMITIVE_TRIANGLE_STRIP;
+		pline_right->primitive = RSE::PRIMITIVE_TRIANGLE_STRIP;
 		pline_right->polygon.create(indices, points_right, colors_right);
 	} else {
 		// Makes a single triangle strip for drawing the line.
@@ -1272,7 +1272,7 @@ void RendererCanvasCull::canvas_item_add_polyline(RID p_item, const Vector<Point
 		}
 	}
 
-	pline->primitive = RS::PRIMITIVE_TRIANGLE_STRIP;
+	pline->primitive = RSE::PRIMITIVE_TRIANGLE_STRIP;
 	pline->polygon.create(indices, points, colors);
 }
 
@@ -1294,7 +1294,7 @@ void RendererCanvasCull::canvas_item_add_polyline_i(RID p_item, const Vector<Poi
 			WARN_PRINT("Antialiasing is not supported for thin polylines drawn using line strips (`p_width < 0`).");
 		}
 
-		pline->primitive = RS::PRIMITIVE_LINE_STRIP;
+		pline->primitive = RSE::PRIMITIVE_LINE_STRIP;
 
 		if (p_colors.size() == 1 || p_colors.size() == point_count) {
 			pline->polygon.create(indices, p_points, p_colors);
@@ -2087,7 +2087,7 @@ void RendererCanvasCull::canvas_item_add_polygon_i(RID p_item, const Vector<Poin
 
 	Item::CommandPolygonI *polygon = canvas_item->alloc_command<Item::CommandPolygonI>();
 	ERR_FAIL_NULL(polygon);
-	polygon->primitive = RS::PRIMITIVE_TRIANGLES;
+	polygon->primitive = RSE::PRIMITIVE_TRIANGLES;
 	polygon->texture = p_texture;
 	polygon->polygon.create(indices, p_points, p_colors, p_uvs);
 }

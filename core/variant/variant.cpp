@@ -1221,8 +1221,8 @@ void Variant::reference(const Variant &p_variant) {
 			memnew_placement(_data._transform2d, Transform2D(*p_variant._data._transform2d));
 		} break;
 		case TRANSFORM2DI: {
-			_data._transform2di = (Transform2Di *)Pools::_bucket_small.alloc();
-			memnew_placement(_data._transform2di, Transform2Di(*p_variant._data._transform2di));
+			_data._transform2di = VariantPools::alloc<Transform2Di>();
+			memnew_placement(_data._transform2di, Transform2Di(*p_variant._data._transform2d));
 		} break;
 		case VECTOR3: {
 			memnew_placement(_data._mem, Vector3(*reinterpret_cast<const Vector3 *>(p_variant._data._mem)));
@@ -1439,7 +1439,7 @@ void Variant::_clear_internal() {
 		case TRANSFORM2DI: {
 			if (_data._transform2di) {
 				_data._transform2di->~Transform2Di();
-				Pools::_bucket_small.free((Pools::BucketSmall *)_data._transform2di);
+				VariantPools::free(_data._transform2di);
 				_data._transform2di = nullptr;
 			}
 		} break;
@@ -2600,7 +2600,7 @@ Variant::Variant(const Transform2D &p_transform) :
 
 Variant::Variant(const Transform2Di &p_transformi) :
 		type(TRANSFORM2DI) {
-	_data._transform2di = (Transform2Di *)Pools::_bucket_small.alloc();
+	_data._transform2di = VariantPools::alloc<Transform2Di>();
 	memnew_placement(_data._transform2di, Transform2Di(p_transformi));
 }
 
