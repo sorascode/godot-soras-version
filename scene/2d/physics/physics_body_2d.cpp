@@ -30,6 +30,9 @@
 
 #include "physics_body_2d.h"
 
+#include "core/object/class_db.h"
+#include "scene/main/scene_tree.h"
+
 void PhysicsBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("move_h", "amount", "collision_callback"), &PhysicsBody2D::move_h, DEFVAL(0.0f), DEFVAL(Callable()));
 	ClassDB::bind_method(D_METHOD("move_v", "amount", "collision_callback"), &PhysicsBody2D::move_v, DEFVAL(0.0f), DEFVAL(Callable()));

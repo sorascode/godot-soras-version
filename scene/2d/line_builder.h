@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "line_2d.h"
+#include "scene/2d/line_2d.h"
 #include "core/object/ref_counted.h"
 
 class LineBuilder : public RefCounted {

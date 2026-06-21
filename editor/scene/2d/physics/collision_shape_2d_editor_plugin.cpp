@@ -30,11 +30,14 @@
 
 #include "collision_shape_2d_editor_plugin.h"
 
+#include "core/input/input.h"
+#include "core/object/callable_mp.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
 #include "editor/scene/canvas_item_editor_plugin.h"
 #include "editor/settings/editor_settings.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/2d/rectangle_shape_2d.h"
 #include "scene/resources/2d/segment_shape_2d.h"
@@ -385,7 +388,7 @@ void CollisionShape2DEditor::_shape_changed() {
 
 	current_shape = node->get_shape();
 
-	if (current_shape.is_valid()) {
+	if (current_shape.is_valid() && !EditorNode::get_singleton()->is_resource_read_only(current_shape)) {
 		current_shape->connect_changed(callable_mp(canvas_item_editor, &CanvasItemEditor::update_viewport));
 	} else {
 		return;

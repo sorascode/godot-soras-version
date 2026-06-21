@@ -135,7 +135,7 @@ private:
 	String amend_commit_message;
 	String previous_commit_message;
 
-	VBoxContainer *version_control_dock = nullptr;
+	EditorDock *version_control_dock = nullptr;
 	Label *diff_title = nullptr;
 	RichTextLabel *diff = nullptr;
 	OptionButton *diff_view_type_select = nullptr;
