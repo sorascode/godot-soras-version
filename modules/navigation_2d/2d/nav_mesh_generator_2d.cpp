@@ -36,6 +36,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
+#include "scene/main/viewport.h"
 #include "scene/resources/2d/navigation_mesh_source_geometry_data_2d.h"
 #include "scene/resources/2d/navigation_polygon.h"
 
@@ -252,7 +253,7 @@ void NavMeshGenerator2D::generator_parse_source_geometry_data(Ref<NavigationPoly
 	Vector<Node *> parse_nodes;
 
 	if (p_navigation_mesh->get_source_geometry_mode() == NavigationPolygon::SOURCE_GEOMETRY_ROOT_NODE_CHILDREN) {
-		parse_nodes.push_back(p_root_node);
+		parse_nodes.push_back(p_root_node->get_viewport());
 	} else {
 		parse_nodes = p_root_node->get_tree()->get_nodes_in_group(p_navigation_mesh->get_source_geometry_group_name());
 	}

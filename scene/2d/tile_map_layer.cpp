@@ -3518,6 +3518,10 @@ void TileMapLayer::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p
 		return;
 	}
 
+	if (!tile_map_layer->collision_enabled) {
+		return;
+	}
+
 	Ref<TileSet> tile_set = tile_map_layer->get_tile_set();
 	if (tile_set.is_null()) {
 		return;
@@ -3578,6 +3582,10 @@ void TileMapLayer::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p
 
 		// Parse obstacles.
 		for (int physics_layer = 0; physics_layer < physics_layers_count; physics_layer++) {
+			if (tile_data->is_collision_one_way(physics_layer)) {
+				continue;
+			}
+
 			if ((parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_STATIC_COLLIDERS || parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_BOTH) &&
 					(tile_set->get_physics_layer_collision_layer(physics_layer) & parsed_collision_mask)) {
 				for (int collision_polygon_index = 0; collision_polygon_index < tile_data->get_collision_rectangles_count(physics_layer); collision_polygon_index++) {
@@ -3591,7 +3599,7 @@ void TileMapLayer::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p
 					}
 
 					Vector2 half_size = Vector2(collision_rectangles_data[0]) / 2.0;
-					Vector2 offset = collision_rectangles_data[1];
+					Vector2 offset = tile_transform_offset.xform(collision_rectangles_data[1]);
 					Vector obstruction_outline = { offset - half_size, offset + Vector2(half_size.x, -half_size.y), offset + half_size, offset + Vector2(-half_size.x, half_size.y) };
 					p_source_geometry_data->_add_obstruction_outline(obstruction_outline);
 				}

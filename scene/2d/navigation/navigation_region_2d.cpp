@@ -63,6 +63,24 @@ bool NavigationRegion2D::is_enabled() const {
 	return enabled;
 }
 
+void NavigationRegion2D::set_editor_visible(bool p_editor_visible) {
+	if (editor_visible == p_editor_visible) {
+		return;
+	}
+
+	editor_visible = p_editor_visible;
+
+#ifdef DEBUG_ENABLED
+	if (Engine::get_singleton()->is_editor_hint() || NavigationServer2D::get_singleton()->get_debug_navigation_enabled()) {
+		queue_redraw();
+	}
+#endif // DEBUG_ENABLED
+}
+
+bool NavigationRegion2D::is_editor_visible() const {
+	return editor_visible;
+}
+
 void NavigationRegion2D::set_use_edge_connections(bool p_enabled) {
 	if (use_edge_connections == p_enabled) {
 		return;
@@ -187,7 +205,7 @@ void NavigationRegion2D::_notification(int p_what) {
 
 		case NOTIFICATION_DRAW: {
 #ifdef DEBUG_ENABLED
-			if (is_inside_tree() && (Engine::get_singleton()->is_editor_hint() || (NavigationServer2D::get_singleton()->get_debug_enabled() && NavigationServer2D::get_singleton()->get_debug_navigation_enabled())) && navigation_polygon.is_valid()) {
+			if (is_inside_tree() && ((Engine::get_singleton()->is_editor_hint() && editor_visible) || (!Engine::get_singleton()->is_editor_hint() && NavigationServer2D::get_singleton()->get_debug_enabled() && NavigationServer2D::get_singleton()->get_debug_navigation_enabled())) && navigation_polygon.is_valid()) {
 				_update_debug_mesh();
 				_update_debug_edge_connections_mesh();
 				_update_debug_baking_rect();
@@ -322,6 +340,9 @@ void NavigationRegion2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &NavigationRegion2D::set_enabled);
 	ClassDB::bind_method(D_METHOD("is_enabled"), &NavigationRegion2D::is_enabled);
 
+	ClassDB::bind_method(D_METHOD("set_editor_visible", "editor_visible"), &NavigationRegion2D::set_editor_visible);
+	ClassDB::bind_method(D_METHOD("is_editor_visible"), &NavigationRegion2D::is_editor_visible);
+
 	ClassDB::bind_method(D_METHOD("set_navigation_map", "navigation_map"), &NavigationRegion2D::set_navigation_map);
 	ClassDB::bind_method(D_METHOD("get_navigation_map"), &NavigationRegion2D::get_navigation_map);
 
@@ -351,6 +372,7 @@ void NavigationRegion2D::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "navigation_polygon", PROPERTY_HINT_RESOURCE_TYPE, NavigationPolygon::get_class_static()), "set_navigation_polygon", "get_navigation_polygon");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "is_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_visible"), "set_editor_visible", "is_editor_visible");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_edge_connections"), "set_use_edge_connections", "get_use_edge_connections");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "navigation_layers", PROPERTY_HINT_LAYERS_2D_NAVIGATION), "set_navigation_layers", "get_navigation_layers");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "enter_cost"), "set_enter_cost", "get_enter_cost");

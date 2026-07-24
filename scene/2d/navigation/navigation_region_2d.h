@@ -38,6 +38,7 @@ class NavigationRegion2D : public Node2D {
 
 	bool enabled = true;
 	bool use_edge_connections = true;
+	bool editor_visible = true;
 
 	RID region;
 	RID map_override;
@@ -85,6 +86,9 @@ public:
 
 	void set_enabled(bool p_enabled);
 	bool is_enabled() const;
+
+	void set_editor_visible(bool p_editor_visible);
+	bool is_editor_visible() const;
 
 	void set_navigation_map(RID p_navigation_map);
 	RID get_navigation_map() const;

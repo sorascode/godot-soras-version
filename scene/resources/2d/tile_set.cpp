@@ -5985,7 +5985,9 @@ void AlternativeTileData::notify_tile_data_properties_should_change() {
 	}
 
 #ifndef NAVIGATION_2D_DISABLED
-	// TODO: navigation
+	for (int i = 0; i < navigation.size(); i++) {
+		set_navigation_polygon(i, base->get_navigation_polygon(i, flip_h, flip_v, transpose));
+	}
 #endif // NAVIGATION_2D_DISABLED
 
 	set_probability(base->get_probability());

@@ -1081,6 +1081,7 @@ void register_scene_types() {
 	TileMapLayer::navmesh_parse_init();
 #ifndef PHYSICS_2D_DISABLED
 	StaticBody2D::navmesh_parse_init();
+	SolidBody2D::navmesh_parse_init();
 #endif // PHYSICS_2D_DISABLED
 #endif // NAVIGATION_2D_DISABLED
 

@@ -29,12 +29,92 @@
 /**************************************************************************/
 
 #include "solid_body_2d.h"
-
+#include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
+
+#ifndef NAVIGATION_2D_DISABLED
+#include "scene/resources/2d/navigation_mesh_source_geometry_data_2d.h"
+#include "scene/resources/2d/navigation_polygon.h"
+#include "scene/resources/2d/rectangle_shape_2d.h"
+#include "servers/navigation_2d/navigation_server_2d.h"
+#endif // NAVIGATION_2D_DISABLED
+
+Callable SolidBody2D::_navmesh_source_geometry_parsing_callback;
+RID SolidBody2D::_navmesh_source_geometry_parser;
 
 SolidBody2D::SolidBody2D() :
 		PhysicsBody2D(PhysicsServer2D::BODY_MODE_KINEMATIC, PhysicsServer2D::COLLIDER_TYPE_SOLID) {
 }
+
+#ifndef NAVIGATION_2D_DISABLED
+void SolidBody2D::navmesh_parse_init() {
+	ERR_FAIL_NULL(NavigationServer2D::get_singleton());
+	if (!_navmesh_source_geometry_parser.is_valid()) {
+		_navmesh_source_geometry_parsing_callback = callable_mp_static(&SolidBody2D::navmesh_parse_source_geometry);
+		_navmesh_source_geometry_parser = NavigationServer2D::get_singleton()->source_geometry_parser_create();
+		NavigationServer2D::get_singleton()->source_geometry_parser_set_callback(_navmesh_source_geometry_parser, _navmesh_source_geometry_parsing_callback);
+	}
+}
+
+void SolidBody2D::navmesh_parse_source_geometry(const Ref<NavigationPolygon> &p_navigation_mesh, Ref<NavigationMeshSourceGeometryData2D> p_source_geometry_data, Node *p_node) {
+	SolidBody2D *solid_body = Object::cast_to<SolidBody2D>(p_node);
+
+	if (solid_body == nullptr) {
+		return;
+	}
+
+	if (!solid_body->is_collidable() || !solid_body->is_static_body()) {
+		return;
+	}
+
+	NavigationPolygon::ParsedGeometryType parsed_geometry_type = p_navigation_mesh->get_parsed_geometry_type();
+	if (!(parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_STATIC_COLLIDERS || parsed_geometry_type == NavigationPolygon::PARSED_GEOMETRY_BOTH)) {
+		return;
+	}
+
+	uint32_t parsed_collision_mask = p_navigation_mesh->get_parsed_collision_mask();
+	if (!(solid_body->get_collision_layer() & parsed_collision_mask)) {
+		return;
+	}
+
+	List<uint32_t> shape_owners;
+	solid_body->get_shape_owners(&shape_owners);
+
+	for (uint32_t shape_owner : shape_owners) {
+		if (solid_body->is_shape_owner_disabled(shape_owner)) {
+			continue;
+		}
+
+		const int shape_count = solid_body->shape_owner_get_shape_count(shape_owner);
+
+		for (int shape_index = 0; shape_index < shape_count; shape_index++) {
+			Ref<Shape2D> s = solid_body->shape_owner_get_shape(shape_owner, shape_index);
+
+			if (s.is_null()) {
+				continue;
+			}
+
+			const Transform2D static_body_xform = p_source_geometry_data->root_node_transform * solid_body->get_global_transform() * solid_body->shape_owner_get_transform(shape_owner);
+
+			RectangleShape2D *rectangle_shape = Object::cast_to<RectangleShape2D>(*s);
+			if (rectangle_shape) {
+				Vector<Vector2> shape_outline;
+
+				const Vector2 &rectangle_size = rectangle_shape->get_size();
+
+				shape_outline.resize(5);
+				shape_outline.write[0] = static_body_xform.xform(-rectangle_size * 0.5);
+				shape_outline.write[1] = static_body_xform.xform(Vector2(rectangle_size.x, -rectangle_size.y) * 0.5);
+				shape_outline.write[2] = static_body_xform.xform(rectangle_size * 0.5);
+				shape_outline.write[3] = static_body_xform.xform(Vector2(-rectangle_size.x, rectangle_size.y) * 0.5);
+				shape_outline.write[4] = static_body_xform.xform(-rectangle_size * 0.5);
+
+				p_source_geometry_data->add_obstruction_outline(shape_outline);
+			}
+		}
+	}
+}
+#endif // NAVIGATION_2D_DISABLED
 
 bool SolidBody2D::move_h_collide(real_t p_amount, const Callable &p_callback) {
 	position_delta.x += p_amount;
@@ -280,6 +360,14 @@ bool SolidBody2D::is_safe() const {
 	return safe;
 }
 
+void SolidBody2D::set_static_body(bool p_enable) {
+	static_body = p_enable;
+}
+
+bool SolidBody2D::is_static_body() const {
+	return static_body;
+}
+
 void SolidBody2D::update_riders() {
 	riders.clear();
 	if (one_way_collision) {
@@ -298,6 +386,8 @@ void SolidBody2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_one_way_collision_enabled"), &SolidBody2D::is_one_way_collision_enabled);
 	ClassDB::bind_method(D_METHOD("set_safe", "enabled"), &SolidBody2D::set_safe);
 	ClassDB::bind_method(D_METHOD("is_safe"), &SolidBody2D::is_safe);
+	ClassDB::bind_method(D_METHOD("set_static_body", "enabled"), &SolidBody2D::set_static_body);
+	ClassDB::bind_method(D_METHOD("is_static_body"), &SolidBody2D::is_static_body);
 	ClassDB::bind_method(D_METHOD("set_transfer_speed", "speed"), &SolidBody2D::set_transfer_speed);
 	ClassDB::bind_method(D_METHOD("get_transfer_speed"), &SolidBody2D::get_transfer_speed);
 	ClassDB::bind_method(D_METHOD("update_riders"), &SolidBody2D::update_riders);
@@ -306,6 +396,7 @@ void SolidBody2D::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "safe"), "set_safe", "is_safe");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "static_body"), "set_static_body", "is_static_body");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "transfer_speed", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_transfer_speed", "get_transfer_speed");
 
 	GDVIRTUAL_BIND(_move_h_exact_collide, "amount", "collision_callback", "pusher");
