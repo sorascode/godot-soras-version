@@ -164,7 +164,7 @@ bool SolidBody2D::move_h_exact_collide(int32_t p_amount, const Callable &p_callb
 		Node2D *collider_body = cast_to<Node2D>(obj);
 
 		if (p_callback.get_argument_count() == 7) {
-			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collision_point, r_result.collider, p_pusher);
+			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collider, r_result.collision_point, p_pusher);
 		} else {
 			WARN_PRINT("move_h_collide collision callback does not have the expected number of arguments (expected 7).");
 		}
@@ -215,7 +215,7 @@ bool SolidBody2D::move_v_exact_collide(int32_t p_amount, const Callable &p_callb
 		Object *obj = ObjectDB::get_instance(collider_id);
 		Node2D *collider_body = cast_to<Node2D>(obj);
 		if (p_callback.get_argument_count() == 7) {
-			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, collision_point, r_result.collider, p_pusher);
+			p_callback.call(move_dir_vector, amount_moved, p_amount, collider_body, r_result.collider, collision_point, p_pusher);
 		} else {
 			WARN_PRINT("move_v_collide collision callback does not have the expected number of arguments (expected 7).");
 		}
