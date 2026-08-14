@@ -36,14 +36,14 @@
 void CharacterBody2D::_bind_methods() {
 	GDVIRTUAL_BIND(_is_riding_solid, "solid");
 	GDVIRTUAL_BIND(_is_riding_one_way, "one_way");
-	GDVIRTUAL_BIND(_squish, "move_dir", "amount_moved", "amount_left", "collided_with", "contact_point", "pusher");
+	GDVIRTUAL_BIND(_squish, "move_dir", "amount_moved", "amount_left", "collided_with", "collided_with_rid", "contact_point", "pusher");
 
 	ClassDB::bind_method(D_METHOD("set_ignores_one_way", "enabled"), &CharacterBody2D::set_ignores_one_way);
 	ClassDB::bind_method(D_METHOD("is_ignores_one_way_enabled"), &CharacterBody2D::is_ignores_one_way_enabled);
 
 	ClassDB::bind_method(D_METHOD("is_riding_solid", "solid"), &CharacterBody2D::_is_riding_solid);
 	ClassDB::bind_method(D_METHOD("is_riding_one_way", "one_way"), &CharacterBody2D::_is_riding_one_way);
-	ClassDB::bind_method(D_METHOD("squish", "move_dir", "amount_moved", "amount_left", "collided_with", "contact_point", "pusher"), &CharacterBody2D::_squish);
+	ClassDB::bind_method(D_METHOD("squish", "move_dir", "amount_moved", "amount_left", "collided_with", "collided_with_rid", "contact_point", "pusher"), &CharacterBody2D::_squish);
 
 	ClassDB::bind_method(D_METHOD("set_carry_speed", "speed"), &CharacterBody2D::set_carry_speed);
 	ClassDB::bind_method(D_METHOD("get_carry_speed"), &CharacterBody2D::get_carry_speed);
@@ -180,8 +180,8 @@ bool CharacterBody2D::_is_riding_one_way(const RID &p_one_way) {
 	return result;
 }
 
-void CharacterBody2D::_squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, const RID &p_collided_with, const Vector2i &p_contact_point, const RID &p_pusher) {
-	GDVIRTUAL_CALL(_squish, p_move_dir, p_amount_moved, p_amount_left, p_collided_with, p_contact_point, p_pusher);
+void CharacterBody2D::_squish(const Vector2i &p_move_dir, const int32_t p_amount_moved, const int32_t p_amount_left, Node2D *p_collided_with, const RID &p_collided_with_rid, const Vector2i &p_contact_point, const RID &p_pusher) {
+	GDVIRTUAL_CALL(_squish, p_move_dir, p_amount_moved, p_amount_left, p_collided_with, p_collided_with_rid, p_contact_point, p_pusher);
 }
 
 void CharacterBody2D::set_carry_speed(const Vector2 &p_speed){
