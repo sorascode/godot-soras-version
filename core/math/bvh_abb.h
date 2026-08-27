@@ -32,6 +32,7 @@
 
 #include "core/math/aabb.h"
 
+#include <climits> // INT_MAX
 #include <cfloat> // FLT_MAX
 
 // special optimized version of axis aligned bounding box
