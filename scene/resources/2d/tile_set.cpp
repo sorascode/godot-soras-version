@@ -3332,19 +3332,10 @@ bool TileSetAtlasSource::_set(const StringName &p_name, const Variant &p_value) 
 						create_alternative_tile(coords, alternative_id);
 					}
 					if (!tiles[coords].alternatives.has(alternative_id)) {
-						if (alternative_id > 0) {
-							AlternativeTileData *tile_data = memnew(AlternativeTileData);
-							tile_data->set_tile_set(tile_set);
-							tile_data->set_base(tiles[coords].alternatives[0]);
-							tile_data->set_allow_transform(true);
-							tiles[coords].alternatives[alternative_id] = tile_data;
-							tiles[coords].alternatives_ids.push_back(alternative_id);
-						} else {
-							tiles[coords].alternatives[alternative_id] = memnew(TileData);
-							tiles[coords].alternatives[alternative_id]->set_tile_set(tile_set);
-							tiles[coords].alternatives[alternative_id]->set_allow_transform(false);
-							tiles[coords].alternatives_ids.push_back(alternative_id);
-						}
+						tiles[coords].alternatives[alternative_id] = memnew(TileData);
+						tiles[coords].alternatives[alternative_id]->set_tile_set(tile_set);
+						tiles[coords].alternatives[alternative_id]->set_allow_transform(alternative_id > 0);
+						tiles[coords].alternatives_ids.push_back(alternative_id);
 					}
 					if (components.size() >= 3) {
 						bool valid;
@@ -3926,13 +3917,11 @@ int TileSetAtlasSource::create_alternative_tile(const Vector2i p_atlas_coords, i
 
 	int new_alternative_id = p_alternative_id_override >= 0 ? p_alternative_id_override : tiles[p_atlas_coords].next_alternative_id;
 
-	AlternativeTileData *tile_data = memnew(AlternativeTileData);
-	tile_data->set_tile_set(tile_set);
-	tile_data->set_base(tiles[p_atlas_coords].alternatives[0]);
-	tile_data->set_allow_transform(true);
-	tile_data->connect(CoreStringName(changed), callable_mp((Resource *)this, &TileSetAtlasSource::emit_changed));
-	tile_data->notify_property_list_changed();
-	tiles[p_atlas_coords].alternatives[new_alternative_id] = tile_data;
+	tiles[p_atlas_coords].alternatives[new_alternative_id] = memnew(TileData);
+	tiles[p_atlas_coords].alternatives[new_alternative_id]->set_tile_set(tile_set);
+	tiles[p_atlas_coords].alternatives[new_alternative_id]->set_allow_transform(true);
+	tiles[p_atlas_coords].alternatives[new_alternative_id]->connect(CoreStringName(changed), callable_mp((Resource *)this, &TileSetAtlasSource::emit_changed));
+	tiles[p_atlas_coords].alternatives[new_alternative_id]->notify_property_list_changed();
 	tiles[p_atlas_coords].alternatives_ids.push_back(new_alternative_id);
 	tiles[p_atlas_coords].alternatives_ids.sort();
 	_compute_next_alternative_id(p_atlas_coords);
@@ -4743,7 +4732,6 @@ TileData *TileData::duplicate() {
 void TileData::set_flip_h(bool p_flip_h) {
 	ERR_FAIL_COND_MSG(!allow_transform && p_flip_h, "Transform is only allowed for alternative tiles (with its alternative_id != 0)");
 	flip_h = p_flip_h;
-	notify_tile_data_properties_should_change();
 	emit_signal(CoreStringName(changed));
 }
 bool TileData::get_flip_h() const {
@@ -4753,7 +4741,6 @@ bool TileData::get_flip_h() const {
 void TileData::set_flip_v(bool p_flip_v) {
 	ERR_FAIL_COND_MSG(!allow_transform && p_flip_v, "Transform is only allowed for alternative tiles (with its alternative_id != 0)");
 	flip_v = p_flip_v;
-	notify_tile_data_properties_should_change();
 	emit_signal(CoreStringName(changed));
 }
 
@@ -4764,7 +4751,6 @@ bool TileData::get_flip_v() const {
 void TileData::set_transpose(bool p_transpose) {
 	ERR_FAIL_COND_MSG(!allow_transform && p_transpose, "Transform is only allowed for alternative tiles (with its alternative_id != 0)");
 	transpose = p_transpose;
-	notify_tile_data_properties_should_change();
 	emit_signal(CoreStringName(changed));
 }
 bool TileData::get_transpose() const {
@@ -5906,95 +5892,4 @@ TileSet::CellNeighbor TileData::transformed_cell_neighbour(TileSet::CellNeighbor
 		default:
 			return p_cell_neighbor;
 	}
-}
-
-/////////////////////////////// AlternativeTileData //////////////////////////////////////
-
-void AlternativeTileData::set_base(TileData *p_base) {
-	if (base != nullptr) {
-		base->disconnect(CoreStringName(changed), callable_mp(this, &AlternativeTileData::notify_tile_data_properties_should_change));
-	}
-	base = p_base;
-	if (base != nullptr) {
-		base->connect(CoreStringName(changed), callable_mp(this, &AlternativeTileData::notify_tile_data_properties_should_change));
-	}
-	notify_tile_data_properties_should_change();
-}
-
-void AlternativeTileData::notify_tile_data_properties_should_change() {
-	TileData::notify_tile_data_properties_should_change();
-
-	if (base == nullptr || base->get_disable_copy_of_alt() || tile_set == nullptr) {
-		return;
-	}
-
-	set_texture_origin(base->get_texture_origin());
-	set_material(base->get_material());
-	set_modulate(base->get_modulate());
-	set_z_index(base->get_z_index());
-	set_y_sort_origin(base->get_y_sort_origin());
-
-	for (int i = 0; i < occluders.size(); i++) {
-		int base_count = base->get_occluder_polygons_count(i);
-		int own_count = get_occluder_polygons_count(i);
-		if (own_count < base_count) {
-			for (int j = own_count; j < base_count; ++j) {
-				add_occluder_polygon(i);
-			}
-		} else if (own_count > base_count) {
-			for (int j = base_count; j < own_count; ++j) {
-				remove_occluder_polygon(i, 0);
-			}
-		}
-		for (int j = 0; j < base_count; ++j) {
-			set_occluder_polygon(i, j, base->get_occluder_polygon(i, j, flip_h, flip_v, transpose));
-		}
-	}
-
-#ifndef PHYSICS_2D_DISABLED
-	for (int i = 0; i < physics.size(); i++) {
-		set_collision_one_way(i, base->is_collision_one_way(i));
-		set_safe(i, base->is_safe(i));
-		set_constant_linear_velocity(i, base->get_constant_linear_velocity(i));
-		set_constant_angular_velocity(i, base->get_constant_angular_velocity(i));
-		int base_count = base->get_collision_rectangles_count(i);
-		int own_count = get_collision_rectangles_count(i);
-		if (own_count < base_count) {
-			for (int j = own_count; j < base_count; ++j) {
-				add_collision_rectangle(i);
-			}
-		} else if (own_count > base_count) {
-			for (int j = base_count; j < own_count; ++j) {
-				remove_collision_rectangle(i, 0);
-			}
-		}
-		for (int j = 0; j < base_count; ++j) {
-			set_collision_rectangle(i, j, base->get_collision_rectangle_shape(i, j, flip_h, flip_v, transpose));
-		}
-	}
-#endif // PHYSICS_2D_DISABLED
-
-	set_terrain_set(base->get_terrain_set());
-	set_terrain(base->get_terrain());
-	for (int i = 0; i < TileSet::CELL_NEIGHBOR_MAX; i++) {
-		TileSet::CellNeighbor original_bit = static_cast<TileSet::CellNeighbor>(i);
-		TileSet::CellNeighbor transformed_bit = transformed_cell_neighbour(original_bit, flip_h, flip_v, transpose);
-		if (is_valid_terrain_peering_bit(transformed_bit)) {
-			set_terrain_peering_bit(transformed_bit, base->get_terrain_peering_bit(original_bit));
-		}
-	}
-
-#ifndef NAVIGATION_2D_DISABLED
-	for (int i = 0; i < navigation.size(); i++) {
-		set_navigation_polygon(i, base->get_navigation_polygon(i, flip_h, flip_v, transpose));
-	}
-#endif // NAVIGATION_2D_DISABLED
-
-	set_probability(base->get_probability());
-	for (int i = 0; i < custom_data.size(); i++) {
-		set_custom_data_by_layer_id(i, base->get_custom_data_by_layer_id(i));
-	}
-
-	notify_property_list_changed();
-	emit_signal(CoreStringName(changed));
 }
